@@ -1,0 +1,143 @@
+[2025-06-12 22:12:12.634] [DISPLAY] [Main ] [fileutils] Checking version: C:\Program Files\Rockstar Games\Launcher\Launcher.exe
+[2025-06-12 22:12:13.082] [DISPLAY] [Main ] [dx12] Retrieving D3D12 graphics info
+[2025-06-12 22:12:13.836] [DISPLAY] [Main ] [launcher] Opening log file.
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main] Command line: "C:\Program Files\Rockstar Games\Launcher\Launcher.exe" -skipPatcherCheck -steamAppId=271590 -steamLocation "C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V" @args.txt
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main] P4 Version: 
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main] RGL Branch: release_02
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main] Version: 1.0.102.2459
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main] Parameters:
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main]     C:\Program Files\Rockstar Games\Launcher\Launcher.exe
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main]     -skipPatcherCheck
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main]     -steamAppId=271590
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main]     -steamLocation
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main]     C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main]     @args.txt
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main] Initial Working Directory: C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V
+[2025-06-12 22:12:13.853] [DISPLAY] [Main ] [main] Working directory: C:\Program Files\Rockstar Games\Launcher
+[2025-06-12 22:12:13.875] [DISPLAY] [Main ] [packfile] Initialize 'Launcher.rpf' - succeeded
+[2025-06-12 22:12:13.875] [DISPLAY] [Main ] [localisation] Language updated to: 0
+[2025-06-12 22:12:13.914] [DISPLAY] [Main ] [environment] SetEnvironment: prod
+[2025-06-12 22:12:13.957] [DISPLAY] [Main ] [external] Creating Steam min mode launch
+[2025-06-12 22:12:14.045] [DISPLAY] [Main ] [external] Steam App Id: 271590
+[2025-06-12 22:12:14.045] [DISPLAY] [Main ] [external] Steam Location: C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V
+[2025-06-12 22:12:14.048] [DISPLAY] [Main ] [metadatamanager] Read external Steam metadata: gta5
+[2025-06-12 22:12:14.048] [DISPLAY] [Main ] [external] App: gta5
+[2025-06-12 22:12:14.081] [ ERROR ] [Main ] [fileutils] Failed to delete directory: C:\Users\pavan\OneDrive\Documents\Rockstar Games\GTA V\User Music
+[2025-06-12 22:12:14.081] [DISPLAY] [Main ] [subsystem] Init phase 1
+[2025-06-12 22:12:14.088] [DISPLAY] [Main ] [titlestorage] Installed titles:
+[2025-06-12 22:12:14.088] [DISPLAY] [Main ] [titlestorage]  Title                             Progress               Version              Location                                                    
+[2025-06-12 22:12:14.124] [DISPLAY] [Main ] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2025-06-12 22:12:14.136] [DISPLAY] [Main ] [fileutils] Checking version: C:\Program Files\Rockstar Games\Launcher\RockstarService.exe
+[2025-06-12 22:12:14.143] [DISPLAY] [Main ] [svc] Service version: 1.0.102.2459 (1.0.102.2459)
+[2025-06-12 22:12:14.325] [DISPLAY] [Main ] [subsystem] Initializing group 0...
+[2025-06-12 22:12:14.325] [DISPLAY] [Main ] [subsystem] Init phase 2
+[2025-06-12 22:12:14.325] [DISPLAY] [Main ] [subsystem] Starting systems...
+[2025-06-12 22:12:14.470] [DISPLAY] [Main ] [minmode] Overriding language from external game launch: en-US
+[2025-06-12 22:12:14.470] [DISPLAY] [Main ] [localisation] Language updated to: 0
+[2025-06-12 22:12:14.470] [DISPLAY] [Main ] [subsystem] Starting diag...
+[2025-06-12 22:12:14.470] [DISPLAY] [Main ] [fileutils] Checking local versions...
+[2025-06-12 22:12:14.471] [DISPLAY] [Main ] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2025-06-12 22:12:14.474] [DISPLAY] [Main ] [fileutils] Checking RGL version...
+[2025-06-12 22:12:14.474] [DISPLAY] [Main ] [fileutils] Version: 2.4.0.77 | 1.0.102.2459 | FFP
+[2025-06-12 22:12:14.474] [DISPLAY] [Main ] [subsystem] Starting net...
+[2025-06-12 22:12:14.501] [DISPLAY] [Main ] [subsystem] Assigning pools...
+[2025-06-12 22:12:14.501] [DISPLAY] [Main ] [subsystem] Initializing engine...
+[2025-06-12 22:12:14.505] [DISPLAY] [Main ] [subsystem] Initializing group 1...
+[2025-06-12 22:12:14.541] [DISPLAY] [Workr] [selfupdate] Up-to-date.
+[2025-06-12 22:12:14.889] [DISPLAY] [Main ] [systemtray] System tray: enabled
+[2025-06-12 22:12:14.933] [DISPLAY] [Main ] [launcher] Passed check: majorVersion(10.0.26100) >= 10
+[2025-06-12 22:12:15.354] [DISPLAY] [bgsvc] [svc] Received response from service.
+[2025-06-12 22:12:15.388] [DISPLAY] [Workr] [idownloader] Starting download of 'https://gamedownloads-rockstargames-com.akamaized.net/public/launcher_online_config.xml'
+[2025-06-12 22:12:15.560] [DISPLAY] [Workr] [idownloader] Completed download of 'https://gamedownloads-rockstargames-com.akamaized.net/public/launcher_online_config.xml' (status: 0/200)
+[2025-06-12 22:12:15.565] [DISPLAY] [Workr] [titlemanager] Downloading title list...
+[2025-06-12 22:12:15.565] [DISPLAY] [Workr] [titlemanager] Downloading default title list (SCS)...
+[2025-06-12 22:12:15.565] [DISPLAY] [Workr] [idownloader] Starting download of 'https://rgl-prod.ros.rockstargames.com/launcher/11/LauncherServices/App.asmx/GetDefaultApps?accessToken='
+[2025-06-12 22:12:16.593] [DISPLAY] [Workr] [idownloader] Completed download of 'https://rgl-prod.ros.rockstargames.com/launcher/11/LauncherServices/App.asmx/GetDefaultApps?accessToken=' (status: 0/200)
+[2025-06-12 22:12:16.594] [DISPLAY] [Workr] [titlemanager] Title list updated.
+[2025-06-12 22:12:16.594] [DISPLAY] [Workr] [launcher] Checking for self-update...
+[2025-06-12 22:12:16.606] [DISPLAY] [Workr] [titleupdater] Doing chunk checks for launcher...
+[2025-06-12 22:12:16.646] [DISPLAY] [Workr] [titleupdater] Checked 60 chunk(s), 0 were empty, skipped 0 chunk(s) and 0 file(s)
+[2025-06-12 22:12:16.646] [DISPLAY] [Workr] [statuschecker] Title Rockstar Games Launcher: No update
+[2025-06-12 22:12:16.664] [DISPLAY] [Workr] [launcher] No self-update, continuing.
+[2025-06-12 22:12:16.664] [DISPLAY] [Workr] [launcher] Checking for prerequisite updates...
+[2025-06-12 22:12:16.664] [DISPLAY] [Workr] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2025-06-12 22:12:16.669] [DISPLAY] [Workr] [fileutils] Checking version: C:\Program Files\Rockstar Games\Launcher\Redistributables\SocialClub\Social-Club-Setup.exe
+[2025-06-12 22:12:16.679] [DISPLAY] [Workr] [preqmanager] The Social Club version available matches that currently installed (both: 2.4.0.77)
+[2025-06-12 22:12:16.679] [DISPLAY] [Workr] [titleupdater] No prerequisites to install.
+[2025-06-12 22:12:16.679] [DISPLAY] [Workr] [launcher] Checking minimum SDK requirement
+[2025-06-12 22:12:16.679] [DISPLAY] [Workr] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2025-06-12 22:12:16.818] [DISPLAY] [Workr] [launcher] Completed Social Club Pre-initialization tasks
+[2025-06-12 22:12:16.833] [DISPLAY] [Main ] [subsystem] Init phase 3
+[2025-06-12 22:12:18.938] [DISPLAY] [Main ] [subsystem] Initializing group 2...
+[2025-06-12 22:12:19.775] [DISPLAY] [Workr] [dx12] Retrieving D3D12 graphics info
+[2025-06-12 22:12:21.619] [DISPLAY] [Main ] [launcher] Social Club UI has started.
+[2025-06-12 22:12:21.619] [DISPLAY] [Main ] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2025-06-12 22:12:21.620] [DISPLAY] [Admin] [external] Setting up steam title: gta5
+[2025-06-12 22:12:21.620] [DISPLAY] [Admin] [external] Successfully setup title
+[2025-06-12 22:12:21.643] [DISPLAY] [Main ] [external] Client is ready to attempt a launch.
+[2025-06-12 22:12:21.643] [DISPLAY] [Main ] [external] Frontend is ready to launch the title
+[2025-06-12 22:12:22.101] [DISPLAY] [Main ] [launcher] Time to start up: 9604 ms
+[2025-06-12 22:12:22.107] [DISPLAY] [Main ] [systemtray] System tray: enabled
+[2025-06-12 22:12:22.169] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetContext: Invalid -> Auth
+[2025-06-12 22:12:22.169] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: Invalid -> WaitForBrowser
+[2025-06-12 22:12:22.310] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: WaitForBrowser -> WaitForWindow
+[2025-06-12 22:12:24.452] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: WaitForWindow -> Active
+[2025-06-12 22:12:25.471] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: Active -> WaitForBrowser
+[2025-06-12 22:12:25.471] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: WaitForBrowser -> WaitForWindow
+[2025-06-12 22:12:25.471] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: WaitForWindow -> Active
+[2025-06-12 22:12:30.789] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetContext: Auth -> MainWindow
+[2025-06-12 22:12:30.789] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: Active -> WaitForBrowser
+[2025-06-12 22:12:30.815] [DISPLAY] [Main ] [ui_mainwindow] Using DPI 120,120
+[2025-06-12 22:12:30.815] [DISPLAY] [Main ] [ui_mainwindow] Using UI Scale: 1.25
+[2025-06-12 22:12:30.818] [DISPLAY] [Main ] [ui_mainwindow] Using saved geometry: 160,135 (1600 x 750)
+[2025-06-12 22:12:30.849] [DISPLAY] [Main ] [launcher] Presence Event - Signed In
+[2025-06-12 22:12:30.849] [DISPLAY] [Main ] [launcher] User 'srujanchandra' is now signed in
+[2025-06-12 22:12:30.866] [DISPLAY] [Main ] [launcher] Presence Event :: Went Online
+[2025-06-12 22:12:30.866] [DISPLAY] [Admin] [titlemanager] Downloading title list...
+[2025-06-12 22:12:30.867] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: WaitForBrowser -> WaitForWindow
+[2025-06-12 22:12:30.867] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: WaitForWindow -> Active
+[2025-06-12 22:12:30.868] [DISPLAY] [Admin] [titlemanager] Downloading title list (SCS)...
+[2025-06-12 22:12:31.172] [DISPLAY] [Main ] [scuicallbacks] Enabling Downloading
+[2025-06-12 22:12:31.224] [DISPLAY] [Main ] [launcher] Friend Event - Friends are Available
+[2025-06-12 22:12:31.430] [DISPLAY] [Main ] [scuicallbacks] Setting updated
+[2025-06-12 22:12:31.447] [DISPLAY] [Main ] [scuicallbacks] Launch requested by user: gta5, default
+[2025-06-12 22:12:31.447] [DISPLAY] [Main ] [external] Frontend is ready to launch the title
+[2025-06-12 22:12:31.447] [DISPLAY] [Main ] [external] Attempting external title launch...
+[2025-06-12 22:12:32.543] [DISPLAY] [Admin] [titlemanager] Title list updated.
+[2025-06-12 22:12:32.545] [DISPLAY] [Admin] [external] Attempting Steam launch. User is 'srujanchandra6369'
+[2025-06-12 22:12:34.964] [DISPLAY] [Main ] [gamelaunch] Begin game launch: gta5
+[2025-06-12 22:12:34.964] [DISPLAY] [Main ] [gamelaunch] Flags: 11
+[2025-06-12 22:12:34.964] [DISPLAY] [Main ] [gamelaunch] Path: C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V
+[2025-06-12 22:12:34.981] [DISPLAY] [Main ] [telemetrymanager] Secondary platform is set to: 2
+[2025-06-12 22:12:34.995] [DISPLAY] [22132] [gamelaunch] Launch Folder: C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V
+[2025-06-12 22:12:34.995] [DISPLAY] [22132] [gamelaunch] Launch Path: C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V\GTA5.exe
+[2025-06-12 22:12:34.995] [DISPLAY] [22132] [fileutils] Checking version: C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V\GTA5.exe
+[2025-06-12 22:12:35.020] [DISPLAY] [22132] [gamelaunch] RGL is up to date (current: 1.0.102.2459, minimum: 1.0.97.2200)
+[2025-06-12 22:12:35.020] [DISPLAY] [22132] [fileutils] Checking version: C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V\GTA5.exe
+[2025-06-12 22:12:35.024] [DISPLAY] [22132] [gamelaunch] Grand Theft Auto V Legacy is up to date (current: 1.0.3521.0, minimum: 1.0.3351.0)
+[2025-06-12 22:12:35.024] [DISPLAY] [22132] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2025-06-12 22:12:37.158] [DISPLAY] [Admin] [titlemanager] Downloading title list...
+[2025-06-12 22:12:37.158] [DISPLAY] [Admin] [titlemanager] Downloading title list (SCS)...
+[2025-06-12 22:12:39.124] [DISPLAY] [Admin] [titlemanager] Title list updated.
+[2025-06-12 22:12:39.316] [DISPLAY] [Main ] [cloudsaveop] Cloud Save sync requested for app 'gta5'
+[2025-06-12 22:12:39.333] [DISPLAY] [Main ] [cloudsaveop] Starting cloud save enabled check for app 'gta5'
+[2025-06-12 22:12:39.338] [DISPLAY] [Main ] [cloudsaveop] Received cloud saves enabled state for app 'gta5' = disabled
+[2025-06-12 22:12:39.338] [DISPLAY] [Main ] [cloudsaveop] Finished syncing cloud saves for app 'gta5'
+[2025-06-12 22:12:39.975] [DISPLAY] [net3 ] [audio] Valid Audio Device: true
+[2025-06-12 22:12:43.114] [DISPLAY] [22132] [gamelaunch] Launching game...
+[2025-06-12 22:12:43.114] [DISPLAY] [22132] [gamelaunch]  Path: C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V\GTA5_BE.exe
+[2025-06-12 22:12:43.114] [DISPLAY] [22132] [gamelaunch]  Command Line: "C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V\GTA5_BE.exe" -skipPatcherCheck -steamLocation "C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V" @args.txt -enableCrashpad -useSteam -steamAppId=271590 -scCommerceProvider=4 @commandline.txt -fromRGL -scDiscordClientId=356876176465199104 -rglLanguage=en-US
+[2025-06-12 22:12:43.114] [DISPLAY] [22132] [gamelaunch]  Working Directory: C:\Users\pavan\Steam\steamapps\common\Grand Theft Auto V
+[2025-06-12 23:02:26.894] [DISPLAY] [22132] [gamelaunch] Game exited with code 0x0 (0)
+[2025-06-12 23:02:26.920] [DISPLAY] [22132] [crashdetection] Game left no exit file.
+[2025-06-12 23:02:26.920] [DISPLAY] [22132] [crashdetection] Exit code 0x0 indicates a clean game shutdown
+[2025-06-12 23:02:26.938] [DISPLAY] [Main ] [cloudsaveop] Cloud Save sync requested for app 'gta5'
+[2025-06-12 23:02:26.956] [DISPLAY] [Main ] [cloudsaveop] Starting cloud save enabled check for app 'gta5'
+[2025-06-12 23:02:26.958] [DISPLAY] [Main ] [cloudsaveop] Received cloud saves enabled state for app 'gta5' = disabled
+[2025-06-12 23:02:26.958] [DISPLAY] [Main ] [cloudsaveop] Finished syncing cloud saves for app 'gta5'
+[2025-06-12 23:02:28.173] [DISPLAY] [22132] [launcher] Shutdown requested! Forced: false
+[2025-06-12 23:02:28.177] [DISPLAY] [Main ] [launcher] StartShutdown - Now in progress
+[2025-06-12 23:02:28.280] [WARNING] [Main ] [worker] Not adding job (15) due to thread exiting
+[2025-06-12 23:02:28.298] [WARNING] [Main ] [worker] Not adding job (5) due to thread exiting
+[2025-06-12 23:02:30.200] [DISPLAY] [Main ] [app] Application quit requested (exit code: 0)
+[2025-06-12 23:02:30.262] [DISPLAY] [Main ] [svc] Stopping the background service.

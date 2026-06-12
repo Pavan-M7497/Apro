@@ -1,0 +1,66 @@
+@font-face {
+    font-family:Geom;
+    src: url(Fonts/Geom/Geom-Italic-VariableFont_wght.ttf);
+}
+
+header{
+    background-color: cornflowerblue;
+    padding: 30px;
+    text-align: center;
+    font-size: 35px;
+    color: white;
+    font-family: Geom;
+}
+
+body{
+    margin: 0;
+    padding: 0;
+}
+
+header.shrink {
+    padding: 10px;
+    font-size: 25px;
+}
+
+.nav{
+    width: 100%;
+    background-color: aliceblue;
+    font-size: small;
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav a{
+    flex: 1;
+    text-align: center;
+    width: 20%;
+    padding: 10px 0;
+    transition: all 0.3s ease;
+    color: black;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.nav a.active{
+    background-color: rgb(12, 186, 245);
+    color: azure;
+}
+.nav a:hover{
+    background-color: rgba(12, 187, 245, 0.429);
+}
+
+.content{
+    padding: 16px;
+}   
+
+html{
+    scroll-behavior: smooth;
+}
+
+section{
+    padding: 100px 20px;
+    height: 100vh;
+}
+

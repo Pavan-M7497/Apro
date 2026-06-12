@@ -1,0 +1,19 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function staff() {
+      return request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['manager', 'admin'];
+    }
+
+    match /menu/{allPaths=**} {
+      allow read: if true;
+      allow write: if staff();
+    }
+
+    match /site/{allPaths=**} {
+      allow read: if true;
+      allow write: if staff();
+    }
+  }
+}

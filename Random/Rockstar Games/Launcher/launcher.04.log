@@ -1,0 +1,162 @@
+[2026-03-18 08:39:30.834] [DISPLAY] [Main ] [fileutils] Checking version: C:\Program Files\Rockstar Games\Launcher\Launcher.exe
+[2026-03-18 08:39:30.847] [DISPLAY] [Main ] [dx12] Retrieving D3D12 graphics info
+[2026-03-18 08:39:32.198] [DISPLAY] [Main ] [launcher] Opening log file.
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo] Command line: "C:\Program Files\Rockstar Games\Launcher\Launcher.exe" -skipPatcherCheck -steamAppId=1174180 -steamLocation "C:\Users\pavan\Steam\steamapps\common\Red Dead Redemption 2" @args.txt -upgrade
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo] P4 Version: 
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo] RGL Branch: release_05
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo] Version:    1.0.105.2733
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo] Session ID: df84e801-6f24-121d-9e3c-6e2c6bc307a2
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo] Name Hash:  C9CF2546
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo] Parameters:
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo]     C:\Program Files\Rockstar Games\Launcher\Launcher.exe
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo]     -skipPatcherCheck
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo]     -steamAppId=1174180
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo]     -steamLocation
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo]     C:\Users\pavan\Steam\steamapps\common\Red Dead Redemption 2
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo]     @args.txt
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startupinfo]     -upgrade
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startup] Initial Working Directory: C:\Program Files\Rockstar Games\Launcher
+[2026-03-18 08:39:32.203] [DISPLAY] [Main ] [startup] Working directory: C:\Program Files\Rockstar Games\Launcher
+[2026-03-18 08:39:32.206] [DISPLAY] [Main ] [packfile] Initialize 'Launcher.rpf' - succeeded
+[2026-03-18 08:39:32.206] [DISPLAY] [Main ] [localisation] Language updated to: 0
+[2026-03-18 08:39:32.242] [DISPLAY] [Main ] [external] Creating Steam min mode launch
+[2026-03-18 08:39:32.245] [DISPLAY] [Main ] [external] Steam App Id: 1174180
+[2026-03-18 08:39:32.245] [DISPLAY] [Main ] [external] Steam Location: C:\Users\pavan\Steam\steamapps\common\Red Dead Redemption 2
+[2026-03-18 08:39:32.246] [DISPLAY] [Main ] [metadatamanager] Read external Steam metadata: rdr2
+[2026-03-18 08:39:32.246] [DISPLAY] [Main ] [external] App: rdr2
+[2026-03-18 08:39:32.258] [ ERROR ] [Main ] [shell] Could not do OpenProcess on parent process.
+[2026-03-18 08:39:32.258] [DISPLAY] [Main ] [external] Steam not detected as parent process
+[2026-03-18 08:39:32.258] [DISPLAY] [Main ] [environment] SetEnvironment: prod
+[2026-03-18 08:39:32.261] [ ERROR ] [Main ] [fileutils] Failed to delete directory: C:\Users\pavan\OneDrive\Documents\Rockstar Games\GTA V\User Music
+[2026-03-18 08:39:32.262] [DISPLAY] [Main ] [subsystem] Init phase 1
+[2026-03-18 08:39:32.262] [DISPLAY] [Main ] [fileutils] Checking version: C:\Program Files\Rockstar Games\Launcher\RockstarService.exe
+[2026-03-18 08:39:32.263] [DISPLAY] [Main ] [svc] Service version: 1.0.105.2733 (1.0.105.2733)
+[2026-03-18 08:39:32.263] [DISPLAY] [Main ] [svc] Starting service (attempt 1 / 3)...
+[2026-03-18 08:39:32.271] [DISPLAY] [Main ] [titlestorage] Installed titles:
+[2026-03-18 08:39:32.271] [DISPLAY] [Main ] [titlestorage]  Title                             Progress               Version              Location                                                    
+[2026-03-18 08:39:32.281] [DISPLAY] [Main ] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2026-03-18 08:39:32.284] [DISPLAY] [Main ] [subsystem] Initializing group 0...
+[2026-03-18 08:39:32.284] [DISPLAY] [Main ] [subsystem] Init phase 2
+[2026-03-18 08:39:32.284] [DISPLAY] [Main ] [subsystem] Starting systems...
+[2026-03-18 08:39:32.358] [DISPLAY] [Main ] [minmode] Overriding language from external game launch: en-US
+[2026-03-18 08:39:32.358] [DISPLAY] [Main ] [localisation] Language updated to: 0
+[2026-03-18 08:39:32.358] [DISPLAY] [Main ] [subsystem] Starting diag...
+[2026-03-18 08:39:32.358] [DISPLAY] [Main ] [fileutils] Checking local versions...
+[2026-03-18 08:39:32.358] [DISPLAY] [Main ] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2026-03-18 08:39:32.359] [DISPLAY] [Main ] [fileutils] Checking RGL version...
+[2026-03-18 08:39:32.359] [DISPLAY] [Main ] [fileutils] Version: 2.4.0.146 | 1.0.105.2733 | FFP
+[2026-03-18 08:39:32.359] [DISPLAY] [Main ] [subsystem] Starting net...
+[2026-03-18 08:39:32.367] [DISPLAY] [Main ] [subsystem] Assigning pools...
+[2026-03-18 08:39:32.367] [DISPLAY] [Main ] [subsystem] Initializing engine...
+[2026-03-18 08:39:32.367] [DISPLAY] [Main ] [subsystem] Initializing group 1...
+[2026-03-18 08:39:32.378] [DISPLAY] [Workr] [selfupdate] Up-to-date.
+[2026-03-18 08:39:32.438] [DISPLAY] [bgsvc] [svc] Received response from service.
+[2026-03-18 08:39:32.466] [DISPLAY] [Main ] [systemtray] System tray: enabled
+[2026-03-18 08:39:32.486] [DISPLAY] [Main ] [launcher] Passed check: majorVersion(10.0.26200) >= 10
+[2026-03-18 08:39:32.549] [DISPLAY] [Workr] [marketing_promo] No promotion manifest in memory, refreshing from cloud.
+[2026-03-18 08:39:32.549] [DISPLAY] [Workr] [marketing_promo] Requesting new manifest
+[2026-03-18 08:39:32.549] [DISPLAY] [Workr] [titlemanager] Downloading title list...
+[2026-03-18 08:39:32.549] [DISPLAY] [Workr] [titlemanager] Downloading default title list (SCS)...
+[2026-03-18 08:39:32.549] [DISPLAY] [Workr] [idownloader] Starting download of 'https://rgl-prod.ros.rockstargames.com/launcher/11/LauncherServices/App.asmx/GetDefaultApps?accessToken='
+[2026-03-18 08:39:33.767] [DISPLAY] [Workr] [idownloader] Completed download of 'https://rgl-prod.ros.rockstargames.com/launcher/11/LauncherServices/App.asmx/GetDefaultApps?accessToken=' (status: 0/200)
+[2026-03-18 08:39:33.768] [DISPLAY] [Workr] [services] Obtained NA-BAT
+[2026-03-18 08:39:33.768] [DISPLAY] [Workr] [services] Parsed response from GetDefaultApps: 1 title(s), 1 branch(es)
+[2026-03-18 08:39:33.768] [DISPLAY] [Workr] [titlemanager] Retrieved default title: launcher
+[2026-03-18 08:39:33.768] [DISPLAY] [Workr] [titlemanager] Launcher tokens: BAT: false, NA-BAT: true
+[2026-03-18 08:39:33.768] [DISPLAY] [Workr] [titlemanager] Title list updated.
+[2026-03-18 08:39:33.774] [DISPLAY] [Workr] [launcher] Checking for prerequisite updates...
+[2026-03-18 08:39:33.774] [DISPLAY] [Workr] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2026-03-18 08:39:33.775] [DISPLAY] [Workr] [fileutils] Checking version: C:\Program Files\Rockstar Games\Launcher\Redistributables\SocialClub\Social-Club-Setup.exe
+[2026-03-18 08:39:33.776] [DISPLAY] [Workr] [preqmanager] The Social Club version available matches that currently installed (both: 2.4.0.146)
+[2026-03-18 08:39:33.776] [DISPLAY] [Workr] [titleupdater] No prerequisites to install.
+[2026-03-18 08:39:33.776] [DISPLAY] [Workr] [launcher] Checking minimum SDK requirement
+[2026-03-18 08:39:33.776] [DISPLAY] [Workr] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2026-03-18 08:39:33.840] [DISPLAY] [Workr] [launcher] Completed Pre-initialization tasks
+[2026-03-18 08:39:33.848] [DISPLAY] [Main ] [subsystem] Init phase 3
+[2026-03-18 08:39:33.848] [DISPLAY] [Main ] [subsystem] RGL Offline Assets path: C:\Program Files\Rockstar Games\Launcher\offline.pak
+[2026-03-18 08:39:33.848] [DISPLAY] [Main ] [subsystem] Intializing connection manager.
+[2026-03-18 08:39:33.848] [DISPLAY] [Main ] [subsystem] Initializing RAGE networking.
+[2026-03-18 08:39:34.133] [DISPLAY] [Main ] [subsystem] Initializing group 2...
+[2026-03-18 08:39:34.861] [DISPLAY] [Workr] [dx12] Retrieving D3D12 graphics info
+[2026-03-18 08:39:35.107] [DISPLAY] [Workr] [sysinfo] System Configuration: 
+ CPU Info:
+  ID: Intel64 Family 6 Model 186 Stepping 2
+  Name: 13th Gen Intel(R) Core(TM) i7-13620H
+  Clock Speed: 2.92 GHZ
+  Physical Cores: 10
+  Logical Cores: 16
+  SSE 4.1: enabled
+  SSE 4.2: enabled
+
+ Disk 0 (C:\)
+  Disk Type: NVMe
+  Bytes Free: 379600273408
+  Bytes Total: 992337006592
+
+Memory Info:
+ 17179869184 B
+ 16 GB
+
+ GPU 0
+  Description: NVIDIA GeForce RTX 4060 Laptop GPU
+  Capacity (Bytes): 8343519232
+  Display Capacity: 8.0 GB
+
+ GPU 1
+  Description: Intel(R) UHD Graphics
+  Capacity (Bytes): 4197184512
+  Display Capacity: 4.0 GB
+[2026-03-18 08:39:35.109] [DISPLAY] [Workr] [idownloader] Starting download of 'https://gamedownloads-rockstargames-com.akamaized.net/public/marketing.json'
+[2026-03-18 08:39:35.361] [DISPLAY] [Workr] [idownloader] Completed download of 'https://gamedownloads-rockstargames-com.akamaized.net/public/marketing.json' (status: 0/200)
+[2026-03-18 08:39:35.541] [DISPLAY] [Workr] [fileutils] Could not enumerate files in folder 'C:\Users\pavan\AppData\Local\Rockstar Games\Launcher\IconCache', path not found.
+[2026-03-18 08:39:40.026] [DISPLAY] [Main ] [sysinfo] Identified device Type: 0
+[2026-03-18 08:39:40.196] [DISPLAY] [Main ] [launcher] Social Club UI has started.
+[2026-03-18 08:39:40.196] [DISPLAY] [Main ] [fileutils] Checking version: C:\Program Files\Rockstar Games\Social Club\socialclub.dll
+[2026-03-18 08:39:40.200] [DISPLAY] [Admin] [external] Setting up steam title: rdr2
+[2026-03-18 08:39:40.200] [DISPLAY] [Admin] [external] Successfully setup title
+[2026-03-18 08:39:40.220] [DISPLAY] [Main ] [external] Client is ready to attempt a launch.
+[2026-03-18 08:39:40.231] [DISPLAY] [Main ] [launcher] Time to start up: 9477 ms
+[2026-03-18 08:39:40.239] [DISPLAY] [Main ] [systemtray] System tray: enabled
+[2026-03-18 08:39:40.366] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetContext: Invalid -> Auth
+[2026-03-18 08:39:40.366] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: Invalid -> WaitForBrowser
+[2026-03-18 08:39:40.368] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: WaitForBrowser -> WaitForWindow
+[2026-03-18 08:39:43.267] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: WaitForWindow -> Active
+[2026-03-18 08:39:43.339] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: Active -> WaitForBrowser
+[2026-03-18 08:39:43.339] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: WaitForBrowser -> WaitForWindow
+[2026-03-18 08:39:43.339] [DISPLAY] [Main ] [ui_window_controller] UiWindowController::SetState: WaitForWindow -> Active
+[2026-03-18 08:44:30.928] [DISPLAY] [Main ] [launcher] Shutdown requested! Forced: false
+[2026-03-18 08:44:30.929] [DISPLAY] [Main ] [launcher] StartShutdown - Now in progress
+[2026-03-18 08:44:30.929] [DISPLAY] [Main ] [launcher] SHUTDOWN_REQUESTED -> SHUTDOWN_MAIN_WINDOW
+[2026-03-18 08:44:30.929] [DISPLAY] [Main ] [launcher] SHUTDOWN_MAIN_WINDOW -> SHUTDOWN_STARTUP_WINDOW
+[2026-03-18 08:44:30.929] [DISPLAY] [Main ] [launcher] SHUTDOWN_STARTUP_WINDOW -> SHUTDOWN_NOTIFICATION_MANAGER
+[2026-03-18 08:44:30.929] [DISPLAY] [Main ] [launcher] SHUTDOWN_NOTIFICATION_MANAGER -> SHUTDOWN_GAME_LAUNCHER
+[2026-03-18 08:44:30.929] [DISPLAY] [Main ] [launcher] SHUTDOWN_GAME_LAUNCHER -> SHUTDOWN_WINDOW_CONTROLLER
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_WINDOW_CONTROLLER -> SHUTDOWN_STOP_WORKER_THREADS
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_STOP_WORKER_THREADS -> SHUTDOWN_TITLES
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_TITLES -> SHUTDOWN_DISK
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_DISK -> SHUTDOWN_BACKGROUND_SERVICE
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_BACKGROUND_SERVICE -> SHUTDOWN_TELEMETRY
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_TELEMETRY -> SHUTDOWN_CACHED_REQUEST_MANAGER
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_CACHED_REQUEST_MANAGER -> SHUTDOWN_SETTINGS_MANAGER
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_SETTINGS_MANAGER -> SHUTDOWN_SDK
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_SDK -> SHUTDOWN_PRESENCE
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_PRESENCE -> SHUTDOWN_SUBSYSTEMS
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SHUTDOWN_SUBSYSTEMS -> SHUTDOWN_IN_PROGRESS
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] Telemetry flushed
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [ui_window_controller] User closed sign-in; shutting down.
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] Shutdown requested! Forced: false
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] Window destroyed
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] SDK ready for shutdown
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] Notifications cleared
+[2026-03-18 08:44:31.037] [DISPLAY] [Main ] [launcher] No games running
+[2026-03-18 08:44:31.060] [DISPLAY] [Main ] [launcher] Worker Threads shutdown
+[2026-03-18 08:44:31.060] [DISPLAY] [Main ] [launcher] Title state flushed
+[2026-03-18 08:44:31.060] [DISPLAY] [Main ] [launcher] Disk state flushed
+[2026-03-18 08:44:31.060] [DISPLAY] [Main ] [launcher] Cached Requests cleared
+[2026-03-18 08:44:31.241] [DISPLAY] [Main ] [launcher] Settings saved
+[2026-03-18 08:44:31.241] [DISPLAY] [Main ] [launcher] Presence signed out
+[2026-03-18 08:44:31.241] [DISPLAY] [Main ] [launcher] All subsystems have shut down
+[2026-03-18 08:44:31.241] [DISPLAY] [Main ] [launcher] SHUTDOWN_IN_PROGRESS -> SHUTDOWN_COMPLETE
+[2026-03-18 08:44:31.241] [DISPLAY] [Main ] [app] Application quit requested (exit code: 0)
+[2026-03-18 08:44:31.241] [DISPLAY] [Main ] [launcher] SHUTDOWN_COMPLETE -> SHUTDOWN_EXITING
+[2026-03-18 08:44:31.281] [DISPLAY] [Main ] [svc] Stopping the background service.

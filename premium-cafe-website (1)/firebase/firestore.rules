@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userRole() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : null;
+    }
+
+    function isStaff() {
+      return userRole() == 'manager' || userRole() == 'admin';
+    }
+
+    function isAdmin() {
+      return userRole() == 'admin';
+    }
+
+    match /users/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || isStaff());
+      allow list: if isStaff();
+      allow create: if signedIn() && request.auth.uid == uid;
+      allow update: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /reservations/{id} {
+      allow read: if isStaff() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if (
+        signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'pending'
+      ) || (
+        !signedIn()
+        && request.resource.data.userId == null
+        && request.resource.data.isGuest == true
+        && request.resource.data.status == 'pending'
+        && request.resource.data.userName is string
+        && request.resource.data.userEmail is string
+        && request.resource.data.userPhone is string
+        && request.resource.data.locationId is string
+        && request.resource.data.date is string
+        && request.resource.data.time is string
+        && request.resource.data.guests is int
+        && request.resource.data.guests > 0
+        && request.resource.data.guests <= 30
+      );
+      allow update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    match /menuItems/{id} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /categories/{id} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /gallery/{id} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /testimonials/{id} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /events/{id} {
+      allow read: if resource.data.published == true || isStaff();
+      allow write: if isStaff();
+
+      match /rsvps/{uid} {
+        allow read: if signedIn() && (request.auth.uid == uid || isStaff());
+        allow write: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    match /offers/{id} {
+      allow read: if resource.data.published == true || isStaff();
+      allow write: if isStaff();
+    }
+
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /announcements/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,191 @@
+"""
+main.py
+───────
+FastAPI application entry point.
+
+Endpoints:
+  GET  /        → health check
+  POST /upload  → ingest PDF: save → extract text → chunk → embed → FAISS
+  POST /ask     → RAG Q&A: embed question → FAISS search → LLM → answer
+"""
+
+import os
+import shutil
+import uuid
+from pathlib import Path
+
+from dotenv import load_dotenv
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from services.pdf_extractor import extract_text_from_pdf
+from services.chunker import chunk_text
+from services.embeddings import build_vector_store
+from services.retrieval import answer_question
+
+# Load .env variables (OPENAI_API_KEY, etc.) before anything else
+load_dotenv()
+
+# ---------------------------------------------------------------------------
+# App setup
+# ---------------------------------------------------------------------------
+
+app = FastAPI(
+    title="AI PDF Chatbot API",
+    description="Upload a PDF, then ask questions – powered by LangChain RAG + FAISS.",
+    version="1.0.0",
+)
+
+# Allow all origins during development; lock this down in production.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ---------------------------------------------------------------------------
+# Storage directory
+# ---------------------------------------------------------------------------
+
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# ---------------------------------------------------------------------------
+# Request / response models
+# ---------------------------------------------------------------------------
+
+
+class AskRequest(BaseModel):
+    file_id: str    # UUID returned by /upload
+    question: str   # user's natural language question
+
+
+# ---------------------------------------------------------------------------
+# Routes
+# ---------------------------------------------------------------------------
+
+
+@app.get("/", tags=["Health"])
+def root():
+    """Health-check endpoint."""
+    return {"status": "ok", "message": "AI PDF Chatbot API is running 🚀"}
+
+
+@app.post("/upload", tags=["PDF"])
+async def upload_pdf(file: UploadFile = File(...)):
+    """
+    Full PDF ingestion pipeline:
+      1. Validate & save the uploaded file.
+      2. Extract text with PyPDF2 (pdf_extractor).
+      3. Split text into overlapping chunks (chunker).
+      4. Embed chunks with OpenAI and index in FAISS (embeddings).
+
+    Returns a file_id to pass to /ask.
+    """
+
+    # --- Validate MIME type ---
+    if file.content_type != "application/pdf":
+        raise HTTPException(
+            status_code=415,
+            detail=f"Only PDF files are accepted. Received: '{file.content_type}'.",
+        )
+
+    original_name = file.filename or "upload.pdf"
+    if not original_name.lower().endswith(".pdf"):
+        raise HTTPException(
+            status_code=415, detail="File must have a .pdf extension."
+        )
+
+    # --- Generate unique file ID and save to disk ---
+    file_id = str(uuid.uuid4())
+    safe_stem = Path(original_name).stem[:64]
+    saved_name = f"{file_id}_{safe_stem}.pdf"
+    dest_path = UPLOAD_DIR / saved_name
+
+    try:
+        with dest_path.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Could not save file: {exc}")
+    finally:
+        await file.close()
+
+    size_bytes = dest_path.stat().st_size
+
+    # --- Step 1: Extract text ---
+    try:
+        extraction = extract_text_from_pdf(dest_path)
+    except ValueError as exc:
+        dest_path.unlink(missing_ok=True)
+        raise HTTPException(status_code=422, detail=str(exc))
+    except Exception as exc:
+        dest_path.unlink(missing_ok=True)
+        raise HTTPException(status_code=500, detail=f"Text extraction failed: {exc}")
+
+    if not extraction.text.strip():
+        dest_path.unlink(missing_ok=True)
+        raise HTTPException(
+            status_code=422,
+            detail="No text could be extracted from this PDF. "
+                   "It may be a scanned image without OCR.",
+        )
+
+    # --- Step 2: Chunk text ---
+    chunk_result = chunk_text(extraction.text)
+
+    # --- Step 3: Embed & store in FAISS ---
+    try:
+        vector_count = build_vector_store(file_id, chunk_result.chunks)
+    except EnvironmentError as exc:
+        dest_path.unlink(missing_ok=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception as exc:
+        dest_path.unlink(missing_ok=True)
+        raise HTTPException(
+            status_code=500, detail=f"Embedding / vector store creation failed: {exc}"
+        )
+
+    print(f"File uploaded successfully: {file_id} (Pages: {extraction.page_count}, Words: {extraction.word_count})")
+    
+    return {
+        "file_id": file_id,
+        "word_count": extraction.word_count,
+        "page_count": extraction.page_count
+    }
+
+
+@app.post("/ask", tags=["Chat"])
+async def ask_question(body: AskRequest):
+    """
+    RAG question-answering pipeline:
+      1. Embed the question.
+      2. Find the most relevant chunks via FAISS similarity search.
+      3. Build a grounded prompt with those chunks as context.
+      4. Return the LLM's answer + source excerpts.
+
+    Answers are grounded in the PDF – the model is instructed not to use
+    external knowledge.
+    """
+    if not body.question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty.")
+
+    print(f"Question received for file {body.file_id}: {body.question}")
+
+    try:
+        result = answer_question(body.file_id, body.question)
+    except ValueError as exc:
+        # file_id not found in memory (server restarted?)
+        raise HTTPException(status_code=404, detail=str(exc))
+    except EnvironmentError as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500, detail=f"Answer generation failed: {exc}"
+        )
+
+    return {
+        "answer": result.answer
+    }
