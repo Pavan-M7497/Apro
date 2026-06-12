@@ -92,7 +92,7 @@ export default function Navbar() {
             <Link to="/login" className="text-sm font-medium text-text-muted hover:text-text transition-colors">
               Log in
             </Link>
-            <Link to="/register" className="bg-accent text-primary px-4 py-2 rounded-lg text-sm font-bold hover:bg-accent-hover transition-colors">
+            <Link to="/register" className="bg-accent text-primary px-4 py-2 text-sm font-bold hover:bg-accent-hover transition-colors" style={{ borderRadius: '4px' }}>
               Sign up
             </Link>
           </div>
@@ -143,7 +143,7 @@ export default function Navbar() {
                 <Link to="/login" onClick={() => setMobileOpen(false)} className="px-4 py-3 text-base font-medium text-text-muted hover:text-text">
                   Log in
                 </Link>
-                <Link to="/register" onClick={() => setMobileOpen(false)} className="bg-accent text-primary px-4 py-3 rounded-lg text-base font-bold text-center">
+                <Link to="/register" onClick={() => setMobileOpen(false)} className="bg-accent text-primary px-4 py-3 text-base font-bold text-center" style={{ borderRadius: '4px' }}>
                   Sign up
                 </Link>
               </>

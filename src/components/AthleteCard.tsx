@@ -14,73 +14,97 @@ export default function AthleteCard({ profile, athleteProfile, compact }: Athlet
   return (
     <Link
       to={`/profile/${profile.username}`}
-      className="group relative bg-card border border-white/5 overflow-hidden hover:border-accent/30 transition-all duration-200 hover:-translate-y-0.5"
-      style={{ borderRadius: '4px' }}
+      className="group relative block overflow-visible hover:-translate-y-0.5 hover:border-accent/25 transition-all duration-150 border border-white/[0.06]"
+      style={{ background: '#1A1A2E', borderRadius: '4px' }}
     >
-      {/* Large faded sport letter — jersey number feel */}
+      {/* Large faded sport initial — trading card feel */}
       <div
-        className="absolute top-2 right-3 font-display font-black text-white/[0.04] select-none pointer-events-none leading-none"
-        style={{ fontSize: '72px' }}
+        className="absolute top-2 right-3 font-display font-black select-none pointer-events-none leading-none z-0"
+        style={{ fontSize: '88px', color: 'rgba(255,255,255,0.03)' }}
         aria-hidden="true"
       >
         {sportInitial}
       </div>
 
       {/* Cover strip */}
-      <div className="relative h-20 bg-surface">
+      <div className="relative overflow-hidden" style={{ height: '72px', background: '#12121E', borderRadius: '4px 4px 0 0' }}>
         {profile.cover_url && (
           <img src={profile.cover_url} alt="" className="w-full h-full object-cover" />
         )}
       </div>
 
       {/* Avatar */}
-      <div className="relative px-4 -mt-7">
-        <div className="w-14 h-14 border-2 border-card overflow-hidden bg-surface" style={{ borderRadius: '4px' }}>
+      <div className="relative px-4">
+        <div
+          className="overflow-hidden bg-surface"
+          style={{
+            width: '52px',
+            height: '52px',
+            borderRadius: '4px',
+            border: '2px solid #1A1A2E',
+            marginTop: '-26px',
+          }}
+        >
           {profile.avatar_url ? (
             <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center font-display font-bold text-lg text-accent bg-accent/10">
+            <div className="w-full h-full flex items-center justify-center font-display font-bold text-lg text-accent">
               {initials(profile.full_name)}
             </div>
           )}
         </div>
       </div>
 
-      <div className="px-4 pt-2 pb-4">
-        {/* Name row */}
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-display font-bold text-text truncate" style={{ fontSize: '17px', letterSpacing: '0.01em' }}>
+      <div className="px-4 pt-2 pb-4 relative z-10">
+        {/* Name + flag */}
+        <div className="flex items-center gap-2 mb-1 min-w-0">
+          <h3
+            className="font-display font-black text-text truncate"
+            style={{ fontSize: '16px', letterSpacing: '0.01em' }}
+          >
             {profile.full_name.toUpperCase()}
           </h3>
           <span className="text-sm flex-shrink-0">{getCountryFlag(profile.country)}</span>
         </div>
 
-        {/* Sport + position */}
+        {/* Sport badge + position */}
         {athleteProfile?.sport && (
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span
-              className="text-[11px] font-display font-semibold text-accent bg-accent/10 px-2 py-0.5 uppercase tracking-wide"
-              style={{ borderRadius: '3px' }}
+              className="font-display font-semibold text-accent uppercase"
+              style={{
+                fontSize: '10px',
+                background: 'rgba(232,255,71,0.1)',
+                letterSpacing: '0.06em',
+                padding: '2px 8px',
+                borderRadius: '3px',
+              }}
             >
               {athleteProfile.sport}
             </span>
             {athleteProfile.position && (
-              <span className="text-[11px] text-text-muted">{athleteProfile.position}</span>
+              <span className="text-text-muted" style={{ fontSize: '11px' }}>{athleteProfile.position}</span>
             )}
           </div>
         )}
 
-        {/* Availability */}
+        {/* Availability — static square dot, no pulse */}
         {athleteProfile?.availability === 'available' && !compact && (
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 bg-success" style={{ borderRadius: '2px' }} />
-            <span className="text-[10px] font-medium text-success tracking-wide uppercase">Available</span>
+            <div style={{ width: '6px', height: '6px', borderRadius: '2px', background: '#34D399', flexShrink: 0 }} />
+            <span className="font-medium text-success uppercase tracking-wide" style={{ fontSize: '10px' }}>Available</span>
           </div>
         )}
         {athleteProfile?.availability === 'open_to_offers' && !compact && (
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 bg-accent" style={{ borderRadius: '2px' }} />
-            <span className="text-[10px] font-medium text-accent tracking-wide uppercase">Open to offers</span>
+            <div style={{ width: '6px', height: '6px', borderRadius: '2px', background: '#E8FF47', flexShrink: 0 }} />
+            <span className="font-medium text-accent uppercase tracking-wide" style={{ fontSize: '10px' }}>Open to offers</span>
+          </div>
+        )}
+        {athleteProfile?.availability === 'unavailable' && !compact && (
+          <div className="flex items-center gap-1.5">
+            <div style={{ width: '6px', height: '6px', borderRadius: '2px', background: '#F87171', flexShrink: 0 }} />
+            <span className="font-medium text-error uppercase tracking-wide" style={{ fontSize: '10px' }}>Unavailable</span>
           </div>
         )}
 

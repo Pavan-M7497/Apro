@@ -25,12 +25,12 @@ interface Competition {
   participant_count?: number;
 }
 
-const LEVEL_COLORS: Record<string, string> = {
-  local: 'text-text-muted bg-white/5',
-  regional: 'text-info bg-info/10',
-  national: 'text-warning bg-warning/10',
-  continental: 'text-purple-400 bg-purple-400/10',
-  world: 'text-accent bg-accent/10',
+const LEVEL_STYLES: Record<string, { background: string; color: string }> = {
+  local:       { background: 'rgba(255,255,255,0.1)',   color: 'rgba(255,255,255,0.6)' },
+  regional:    { background: 'rgba(96,165,250,0.15)',   color: 'rgba(96,165,250,0.9)' },
+  national:    { background: 'rgba(251,191,36,0.15)',   color: 'rgba(251,191,36,0.9)' },
+  continental: { background: 'rgba(167,139,250,0.15)',  color: 'rgba(167,139,250,0.9)' },
+  world:       { background: 'rgba(232,255,71,0.15)',   color: '#E8FF47' },
 };
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -322,7 +322,10 @@ export default function Calendar() {
                           )}
                         </div>
                         <div className="flex items-center gap-2 flex-wrap mb-2">
-                          <span className={`font-display text-[10px] font-bold uppercase px-2 py-0.5 ${LEVEL_COLORS[comp.level]}`} style={{ borderRadius: '3px' }}>
+                          <span
+                            className="font-display font-bold uppercase"
+                            style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '3px', ...(LEVEL_STYLES[comp.level] || LEVEL_STYLES.local) }}
+                          >
                             {comp.level}
                           </span>
                           <span className="font-display text-[10px] font-semibold text-accent bg-accent/10 px-2 py-0.5 uppercase" style={{ borderRadius: '3px' }}>

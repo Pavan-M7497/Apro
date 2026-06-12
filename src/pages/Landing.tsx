@@ -28,27 +28,34 @@ const STATS = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen" style={{ background: '#0A0A0F' }}>
 
-      {/* Hero */}
-      <section className="pt-28 md:pt-36 pb-20 md:pb-28">
+      {/* ── Hero ── background: #0A0A0F */}
+      <section className="pt-28 md:pt-36 pb-20 md:pb-28" style={{ background: '#0A0A0F' }}>
         <div className="max-w-6xl mx-auto px-4">
           <div className="max-w-3xl">
-            {/* Eyebrow */}
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-px w-8 bg-accent" />
-              <span className="font-display text-accent text-sm font-semibold uppercase tracking-widest">
-                The athlete identity platform
-              </span>
-            </div>
-
-            {/* Headline */}
-            <h1 className="font-display font-black uppercase leading-none mb-6" style={{ fontSize: 'clamp(52px, 9vw, 96px)', letterSpacing: '-0.02em' }}>
+            {/* Headline — the biggest element on the page */}
+            <h1
+              className="font-display font-black uppercase"
+              style={{
+                fontSize: 'clamp(56px, 10vw, 104px)',
+                letterSpacing: '-0.02em',
+                lineHeight: 0.95,
+                marginBottom: '28px',
+              }}
+            >
               YOUR GAME.<br />
               <span className="text-accent">YOUR IDENTITY.</span>
             </h1>
 
-            <p className="text-lg text-text-muted max-w-lg mb-10 leading-relaxed">
+            {/* 2px accent rule */}
+            <div style={{ width: '48px', height: '2px', background: '#E8FF47', marginBottom: '20px' }} />
+
+            {/* Subtitle */}
+            <p
+              className="text-text-muted"
+              style={{ fontSize: '16px', maxWidth: '480px', marginBottom: '40px', lineHeight: 1.6 }}
+            >
               One profile. Every highlight. Every stat. Every achievement. Let the world discover what you bring to the game.
             </p>
 
@@ -72,56 +79,81 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Stats bar */}
-      <section className="border-y border-white/5 bg-surface">
-        <div className="max-w-6xl mx-auto px-4 py-6">
+      {/* ── Stats bar ── background: #12121E */}
+      <section className="border-y border-white/5" style={{ background: '#12121E' }}>
+        <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x md:divide-white/5">
             {STATS.map(({ value, label }) => (
               <div key={label} className="text-center md:px-6">
-                <p className="font-display font-black text-accent" style={{ fontSize: '28px' }}>{value}</p>
-                <p className="text-xs text-text-muted font-medium uppercase tracking-wider mt-0.5">{label}</p>
+                <p className="font-display font-black text-accent" style={{ fontSize: '40px', lineHeight: 1 }}>{value}</p>
+                <p
+                  className="font-medium text-text-muted mt-1.5 uppercase"
+                  style={{ fontSize: '11px', letterSpacing: '0.1em' }}
+                >
+                  {label}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-20 md:py-28">
+      {/* ── Features ── background: #0A0A0F */}
+      <section className="py-20 md:py-28" style={{ background: '#0A0A0F' }}>
         <div className="max-w-6xl mx-auto px-4">
           <div className="mb-12">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-px w-8 bg-accent" />
-              <span className="font-display text-accent text-sm font-semibold uppercase tracking-widest">Platform</span>
-            </div>
-            <h2 className="font-display font-black uppercase text-text" style={{ fontSize: 'clamp(28px, 4vw, 40px)', letterSpacing: '-0.01em' }}>
+            <h2
+              className="font-display font-black uppercase text-text"
+              style={{ fontSize: 'clamp(28px, 4vw, 40px)', letterSpacing: '-0.01em' }}
+            >
               EVERYTHING YOU NEED
             </h2>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {FEATURES.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="bg-card border border-white/5 p-5 hover:border-white/10 transition-colors" style={{ borderRadius: '4px' }}>
-                <div className="w-10 h-10 bg-accent/10 flex items-center justify-center mb-4" style={{ borderRadius: '4px' }}>
-                  <Icon className="w-5 h-5 text-accent" />
+              <div
+                key={title}
+                className="hover:border-white/[0.1] transition-colors"
+                style={{
+                  background: '#1A1A2E',
+                  border: '0.5px solid rgba(255,255,255,0.06)',
+                  borderRadius: '4px',
+                  padding: '20px',
+                }}
+              >
+                <div
+                  className="flex items-center justify-center mb-4"
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    background: 'rgba(232,255,71,0.08)',
+                    borderRadius: '4px',
+                  }}
+                >
+                  <Icon className="w-4 h-4 text-accent" />
                 </div>
-                <h3 className="font-display font-bold uppercase text-text text-sm tracking-wide mb-1">{title}</h3>
-                <p className="text-xs text-text-muted">{desc}</p>
+                <h3
+                  className="font-display font-bold uppercase text-text tracking-widest mb-1"
+                  style={{ fontSize: '13px' }}
+                >
+                  {title}
+                </h3>
+                <p className="text-text-muted" style={{ fontSize: '12px' }}>{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Athlete Grid */}
-      <section className="py-20 md:py-28 border-t border-white/5">
+      {/* ── Athlete Grid ── background: #12121E */}
+      <section className="py-20 md:py-28 border-t border-white/5" style={{ background: '#12121E' }}>
         <div className="max-w-6xl mx-auto px-4">
           <div className="mb-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-px w-8 bg-accent" />
-              <span className="font-display text-accent text-sm font-semibold uppercase tracking-widest">Athletes</span>
-            </div>
-            <h2 className="font-display font-black uppercase text-text" style={{ fontSize: 'clamp(28px, 4vw, 40px)', letterSpacing: '-0.01em' }}>
+            <h2
+              className="font-display font-black uppercase text-text"
+              style={{ fontSize: 'clamp(28px, 4vw, 44px)', letterSpacing: '-0.01em' }}
+            >
               ALREADY ON APRO
             </h2>
           </div>
@@ -134,31 +166,38 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 md:py-28 border-t border-white/5">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="bg-accent p-10 md:p-16" style={{ borderRadius: '4px' }}>
-            <div className="max-w-xl">
-              <h2 className="font-display font-black uppercase text-primary mb-4" style={{ fontSize: 'clamp(32px, 5vw, 52px)', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                READY TO OWN YOUR STORY?
-              </h2>
-              <p className="text-primary/70 mb-8 text-sm leading-relaxed">
-                Join thousands of athletes building their professional identity. Your career starts here.
-              </p>
-              <Link
-                to="/register"
-                className="inline-flex items-center gap-2 bg-primary text-accent px-8 py-3.5 text-sm font-bold hover:bg-primary/80 transition-colors"
-                style={{ borderRadius: '4px' }}
-              >
-                Get started free <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+      {/* ── CTA ── full-bleed accent background: #E8FF47 */}
+      <section style={{ background: '#E8FF47' }}>
+        <div className="max-w-6xl mx-auto px-4 py-20 md:py-28">
+          <div className="max-w-xl">
+            <h2
+              className="font-display font-black uppercase"
+              style={{
+                fontSize: 'clamp(32px, 5vw, 56px)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1,
+                color: '#0A0A0F',
+                marginBottom: '16px',
+              }}
+            >
+              READY TO OWN YOUR STORY?
+            </h2>
+            <p style={{ color: 'rgba(10,10,15,0.65)', marginBottom: '32px', fontSize: '14px', lineHeight: 1.6 }}>
+              Join thousands of athletes building their professional identity. Your career starts here.
+            </p>
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-2 font-bold text-sm hover:opacity-90 transition-opacity"
+              style={{ background: '#0A0A0F', color: '#E8FF47', padding: '14px 32px', borderRadius: '4px' }}
+            >
+              Get started free <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 border-t border-white/5">
+      {/* ── Footer ── */}
+      <footer className="py-8 border-t border-white/5" style={{ background: '#0A0A0F' }}>
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
           <span className="font-display font-black text-xl tracking-widest text-accent uppercase">APRO</span>
           <p className="text-xs text-text-muted">Your game. Your identity.</p>

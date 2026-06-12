@@ -149,9 +149,14 @@ export default function Leaderboard() {
                   className="flex items-center gap-4 p-4"
                 >
                   {/* Rank */}
-                  <span className={`font-display font-black text-lg w-8 text-center flex-shrink-0 ${
-                    i === 0 ? 'text-accent' : i === 1 ? 'text-text-muted' : i === 2 ? 'text-warning' : 'text-text-muted/50'
-                  }`}>
+                  <span
+                    className="font-display font-black w-8 text-center flex-shrink-0"
+                    style={{
+                      fontSize: i === 0 ? '28px' : i <= 2 ? '24px' : '20px',
+                      color: i === 0 ? '#E8FF47' : i === 1 ? '#8888A0' : i === 2 ? '#EF9F27' : 'rgba(255,255,255,0.2)',
+                      lineHeight: 1,
+                    }}
+                  >
                     {i + 1}
                   </span>
 
@@ -160,7 +165,7 @@ export default function Leaderboard() {
                     {row.profile?.avatar_url ? (
                       <img src={row.profile.avatar_url} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center font-display font-black text-sm text-accent bg-accent/10">
+                      <div className="w-full h-full flex items-center justify-center font-display font-black text-sm text-text-muted bg-surface">
                         {initials(row.profile?.full_name || '?')}
                       </div>
                     )}
@@ -181,17 +186,14 @@ export default function Leaderboard() {
                     )}
                   </div>
 
-                  {/* Score bar */}
+                  {/* Score bar + number */}
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <div className="hidden sm:block w-24">
-                      <div className="h-1.5 bg-surface" style={{ borderRadius: '2px' }}>
-                        <div
-                          className="h-full bg-accent"
-                          style={{ width: `${row.score}%`, borderRadius: '2px' }}
-                        />
+                      <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px' }}>
+                        <div style={{ height: '100%', width: `${row.score}%`, background: '#E8FF47', borderRadius: '2px' }} />
                       </div>
                     </div>
-                    <span className="font-display font-black text-lg text-accent w-12 text-right">
+                    <span className="font-display font-black text-accent w-12 text-right" style={{ fontSize: '22px' }}>
                       {row.score}
                     </span>
                   </div>
