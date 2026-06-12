@@ -91,23 +91,23 @@ function AthleteHome() {
           { label: 'Highlight plays', value: highlightPlays, icon: Play },
           { label: 'Followers', value: followers, icon: Users },
         ].map(({ label, value, icon: Icon }) => (
-          <div key={label} className="bg-card border border-white/5 p-4" style={{ borderRadius: '4px' }}>
+          <div key={label} style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '16px' }}>
             <Icon className="w-4 h-4 text-accent mb-2" />
-            <div className="font-display font-black text-2xl text-accent">{value}</div>
-            <div className="text-[11px] text-text-muted mt-0.5 leading-tight">{label}</div>
+            <div className="font-display font-black text-accent" style={{ fontSize: '40px', lineHeight: 1 }}>{value}</div>
+            <div className="text-text-muted uppercase" style={{ fontSize: '11px', letterSpacing: '0.06em', marginTop: '4px' }}>{label}</div>
           </div>
         ))}
       </div>
 
       {/* Who viewed you */}
       <div>
-        <h2 className="font-display font-black uppercase text-lg tracking-wide mb-3">Who viewed you</h2>
+        <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>Who viewed you</h2>
         {recentViewers.length === 0 ? (
           <p className="text-sm text-text-muted">No views yet</p>
         ) : (
           <div className="space-y-2">
             {recentViewers.map((v) => (
-              <div key={v.id} className="flex items-center gap-3 bg-card border border-white/5 p-3" style={{ borderRadius: '4px' }}>
+              <div key={v.id} className="flex items-center gap-3" style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '10px 14px' }}>
                 {v.viewer ? (
                   <Link to={`/profile/${v.viewer.username}`} className="flex items-center gap-3 flex-1 hover:opacity-80">
                     <div className="w-8 h-8 flex-shrink-0 overflow-hidden bg-surface" style={{ borderRadius: '4px' }}>
@@ -144,8 +144,8 @@ function AthleteHome() {
       {/* Upload CTA */}
       <button
         onClick={() => navigate('/upload')}
-        className="w-full flex items-center justify-center gap-3 bg-accent text-primary py-4 font-display font-black uppercase text-base tracking-wide hover:bg-accent-hover transition-colors"
-        style={{ borderRadius: '4px' }}
+        className="w-full flex items-center justify-center gap-3 font-display font-black uppercase hover:opacity-90 transition-opacity"
+        style={{ background: '#E8FF47', color: '#0A0A0F', borderRadius: '4px', padding: '14px', fontSize: '15px', letterSpacing: '0.04em' }}
       >
         <Upload className="w-5 h-5" />
         Upload a highlight
@@ -154,7 +154,7 @@ function AthleteHome() {
       {/* Recent highlights */}
       {recentHighlights.length > 0 && (
         <div>
-          <h2 className="font-display font-black uppercase text-lg tracking-wide mb-3">Recent highlights</h2>
+          <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>Recent highlights</h2>
           <div className="grid grid-cols-2 gap-3">
             {recentHighlights.map((h) => (
               <Link
@@ -216,7 +216,7 @@ function BrandHome() {
     <div className="space-y-6">
       {/* Search bar */}
       <div className="bg-card border border-white/5 p-4" style={{ borderRadius: '4px' }}>
-        <h2 className="font-display font-black uppercase text-base tracking-wide mb-3">Find athletes</h2>
+        <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>Find athletes</h2>
         <div className="flex flex-col sm:flex-row gap-3">
           <SportSelect value={sport} onChange={setSport} className="flex-1" />
           <select
@@ -240,7 +240,7 @@ function BrandHome() {
 
       {/* Saved shortlists placeholder */}
       <div>
-        <h2 className="font-display font-black uppercase text-lg tracking-wide mb-3">Saved shortlists</h2>
+        <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>Saved shortlists</h2>
         <div className="bg-card border border-white/5 p-6 text-center" style={{ borderRadius: '4px' }}>
           <p className="text-text-muted text-sm mb-3">No shortlists yet</p>
           <p className="text-xs text-text-muted/60">Create shortlists to save and organise athletes you're interested in — coming soon.</p>
@@ -249,7 +249,7 @@ function BrandHome() {
 
       {/* New on Apro */}
       <div>
-        <h2 className="font-display font-black uppercase text-lg tracking-wide mb-3">New on Apro</h2>
+        <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>New on Apro</h2>
         {loading ? <LoadingSpinner /> : (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {newAthletes.map((a) => (
@@ -349,7 +349,7 @@ function CoachHome() {
     <div className="space-y-6">
       {/* Talent search shortcut */}
       <div className="bg-card border border-white/5 p-4" style={{ borderRadius: '4px' }}>
-        <h2 className="font-display font-black uppercase text-base tracking-wide mb-3">Talent search</h2>
+        <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>Talent search</h2>
         <div className="flex flex-col sm:flex-row gap-3">
           <SportSelect value={sport} onChange={setSport} className="flex-1" />
           <select
@@ -373,7 +373,7 @@ function CoachHome() {
 
       {/* Watchlist */}
       <div>
-        <h2 className="font-display font-black uppercase text-lg tracking-wide mb-3">My watchlist</h2>
+        <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>My watchlist</h2>
         {loading ? <LoadingSpinner /> : watchlist.length === 0 ? (
           <EmptyState
             icon={Users}
