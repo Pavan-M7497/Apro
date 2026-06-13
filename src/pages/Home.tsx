@@ -151,6 +151,15 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
         Upload a highlight
       </button>
 
+      {/* Log a workout CTA */}
+      <button
+        onClick={() => navigate('/training/log')}
+        style={{ borderRadius: '4px', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.12)', width: '100%', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer' }}
+      >
+        <i className="ti ti-barbell" style={{ fontSize: '20px', color: '#F5F5F0' }} aria-hidden="true" />
+        <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#F5F5F0' }}>Log a workout</span>
+      </button>
+
       {/* Recent highlights */}
       {recentHighlights.length > 0 && (
         <div>

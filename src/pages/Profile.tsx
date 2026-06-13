@@ -2,13 +2,32 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
-import { getCountryFlag, initials, formatDate, timeAgo, getRoleAccent } from '../lib/utils';
-import type { Profile as ProfileType, AthleteProfile, Highlight, Stat, Achievement } from '../lib/types';
-import { Play, Trophy, BarChart3, Edit, UserPlus, UserCheck, Share2, X, Calendar } from 'lucide-react';
+import { getCountryFlag, initials, formatDate, timeAgo, getRoleAccent, getActivityColor } from '../lib/utils';
+import type { Profile as ProfileType, AthleteProfile, Highlight, Stat, Achievement, TrainingSession } from '../lib/types';
+import { ACTIVITY_TYPES } from '../lib/types';
+import { Play, Trophy, BarChart3, Edit, UserPlus, UserCheck, Share2, X, Calendar, Activity } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
 
-type Tab = 'highlights' | 'stats' | 'achievements';
+type Tab = 'highlights' | 'stats' | 'achievements' | 'training';
+
+const dateKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+function computeStreak(dateKeys: Set<string>): number {
+  const oneDay = 86400000;
+  let day = new Date();
+  day.setHours(0, 0, 0, 0);
+  if (!dateKeys.has(dateKey(day))) {
+    day = new Date(day.getTime() - oneDay);
+    if (!dateKeys.has(dateKey(day))) return 0;
+  }
+  let streak = 0;
+  while (dateKeys.has(dateKey(day))) {
+    streak++;
+    day = new Date(day.getTime() - oneDay);
+  }
+  return streak;
+}
 
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
@@ -26,6 +45,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState('');
   const [videoModal, setVideoModal] = useState<Highlight | null>(null);
+  const [trainingSessions, setTrainingSessions] = useState<TrainingSession[]>([]);
+  const [trainingLoaded, setTrainingLoaded] = useState(false);
 
   const isOwn = user && myProfile && myProfile.username === username;
   const canConnect = user && !isOwn && (myProfile?.role === 'brand' || myProfile?.role === 'coach' || myProfile?.role === 'agent');
@@ -43,6 +64,21 @@ export default function ProfilePage() {
     }
     return () => { document.body.style.overflow = ''; };
   }, [videoModal]);
+
+  useEffect(() => {
+    if (activeTab !== 'training' || trainingLoaded || !profile) return;
+    (async () => {
+      const { data } = await supabase
+        .from('training_sessions')
+        .select('*')
+        .eq('profile_id', profile.id)
+        .eq('is_public', true)
+        .order('session_date', { ascending: false })
+        .order('created_at', { ascending: false });
+      setTrainingSessions((data as TrainingSession[]) || []);
+      setTrainingLoaded(true);
+    })();
+  }, [activeTab, trainingLoaded, profile]);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -347,6 +383,7 @@ export default function ProfilePage() {
             { key: 'highlights', label: 'Highlights', icon: Play },
             { key: 'stats', label: 'Stats', icon: BarChart3 },
             { key: 'achievements', label: 'Achievements', icon: Trophy },
+            ...(profile.role === 'athlete' ? [{ key: 'training', label: 'Training', icon: Activity }] as const : []),
           ] as const).map(({ key, label, icon: Icon }) => (
             <button
               key={key}
@@ -490,6 +527,82 @@ export default function ProfilePage() {
               description={isOwn ? "Add your achievements to build your career timeline." : "This athlete hasn't added achievements yet."}
             />
           )
+        )}
+
+        {/* ── Training ── */}
+        {activeTab === 'training' && (
+          !trainingLoaded ? (
+            <LoadingSpinner />
+          ) : (() => {
+            const now = new Date();
+            const monthSessions = trainingSessions.filter((s) => {
+              const d = new Date(s.session_date);
+              return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+            });
+            const monthHours = Math.round((monthSessions.reduce((sum, s) => sum + s.duration_minutes, 0) / 60) * 10) / 10;
+            const streak = computeStreak(new Set(trainingSessions.map((s) => s.session_date)));
+            const last5 = trainingSessions.slice(0, 5);
+            const meta = (type: string) => ACTIVITY_TYPES.find((a) => a.value === type) || ACTIVITY_TYPES[5];
+
+            if (trainingSessions.length === 0) {
+              return (
+                <EmptyState
+                  icon={Activity}
+                  title="No training logged"
+                  description={isOwn ? "Log your training sessions to track your progress over time." : "This athlete hasn't shared any training yet."}
+                  action={isOwn ? { label: 'Log a session', onClick: () => navigate('/training/log') } : undefined}
+                />
+              );
+            }
+
+            return (
+              <div className="pb-8">
+                {/* Metric cards */}
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  {[
+                    { label: 'Sessions this month', value: monthSessions.length },
+                    { label: 'Hours this month', value: monthHours },
+                    { label: 'Active streak', value: `${streak}d` },
+                  ].map(({ label, value }) => (
+                    <div key={label} style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '14px' }}>
+                      <div className="font-display font-black text-accent" style={{ fontSize: '28px', lineHeight: 1 }}>{value}</div>
+                      <div className="text-text-muted uppercase" style={{ fontSize: '10px', letterSpacing: '0.06em', marginTop: '4px' }}>{label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Last 5 sessions */}
+                <div className="space-y-2">
+                  {last5.map((s) => {
+                    const m = meta(s.activity_type);
+                    const color = getActivityColor(s.activity_type);
+                    return (
+                      <div key={s.id} className="flex items-center gap-3 p-3" style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px' }}>
+                        <div className="flex items-center justify-center flex-shrink-0" style={{ width: '36px', height: '36px', borderRadius: '4px', background: `${color}22` }}>
+                          <i className={`ti ${m.icon}`} style={{ fontSize: '20px', color }} aria-hidden="true" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="font-display font-bold uppercase text-sm">{m.label}</span>
+                          <p className="text-xs text-text-muted">{s.duration_minutes} min</p>
+                        </div>
+                        <span className="text-[10px] text-text-muted flex-shrink-0">{formatDate(s.session_date)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {isOwn && (
+                  <button
+                    onClick={() => navigate('/training')}
+                    className="w-full flex items-center justify-center gap-2 mt-4 py-3 font-display font-bold uppercase text-sm hover:bg-white/5 transition-colors"
+                    style={{ border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px' }}
+                  >
+                    <Activity className="w-4 h-4" /> View full training log
+                  </button>
+                )}
+              </div>
+            );
+          })()
         )}
       </div>
 

@@ -14,6 +14,9 @@ import Feed from './pages/Feed';
 import Home from './pages/Home';
 import Leaderboard from './pages/Leaderboard';
 import Calendar from './pages/Calendar';
+import Training from './pages/Training';
+import TrainingLog from './pages/TrainingLog';
+import TrainingProgress from './pages/TrainingProgress';
 
 export default function App() {
   const { initialize, loading } = useAppStore();
@@ -43,6 +46,9 @@ export default function App() {
         <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
         <Route path="/discover" element={<Discover />} />
         <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+        <Route path="/training" element={<ProtectedRoute><Training /></ProtectedRoute>} />
+        <Route path="/training/log" element={<ProtectedRoute><TrainingLog /></ProtectedRoute>} />
+        <Route path="/training/progress" element={<ProtectedRoute><TrainingProgress /></ProtectedRoute>} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/opportunities" element={

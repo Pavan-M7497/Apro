@@ -95,6 +95,60 @@ export const COUNTRIES = [
   'South Africa', 'South Korea', 'Spain', 'United Kingdom', 'United States',
 ];
 
+export type ActivityType = 'running' | 'cycling' | 'swimming' | 'gym' | 'team_sport' | 'general';
+
+export interface TrainingSession {
+  id: string;
+  profile_id: string;
+  activity_type: ActivityType;
+  session_date: string;
+  duration_minutes: number;
+  intensity_rpe: number | null;
+  notes: string | null;
+  is_public: boolean;
+  created_at: string;
+  run_data?: RunData | null;
+  swim_data?: SwimData | null;
+  strength_sets?: StrengthSet[];
+}
+
+export interface RunData {
+  id: string;
+  session_id: string;
+  distance_km: number | null;
+  pace_seconds_per_km: number | null;
+  elevation_m: number | null;
+}
+
+export interface SwimData {
+  id: string;
+  session_id: string;
+  pool_length_m: number;
+  laps: number | null;
+  total_distance_m: number | null;
+  stroke_type: string | null;
+}
+
+export interface StrengthSet {
+  id: string;
+  session_id: string;
+  exercise_name: string;
+  set_number: number;
+  reps: number | null;
+  weight_kg: number | null;
+}
+
+export const ACTIVITY_TYPES: { value: ActivityType; label: string; icon: string }[] = [
+  { value: 'running',     label: 'Running',      icon: 'ti-run' },
+  { value: 'cycling',     label: 'Cycling',      icon: 'ti-bike' },
+  { value: 'swimming',    label: 'Swimming',     icon: 'ti-swimming' },
+  { value: 'gym',         label: 'Gym / Strength', icon: 'ti-barbell' },
+  { value: 'team_sport',  label: 'Team sport / Pool session', icon: 'ti-ball-football' },
+  { value: 'general',     label: 'General fitness', icon: 'ti-heart-rate-monitor' },
+];
+
+export const STROKE_TYPES = ['Freestyle', 'Backstroke', 'Breaststroke', 'Butterfly', 'Medley', 'Mixed'];
+
 export const POSITIONS: Record<string, string[]> = {
   Football: ['Goalkeeper', 'Defender', 'Midfielder', 'Striker', 'Winger'],
   Basketball: ['Point Guard', 'Shooting Guard', 'Small Forward', 'Power Forward', 'Center'],
