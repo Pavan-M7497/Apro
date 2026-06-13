@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
-import { getCountryFlag, initials, timeAgo } from '../lib/utils';
+import { getCountryFlag, initials, timeAgo, getRoleAccent, getRoleAccentMuted } from '../lib/utils';
 import { COUNTRIES } from '../lib/types';
 import type { Profile } from '../lib/types';
 import { Eye, Play, Users, Upload, Search, UserPlus, UserCheck } from 'lucide-react';
@@ -28,7 +28,7 @@ interface HighlightRow {
   view_count: number;
 }
 
-function AthleteHome() {
+function AthleteHome({ roleAccent }: { roleAccent: string }) {
   const { profile } = useAppStore();
   const navigate = useNavigate();
   const [viewsThisWeek, setViewsThisWeek] = useState(0);
@@ -92,8 +92,8 @@ function AthleteHome() {
           { label: 'Followers', value: followers, icon: Users },
         ].map(({ label, value, icon: Icon }) => (
           <div key={label} style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '16px' }}>
-            <Icon className="w-4 h-4 text-accent mb-2" />
-            <div className="font-display font-black text-accent" style={{ fontSize: '40px', lineHeight: 1 }}>{value}</div>
+            <Icon className="w-4 h-4 mb-2" style={{ color: roleAccent }} />
+            <div className="font-display font-black" style={{ fontSize: '40px', lineHeight: 1, color: roleAccent }}>{value}</div>
             <div className="text-text-muted uppercase" style={{ fontSize: '11px', letterSpacing: '0.06em', marginTop: '4px' }}>{label}</div>
           </div>
         ))}
@@ -121,7 +121,7 @@ function AthleteHome() {
                     </div>
                     <div>
                       <span className="text-sm font-medium">{v.viewer.full_name}</span>
-                      <span className="ml-1.5 text-[10px] text-text-muted bg-white/5 px-1.5 py-0.5 uppercase font-display" style={{ borderRadius: '3px' }}>
+                      <span className="ml-1.5 inline-block" style={{ background: getRoleAccentMuted(v.viewer?.role), color: getRoleAccent(v.viewer?.role), fontSize: '10px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '2px 7px', borderRadius: '3px' }}>
                         {v.viewer.role}
                       </span>
                     </div>
@@ -145,7 +145,7 @@ function AthleteHome() {
       <button
         onClick={() => navigate('/upload')}
         className="w-full flex items-center justify-center gap-3 font-display font-black uppercase hover:opacity-90 transition-opacity"
-        style={{ background: '#E8FF47', color: '#0A0A0F', borderRadius: '4px', padding: '14px', fontSize: '15px', letterSpacing: '0.04em' }}
+        style={{ background: roleAccent, color: '#0A0A0F', borderRadius: '4px', padding: '14px', fontSize: '15px', letterSpacing: '0.04em' }}
       >
         <Upload className="w-5 h-5" />
         Upload a highlight
@@ -185,7 +185,7 @@ function AthleteHome() {
 }
 
 // ── Brand Home ───────────────────────────────────────────────────────────────
-function BrandHome() {
+function BrandHome({ roleAccent }: { roleAccent: string }) {
   const navigate = useNavigate();
   const [sport, setSport] = useState('');
   const [country, setCountry] = useState('');
@@ -230,8 +230,8 @@ function BrandHome() {
           </select>
           <button
             onClick={handleSearch}
-            className="flex items-center gap-2 bg-accent text-primary px-6 py-2.5 text-sm font-bold hover:bg-accent-hover transition-colors"
-            style={{ borderRadius: '4px' }}
+            className="flex items-center gap-2 px-6 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
+            style={{ background: roleAccent, color: '#0A0A0F', borderRadius: '4px' }}
           >
             <Search className="w-4 h-4" /> Search
           </button>
@@ -279,8 +279,8 @@ function BrandHome() {
       {/* Post opportunity CTA */}
       <Link
         to="/opportunities"
-        className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/10 text-text py-4 font-display font-black uppercase text-base tracking-wide hover:bg-white/10 transition-colors"
-        style={{ borderRadius: '4px' }}
+        className="w-full flex items-center justify-center gap-3 py-4 font-display font-black uppercase text-base tracking-wide hover:bg-white/5 transition-colors"
+        style={{ border: `1px solid ${roleAccent}`, color: roleAccent, borderRadius: '4px' }}
       >
         Post an opportunity
       </Link>
@@ -289,7 +289,7 @@ function BrandHome() {
 }
 
 // ── Coach/Agent Home ─────────────────────────────────────────────────────────
-function CoachHome() {
+function CoachHome({ roleAccent }: { roleAccent: string }) {
   const { profile } = useAppStore();
   const navigate = useNavigate();
   const [watchlist, setWatchlist] = useState<Profile[]>([]);
@@ -363,8 +363,8 @@ function CoachHome() {
           </select>
           <button
             onClick={handleScout}
-            className="flex items-center gap-2 bg-accent text-primary px-6 py-2.5 text-sm font-bold hover:bg-accent-hover transition-colors"
-            style={{ borderRadius: '4px' }}
+            className="flex items-center gap-2 px-6 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
+            style={{ background: roleAccent, color: '#0A0A0F', borderRadius: '4px' }}
           >
             <Search className="w-4 h-4" /> Scout
           </button>
@@ -407,9 +407,13 @@ function CoachHome() {
                   className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold transition-colors flex-shrink-0 ${
                     following.includes(a.id)
                       ? 'bg-white/5 border border-white/10 text-text-muted hover:text-error'
-                      : 'bg-accent text-primary hover:bg-accent-hover'
+                      : 'hover:opacity-90'
                   }`}
-                  style={{ borderRadius: '3px' }}
+                  style={
+                    following.includes(a.id)
+                      ? { borderRadius: '3px' }
+                      : { background: roleAccent, color: '#0A0A0F', borderRadius: '3px' }
+                  }
                 >
                   {following.includes(a.id) ? <UserCheck className="w-3 h-3" /> : <UserPlus className="w-3 h-3" />}
                   {following.includes(a.id) ? 'Following' : 'Follow'}
@@ -440,14 +444,21 @@ export default function Home() {
     ? 'Brand dashboard'
     : 'Scout dashboard';
 
+  const roleAccent = getRoleAccent(profile.role);
+  const roleAccentMuted = getRoleAccentMuted(profile.role);
+
   return (
     <div className="min-h-screen bg-primary pt-20 md:pt-20 pb-24">
       <div className="max-w-3xl mx-auto px-4">
-        <h1 className="font-display font-black uppercase text-3xl tracking-wide mb-6">{heading}</h1>
+        <div style={{ background: roleAccentMuted, borderBottom: `1px solid ${roleAccent}22`, padding: '12px 16px', marginBottom: '24px', borderRadius: '4px' }}>
+          <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '28px', textTransform: 'uppercase', letterSpacing: '0.02em', color: '#F5F5F0', margin: 0 }}>
+            {heading}
+          </h1>
+        </div>
 
-        {profile.role === 'athlete' && <AthleteHome />}
-        {profile.role === 'brand' && <BrandHome />}
-        {(profile.role === 'coach' || profile.role === 'agent') && <CoachHome />}
+        {profile.role === 'athlete' && <AthleteHome roleAccent={roleAccent} />}
+        {profile.role === 'brand' && <BrandHome roleAccent={roleAccent} />}
+        {(profile.role === 'coach' || profile.role === 'agent') && <CoachHome roleAccent={roleAccent} />}
       </div>
     </div>
   );

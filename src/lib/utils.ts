@@ -67,3 +67,23 @@ export function generateUsername(name: string): string {
   const num = Math.floor(Math.random() * 999);
   return `${base}${num}`;
 }
+
+export function getRoleAccent(role: string | undefined): string {
+  switch (role) {
+    case 'brand':   return '#378ADD';
+    case 'coach':   return '#EF9F27';
+    case 'agent':   return '#D4537E';
+    case 'athlete':
+    default:        return '#E8FF47';
+  }
+}
+
+export function getRoleAccentMuted(role: string | undefined): string {
+  switch (role) {
+    case 'brand':   return 'rgba(55,138,221,0.12)';
+    case 'coach':   return 'rgba(239,159,39,0.12)';
+    case 'agent':   return 'rgba(212,83,126,0.12)';
+    case 'athlete':
+    default:        return 'rgba(232,255,71,0.10)';
+  }
+}
