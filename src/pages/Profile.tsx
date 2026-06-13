@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
-import { getCountryFlag, initials, formatDate, timeAgo } from '../lib/utils';
+import { getCountryFlag, initials, formatDate, timeAgo, getRoleAccent } from '../lib/utils';
 import type { Profile as ProfileType, AthleteProfile, Highlight, Stat, Achievement } from '../lib/types';
 import { Play, Trophy, BarChart3, Edit, UserPlus, UserCheck, Share2, X, Calendar } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -316,7 +316,7 @@ export default function ProfilePage() {
               style={
                 isFollowing
                   ? { background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px' }
-                  : { background: '#E8FF47', color: '#0A0A0F', borderRadius: '4px' }
+                  : { background: getRoleAccent(myProfile?.role), color: myProfile?.role === 'athlete' ? '#0A0A0F' : '#FFFFFF', borderRadius: '4px', padding: '8px 20px', fontWeight: 700, fontSize: '14px' }
               }
             >
               {isFollowing ? <UserCheck className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}

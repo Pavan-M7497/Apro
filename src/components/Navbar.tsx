@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../lib/store';
 import { Home, Search, Upload, User, LogOut, X, Menu, Rss, CalendarDays, Trophy } from 'lucide-react';
 import { useState } from 'react';
+import { getRoleAccent } from '../lib/utils';
 
 export default function Navbar() {
   const { user, profile, signOut } = useAppStore();
@@ -15,6 +16,7 @@ export default function Navbar() {
   };
 
   const isActive = (path: string) => location.pathname === path;
+  const roleAccent = getRoleAccent(profile?.role);
 
   const athleteLinks = [
     { to: '/home', label: 'Home', icon: Home },
@@ -60,10 +62,9 @@ export default function Navbar() {
             <Link
               key={to}
               to={to}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-                isActive(to)
-                  ? 'border-accent text-accent'
-                  : 'border-transparent text-text-muted hover:text-text'
+              style={isActive(to) ? { borderBottomColor: roleAccent, color: roleAccent, borderBottomWidth: '2px', borderBottomStyle: 'solid' } : {}}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors border-b-2 border-transparent ${
+                isActive(to) ? '' : 'text-text-muted hover:text-text'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -120,9 +121,10 @@ export default function Navbar() {
                     key={to}
                     to={to}
                     onClick={() => setMobileOpen(false)}
+                    style={isActive(to) ? { color: roleAccent, borderLeftColor: roleAccent, borderLeftWidth: '2px', borderLeftStyle: 'solid' } : {}}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors ${
                       isActive(to)
-                        ? 'text-accent border-l-2 border-accent pl-3'
+                        ? 'pl-3'
                         : 'text-text-muted hover:text-text hover:bg-white/5'
                     }`}
                   >
@@ -159,8 +161,9 @@ export default function Navbar() {
             <Link
               key={to}
               to={to}
+              style={isActive(to) ? { color: roleAccent } : {}}
               className={`flex flex-col items-center gap-1 px-3 py-1 transition-colors ${
-                isActive(to) ? 'text-accent' : 'text-text-muted hover:text-text'
+                isActive(to) ? '' : 'text-text-muted hover:text-text'
               }`}
             >
               <Icon className="w-5 h-5" />
