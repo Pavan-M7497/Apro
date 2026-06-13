@@ -78,6 +78,25 @@ export function getRoleAccent(role: string | undefined): string {
   }
 }
 
+export function getActivityColor(activityType: string): string {
+  switch (activityType) {
+    case 'running':    return '#378ADD'; // blue
+    case 'cycling':    return '#34D399'; // green
+    case 'swimming':   return '#2DD4BF'; // teal
+    case 'gym':        return '#EF9F27'; // amber
+    case 'team_sport': return '#A78BFA'; // purple
+    case 'general':
+    default:           return '#8888A0'; // gray
+  }
+}
+
+export function formatPace(secondsPerKm: number | null | undefined): string {
+  if (!secondsPerKm || secondsPerKm <= 0) return '—';
+  const m = Math.floor(secondsPerKm / 60);
+  const s = Math.round(secondsPerKm % 60);
+  return `${m}:${s.toString().padStart(2, '0')}/km`;
+}
+
 export function getRoleAccentMuted(role: string | undefined): string {
   switch (role) {
     case 'brand':   return 'rgba(55,138,221,0.12)';

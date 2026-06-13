@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../lib/store';
-import { Home, Search, Upload, User, LogOut, X, Menu, Rss, CalendarDays, Trophy } from 'lucide-react';
+import { Home, Search, Upload, User, LogOut, X, Menu, Rss, CalendarDays, Trophy, Activity } from 'lucide-react';
 import { useState } from 'react';
 import { getRoleAccent } from '../lib/utils';
 
@@ -22,6 +22,7 @@ export default function Navbar() {
     { to: '/home', label: 'Home', icon: Home },
     { to: '/feed', label: 'Feed', icon: Rss },
     { to: '/upload', label: 'Upload', icon: Upload },
+    { to: '/training', label: 'Training', icon: Activity },
     { to: profile ? `/profile/${profile.username}` : '/profile', label: 'Profile', icon: User },
   ];
 
@@ -162,12 +163,12 @@ export default function Navbar() {
               key={to}
               to={to}
               style={isActive(to) ? { color: roleAccent } : {}}
-              className={`flex flex-col items-center gap-1 px-3 py-1 transition-colors ${
+              className={`flex flex-col items-center gap-1 px-2 py-1 transition-colors ${
                 isActive(to) ? '' : 'text-text-muted hover:text-text'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{label}</span>
+              <Icon style={{ width: '18px', height: '18px' }} />
+              <span className="font-medium" style={{ fontSize: '8px' }}>{label}</span>
             </Link>
           ))}
         </nav>
