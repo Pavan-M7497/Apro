@@ -210,7 +210,7 @@ export default function TrainingLog() {
   const current = rpeLabel(rpe);
 
   return (
-    <div className="min-h-screen bg-primary pt-20 md:pt-20 pb-28">
+    <div className="min-h-screen pt-6 md:pt-10 pb-28">
       <div className="max-w-2xl mx-auto px-4">
         {/* Header */}
         <button

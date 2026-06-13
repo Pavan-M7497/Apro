@@ -196,7 +196,7 @@ export default function Calendar() {
   const firstDay = getFirstDayOfMonth(year, month);
 
   return (
-    <div className="min-h-screen bg-primary pt-20 md:pt-20 pb-24">
+    <div className="min-h-screen pt-6 md:pt-10 pb-24">
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="font-display font-black uppercase text-3xl tracking-wide mb-2">Competition calendar</h1>
         <p className="text-text-muted text-sm mb-6">Find and track upcoming competitions</p>

@@ -119,7 +119,7 @@ export default function Training() {
   };
 
   return (
-    <div className="min-h-screen bg-primary pt-20 md:pt-20 pb-28">
+    <div className="min-h-screen pt-6 md:pt-10 pb-28">
       <div className="max-w-3xl mx-auto px-4">
         {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-5">

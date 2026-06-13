@@ -221,7 +221,7 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="font-display font-bold uppercase text-xl mb-2">Profile not found</h2>
           <Link to="/discover" className="text-accent text-sm hover:underline">Discover athletes</Link>
@@ -249,7 +249,7 @@ export default function ProfilePage() {
   }[athleteProfile?.availability || 'available'];
 
   return (
-    <div className="min-h-screen bg-primary pb-20 md:pb-0">
+    <div className="min-h-screen pb-20 md:pb-0">
 
       {/* ── Full-bleed cover ── */}
       <div className="relative w-full h-[220px] md:h-[300px]">
