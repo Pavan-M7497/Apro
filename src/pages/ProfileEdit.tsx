@@ -247,7 +247,7 @@ export default function ProfileEdit() {
   );
 
   return (
-    <div className="min-h-screen bg-primary pt-20 md:pt-20 pb-24">
+    <div className="min-h-screen pt-6 md:pt-10 pb-24">
       <div className="max-w-2xl mx-auto px-4">
         <h1 className="text-2xl font-bold mb-6">Edit Profile</h1>
 

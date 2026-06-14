@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
-import { getCountryFlag, initials, formatDate, timeAgo, getRoleAccent, getActivityColor } from '../lib/utils';
+import { getCountryFlag, initials, formatDate, timeAgo, getRoleAccent, getActivityColor, getRoleTheme, accentTextColor, calculateProfileCompleteness } from '../lib/utils';
 import type { Profile as ProfileType, AthleteProfile, Highlight, Stat, Achievement, TrainingSession } from '../lib/types';
 import { ACTIVITY_TYPES } from '../lib/types';
-import { Play, Trophy, BarChart3, Edit, UserPlus, UserCheck, Share2, X, Calendar, Activity } from 'lucide-react';
+import { Play, Trophy, BarChart3, UserPlus, UserCheck, Share2, X, Calendar, Activity, Camera } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
 
@@ -47,6 +47,7 @@ export default function ProfilePage() {
   const [videoModal, setVideoModal] = useState<Highlight | null>(null);
   const [trainingSessions, setTrainingSessions] = useState<TrainingSession[]>([]);
   const [trainingLoaded, setTrainingLoaded] = useState(false);
+  const [followers, setFollowers] = useState(0);
 
   const isOwn = user && myProfile && myProfile.username === username;
   const canConnect = user && !isOwn && (myProfile?.role === 'brand' || myProfile?.role === 'coach' || myProfile?.role === 'agent');
@@ -153,6 +154,14 @@ export default function ProfilePage() {
       setViewCount(count || 0);
     })());
 
+    promises.push((async () => {
+      const { count } = await supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', prof.id);
+      setFollowers(count || 0);
+    })());
+
     if (user && myProfile && !isOwn) {
       promises.push((async () => {
         const { data } = await supabase
@@ -221,7 +230,7 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="font-display font-bold uppercase text-xl mb-2">Profile not found</h2>
           <Link to="/discover" className="text-accent text-sm hover:underline">Discover athletes</Link>
@@ -229,6 +238,10 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  // ── Viewed athlete's implied theme (athlete profiles = lime) ──
+  const theme = getRoleTheme(profile.role);
+  const onAccent = accentTextColor(profile.role);
 
   const availabilityLabel = {
     available: 'Available',
@@ -239,164 +252,165 @@ export default function ProfilePage() {
   const availabilityDotColor = {
     available: '#34D399',
     unavailable: '#F87171',
-    open_to_offers: '#E8FF47',
+    open_to_offers: theme.accent,
   }[athleteProfile?.availability || 'available'];
 
-  const availabilityTextColor = {
-    available: 'text-success',
-    unavailable: 'text-error',
-    open_to_offers: 'text-accent',
-  }[athleteProfile?.availability || 'available'];
+  const completeness = isOwn ? calculateProfileCompleteness(profile, athleteProfile) : 0;
+
+  const badgeStyle: React.CSSProperties = {
+    fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '10px',
+    textTransform: 'uppercase', letterSpacing: '0.06em', padding: '2px 7px',
+    borderRadius: '3px', background: theme.accentMuted, color: theme.accent,
+  };
+
+  const tabs = [
+    { key: 'highlights', label: 'Highlights' },
+    { key: 'stats', label: 'Stats' },
+    { key: 'achievements', label: 'Achievements' },
+    ...(profile.role === 'athlete' ? [{ key: 'training', label: 'Training' }] : []),
+  ] as { key: Tab; label: string }[];
 
   return (
-    <div className="min-h-screen bg-primary pb-20 md:pb-0">
+    <div className="relative" style={{ minHeight: '100vh' }}>
 
-      {/* ── Full-bleed cover ── */}
-      <div className="relative w-full h-[220px] md:h-[300px]">
-        {/* Image layer — clipped within */}
-        <div className="absolute inset-0 overflow-hidden bg-card">
-          {profile.cover_url && (
-            <img src={profile.cover_url} alt="" className="w-full h-full object-cover" />
-          )}
-          {/* Functional gradient — makes name readable; only allowed gradient */}
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(to bottom, transparent 30%, #0A0A0F 100%)' }}
-          />
-        </div>
+      {/* ── Cover hero (full width) ── */}
+      <div className="relative w-full overflow-hidden h-[240px] md:h-[320px]" style={{ background: theme.surface }}>
+        {profile.cover_url && (
+          <img src={profile.cover_url} alt="" className="w-full h-full object-cover" />
+        )}
+        {/* The one allowed gradient — name legibility */}
+        <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 20%, ${theme.bg} 100%)` }} />
 
-        {/* Name + flag — absolute bottom-left */}
-        <div className="absolute bottom-0 left-0 right-0" style={{ padding: '0 16px 16px' }}>
-          <h1
-            className="font-display font-black uppercase text-white leading-none"
-            style={{ fontSize: 'clamp(28px, 5vw, 48px)', letterSpacing: '-0.01em' }}
+        {/* Action buttons — top right */}
+        <div className="absolute flex" style={{ top: '12px', right: '16px', gap: '8px', zIndex: 10 }}>
+          <button
+            onClick={handleShare}
+            className="flex items-center"
+            style={{ gap: '4px', background: 'rgba(0,0,0,0.5)', border: '0.5px solid rgba(255,255,255,0.15)', color: '#fff', borderRadius: '4px', padding: '6px 12px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '10px', textTransform: 'uppercase' }}
           >
-            {profile.full_name}
-            <span className="ml-2 align-middle" style={{ fontSize: '1.2rem' }}>{getCountryFlag(profile.country)}</span>
-          </h1>
-        </div>
-
-        {/* Avatar — overflows cover bottom by 40px */}
-        <div
-          className="absolute overflow-hidden bg-surface"
-          style={{
-            width: '80px',
-            height: '80px',
-            borderRadius: '4px',
-            border: '3px solid #0A0A0F',
-            bottom: '-40px',
-            left: '16px',
-          }}
-        >
-          {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center font-display font-black text-3xl text-accent">
-              {initials(profile.full_name)}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Profile content — clears the avatar overflow ── */}
-      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '56px 16px 0' }}>
-
-        {/* Sport + position + availability */}
-        {athleteProfile && (
-          <div className="flex items-center gap-3 flex-wrap mb-3">
-            {athleteProfile.sport && (
-              <span
-                className="font-display font-semibold text-accent uppercase"
-                style={{
-                  fontSize: '10px',
-                  background: 'rgba(232,255,71,0.1)',
-                  letterSpacing: '0.06em',
-                  padding: '3px 10px',
-                  borderRadius: '3px',
-                }}
-              >
-                {athleteProfile.sport}
-              </span>
-            )}
-            {athleteProfile.position && (
-              <span className="text-sm text-text-muted">· {athleteProfile.position}</span>
-            )}
-            <div className="flex items-center gap-1.5">
-              <div style={{ width: '6px', height: '6px', borderRadius: '2px', background: availabilityDotColor, flexShrink: 0 }} />
-              <span className={`text-xs font-medium uppercase tracking-wide ${availabilityTextColor}`} style={{ fontSize: '10px' }}>
-                {availabilityLabel}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {profile.bio && (
-          <p className="text-sm text-text-muted mb-5 max-w-xl leading-relaxed">{profile.bio}</p>
-        )}
-
-        {/* ── Action buttons ── */}
-        <div className="flex items-center gap-3 mb-6 flex-wrap">
+            <Share2 className="w-3.5 h-3.5" /> Share
+          </button>
           {isOwn && (
             <Link
               to="/profile/edit"
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium hover:bg-white/10 transition-colors"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px' }}
+              style={{ background: theme.accent, color: onAccent, borderRadius: '4px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }}
             >
-              <Edit className="w-4 h-4" /> Edit profile
+              Edit
             </Link>
           )}
           {canConnect && (
             <button
               onClick={handleFollow}
-              className={`flex items-center gap-2 px-5 py-2 text-sm font-bold transition-colors ${isFollowing ? 'hover:text-error' : 'hover:opacity-90'}`}
+              className="flex items-center"
               style={
                 isFollowing
-                  ? { background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px' }
-                  : { background: getRoleAccent(myProfile?.role), color: myProfile?.role === 'athlete' ? '#0A0A0F' : '#FFFFFF', borderRadius: '4px', padding: '8px 20px', fontWeight: 700, fontSize: '14px' }
+                  ? { gap: '4px', background: 'rgba(0,0,0,0.5)', border: '0.5px solid rgba(255,255,255,0.15)', color: '#fff', borderRadius: '4px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
+                  : { gap: '4px', background: getRoleAccent(myProfile?.role), color: accentTextColor(myProfile?.role), borderRadius: '4px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
               }
             >
-              {isFollowing ? <UserCheck className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+              {isFollowing ? <UserCheck className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
               {isFollowing ? 'Following' : 'Connect'}
             </button>
           )}
           {!user && !isOwn && (
             <Link
               to="/register"
-              className="flex items-center gap-2 px-5 py-2 text-sm font-bold hover:opacity-90 transition-opacity"
-              style={{ background: '#E8FF47', color: '#0A0A0F', borderRadius: '4px' }}
+              style={{ background: theme.accent, color: onAccent, borderRadius: '4px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }}
             >
-              Join to connect
+              Join
             </Link>
           )}
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium hover:bg-white/10 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px' }}
-          >
-            <Share2 className="w-4 h-4" /> Share
-          </button>
         </div>
 
+        {/* Name + sport/availability — bottom left */}
+        <div className="absolute" style={{ left: '20px', right: '20px', bottom: '12px', zIndex: 10 }}>
+          <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 5vw, 52px)', color: '#F5FFF0', textTransform: 'uppercase', letterSpacing: '-0.015em', lineHeight: 1 }}>
+            {profile.full_name}
+            <span style={{ fontSize: '0.5em', marginLeft: '8px' }}>{getCountryFlag(profile.country)}</span>
+          </h1>
+          {athleteProfile && (
+            <div className="flex items-center flex-wrap" style={{ gap: '10px', marginTop: '8px' }}>
+              {athleteProfile.sport && <span style={badgeStyle}>{athleteProfile.sport}</span>}
+              {athleteProfile.position && (
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>{athleteProfile.position}</span>
+              )}
+              <div className="flex items-center" style={{ gap: '5px' }}>
+                <span style={{ width: '5px', height: '5px', borderRadius: '2px', background: availabilityDotColor }} />
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{availabilityLabel}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Avatar overlapping cover ── */}
+      <div className="relative inline-block" style={{ marginTop: '-40px', marginLeft: '20px', zIndex: 20 }}>
+        <div className="overflow-hidden" style={{ width: '72px', height: '72px', borderRadius: '4px', border: `3px solid ${theme.bg}`, background: theme.surface }}>
+          {profile.avatar_url ? (
+            <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '20px', color: theme.accent }}>
+              {initials(profile.full_name)}
+            </div>
+          )}
+        </div>
+        {isOwn && (
+          <Link
+            to="/profile/edit"
+            className="absolute flex items-center justify-center"
+            style={{ width: '16px', height: '16px', borderRadius: '3px', background: theme.accent, bottom: '-2px', right: '-2px' }}
+            aria-label="Change avatar"
+          >
+            <Camera style={{ width: '10px', height: '10px', color: onAccent }} />
+          </Link>
+        )}
+      </div>
+
+      {/* ── Stat strip ── */}
+      <div className="w-full grid grid-cols-3" style={{ background: theme.surface, borderBottom: `1px solid ${theme.border}`, marginTop: '12px' }}>
+        {[
+          { label: 'Views this week', value: viewCount, key: true },
+          { label: 'Highlights', value: highlights.length, key: false },
+          { label: 'Followers', value: followers, key: false },
+        ].map((s, i) => (
+          <div key={s.label} className="text-center" style={{ padding: '12px 0', borderLeft: i === 0 ? 'none' : `1px solid ${theme.border}` }}>
+            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '28px', lineHeight: 1, color: s.key ? theme.accent : theme.text }}>{s.value}</div>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '2px' }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Content area ── */}
+      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '20px 20px 80px' }}>
+
+        {/* Completeness bar (own) */}
+        {isOwn && (
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ height: '3px', background: theme.border, borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${completeness}%`, background: theme.accent }} />
+            </div>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', color: theme.textMuted, textAlign: 'right', marginTop: '4px' }}>{completeness}% complete</div>
+          </div>
+        )}
+
+        {profile.bio && (
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', color: theme.textMuted, lineHeight: 1.6, marginBottom: '20px', maxWidth: '36rem' }}>{profile.bio}</p>
+        )}
+
         {/* ── Tab bar ── */}
-        <div className="flex gap-0 border-b border-white/10 mb-6">
-          {([
-            { key: 'highlights', label: 'Highlights', icon: Play },
-            { key: 'stats', label: 'Stats', icon: BarChart3 },
-            { key: 'achievements', label: 'Achievements', icon: Trophy },
-            ...(profile.role === 'athlete' ? [{ key: 'training', label: 'Training', icon: Activity }] as const : []),
-          ] as const).map(({ key, label, icon: Icon }) => (
+        <div className="flex" style={{ borderBottom: `1px solid ${theme.border}`, marginBottom: '20px' }}>
+          {tabs.map(({ key, label }) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className="flex items-center gap-2 px-4 text-sm font-medium transition-colors"
               style={{
-                paddingTop: '8px',
-                paddingBottom: '12px',
-                borderBottom: activeTab === key ? '2px solid #E8FF47' : '2px solid transparent',
-                color: activeTab === key ? '#E8FF47' : '#8888A0',
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '11px',
+                textTransform: 'uppercase', letterSpacing: '0.06em',
+                padding: '0 0 10px', marginRight: '24px',
+                borderBottom: activeTab === key ? `2px solid ${theme.accent}` : '2px solid transparent',
+                color: activeTab === key ? theme.accent : theme.textMuted,
               }}
             >
-              <Icon className="w-4 h-4" />
               {label}
             </button>
           ))}
@@ -405,37 +419,29 @@ export default function ProfilePage() {
         {/* ── Highlights ── */}
         {activeTab === 'highlights' && (
           highlights.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 pb-8">
+            <div className="grid grid-cols-2" style={{ gap: '8px' }}>
               {highlights.map((h) => (
                 <button
                   key={h.id}
                   onClick={() => setVideoModal(h)}
-                  className="text-left overflow-hidden hover:border-accent/20 transition-colors group cursor-pointer w-full"
-                  style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px' }}
+                  className="text-left overflow-hidden group cursor-pointer w-full transition-all duration-150 hover:-translate-y-px"
+                  style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '4px' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = theme.accent)}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = theme.border)}
                 >
-                  <div className="relative aspect-video bg-surface">
-                    {h.thumbnail_url ? (
+                  <div className="relative aspect-video" style={{ background: theme.bg }}>
+                    {h.thumbnail_url && (
                       <img src={h.thumbnail_url} alt={h.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Play className="w-8 h-8 text-text-muted/30" />
-                      </div>
                     )}
-                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/15 transition-colors flex items-center justify-center">
-                      <div
-                        className="flex items-center justify-center"
-                        style={{ width: '40px', height: '40px', background: '#E8FF47', borderRadius: '3px' }}
-                      >
-                        <Play className="w-5 h-5 fill-current" style={{ color: '#0A0A0F' }} />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="flex items-center justify-center group-hover:brightness-110" style={{ width: '40px', height: '40px', background: theme.accent, borderRadius: '3px' }}>
+                        <Play style={{ width: '18px', height: '18px', color: onAccent }} className="fill-current" />
                       </div>
                     </div>
                   </div>
-                  <div className="p-3">
-                    <h3 className="font-display font-bold uppercase truncate tracking-wide" style={{ fontSize: '13px' }}>{h.title}</h3>
-                    {h.description && (
-                      <p className="text-xs text-text-muted mt-1 line-clamp-2">{h.description}</p>
-                    )}
-                    <span className="text-[10px] text-text-muted mt-1.5 block">{timeAgo(h.created_at)}</span>
+                  <div style={{ padding: '8px 10px' }}>
+                    <h3 className="truncate" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '11px', color: theme.text, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h.title}</h3>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', color: theme.textMuted, marginTop: '2px' }}>{timeAgo(h.created_at)}</p>
                   </div>
                 </button>
               ))}
@@ -456,22 +462,20 @@ export default function ProfilePage() {
             <div className="overflow-x-auto pb-8">
               <table className="w-full text-sm" style={{ borderRadius: '4px', overflow: 'hidden' }}>
                 <thead>
-                  <tr style={{ background: '#12121E' }}>
-                    <th className="text-left py-3 px-4 font-display font-semibold uppercase" style={{ fontSize: '11px', letterSpacing: '0.08em', color: '#8888A0' }}>Season</th>
-                    <th className="text-center py-3 px-3 font-display font-semibold uppercase" style={{ fontSize: '11px', letterSpacing: '0.08em', color: '#8888A0' }}>Apps</th>
-                    <th className="text-center py-3 px-3 font-display font-semibold uppercase" style={{ fontSize: '11px', letterSpacing: '0.08em', color: '#8888A0' }}>Goals</th>
-                    <th className="text-center py-3 px-3 font-display font-semibold uppercase" style={{ fontSize: '11px', letterSpacing: '0.08em', color: '#8888A0' }}>Assists</th>
-                    <th className="text-center py-3 px-3 font-display font-semibold uppercase" style={{ fontSize: '11px', letterSpacing: '0.08em', color: '#8888A0' }}>Minutes</th>
+                  <tr style={{ background: theme.surface }}>
+                    {['Season', 'Apps', 'Goals', 'Assists', 'Minutes'].map((h, i) => (
+                      <th key={h} className={i === 0 ? 'text-left py-3 px-4' : 'text-center py-3 px-3'} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: '11px', letterSpacing: '0.08em', color: theme.textMuted, textTransform: 'uppercase' }}>{h}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {stats.map((s, i) => (
-                    <tr key={s.id} className="border-b border-white/5" style={{ background: i % 2 === 0 ? '#1A1A2E' : 'rgba(26,26,46,0.5)' }}>
-                      <td className="py-3 px-4 font-display font-semibold uppercase text-sm tracking-wide">{s.season}</td>
-                      <td className="py-3 px-3 text-center text-text-muted">{s.appearances}</td>
-                      <td className="py-3 px-3 text-center font-display font-bold" style={{ fontSize: '18px', color: '#E8FF47' }}>{s.goals}</td>
-                      <td className="py-3 px-3 text-center text-text-muted">{s.assists}</td>
-                      <td className="py-3 px-3 text-center text-text-muted">{s.minutes_played}</td>
+                    <tr key={s.id} style={{ background: i % 2 === 0 ? theme.surface : 'transparent', borderBottom: `1px solid ${theme.border}` }}>
+                      <td className="py-3 px-4 font-display font-semibold uppercase text-sm tracking-wide" style={{ color: theme.text }}>{s.season}</td>
+                      <td className="py-3 px-3 text-center" style={{ color: theme.textMuted }}>{s.appearances}</td>
+                      <td className="py-3 px-3 text-center font-display font-bold" style={{ fontSize: '18px', color: theme.accent }}>{s.goals}</td>
+                      <td className="py-3 px-3 text-center" style={{ color: theme.textMuted }}>{s.assists}</td>
+                      <td className="py-3 px-3 text-center" style={{ color: theme.textMuted }}>{s.minutes_played}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -490,31 +494,25 @@ export default function ProfilePage() {
         {activeTab === 'achievements' && (
           achievements.length > 0 ? (
             <div className="relative pb-8">
-              <div className="absolute left-5 top-0 bottom-0" style={{ width: '1px', background: 'rgba(255,255,255,0.08)' }} />
+              <div className="absolute top-0 bottom-0" style={{ left: '9px', width: '1px', background: theme.border }} />
               <div className="space-y-6">
                 {achievements.map((a) => (
-                  <div key={a.id} className="relative pl-12">
+                  <div key={a.id} className="relative" style={{ paddingLeft: '32px' }}>
                     <div
-                      className="absolute left-3 top-1 flex items-center justify-center"
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        borderRadius: '3px',
-                        background: 'rgba(232,255,71,0.15)',
-                        border: '1.5px solid #E8FF47',
-                      }}
+                      className="absolute flex items-center justify-center"
+                      style={{ left: '0', top: '2px', width: '20px', height: '20px', borderRadius: '3px', background: theme.accentMuted, border: `1.5px solid ${theme.accent}` }}
                     >
-                      <Trophy className="w-2.5 h-2.5 text-accent" />
+                      <Trophy style={{ width: '10px', height: '10px', color: theme.accent }} />
                     </div>
-                    <div className="p-4" style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px' }}>
+                    <div style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '4px', padding: '10px 12px' }}>
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-display font-bold uppercase text-sm tracking-wide">{a.title}</h3>
-                        <span className="text-xs text-text-muted flex items-center gap-1 flex-shrink-0 ml-2">
+                        <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '12px', color: theme.text, textTransform: 'uppercase' }}>{a.title}</h3>
+                        <span className="flex items-center gap-1 flex-shrink-0 ml-2" style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', color: theme.textMuted }}>
                           <Calendar className="w-3 h-3" />
                           {formatDate(a.date)}
                         </span>
                       </div>
-                      <p className="text-xs text-text-muted">{a.description}</p>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: theme.textMuted }}>{a.description}</p>
                     </div>
                   </div>
                 ))}
@@ -557,35 +555,33 @@ export default function ProfilePage() {
 
             return (
               <div className="pb-8">
-                {/* Metric cards */}
                 <div className="grid grid-cols-3 gap-3 mb-6">
                   {[
                     { label: 'Sessions this month', value: monthSessions.length },
                     { label: 'Hours this month', value: monthHours },
                     { label: 'Active streak', value: `${streak}d` },
                   ].map(({ label, value }) => (
-                    <div key={label} style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '14px' }}>
-                      <div className="font-display font-black text-accent" style={{ fontSize: '28px', lineHeight: 1 }}>{value}</div>
-                      <div className="text-text-muted uppercase" style={{ fontSize: '10px', letterSpacing: '0.06em', marginTop: '4px' }}>{label}</div>
+                    <div key={label} style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '4px', padding: '14px' }}>
+                      <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '28px', lineHeight: 1, color: theme.accent }}>{value}</div>
+                      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '4px' }}>{label}</div>
                     </div>
                   ))}
                 </div>
 
-                {/* Last 5 sessions */}
                 <div className="space-y-2">
                   {last5.map((s) => {
                     const m = meta(s.activity_type);
                     const color = getActivityColor(s.activity_type);
                     return (
-                      <div key={s.id} className="flex items-center gap-3 p-3" style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px' }}>
+                      <div key={s.id} className="flex items-center gap-3 p-3" style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '4px' }}>
                         <div className="flex items-center justify-center flex-shrink-0" style={{ width: '36px', height: '36px', borderRadius: '4px', background: `${color}22` }}>
                           <i className={`ti ${m.icon}`} style={{ fontSize: '20px', color }} aria-hidden="true" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="font-display font-bold uppercase text-sm">{m.label}</span>
-                          <p className="text-xs text-text-muted">{s.duration_minutes} min</p>
+                          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', color: theme.text, textTransform: 'uppercase' }}>{m.label}</span>
+                          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: theme.textMuted }}>{s.duration_minutes} min</p>
                         </div>
-                        <span className="text-[10px] text-text-muted flex-shrink-0">{formatDate(s.session_date)}</span>
+                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', color: theme.textMuted }} className="flex-shrink-0">{formatDate(s.session_date)}</span>
                       </div>
                     );
                   })}
@@ -594,8 +590,8 @@ export default function ProfilePage() {
                 {isOwn && (
                   <button
                     onClick={() => navigate('/training')}
-                    className="w-full flex items-center justify-center gap-2 mt-4 py-3 font-display font-bold uppercase text-sm hover:bg-white/5 transition-colors"
-                    style={{ border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px' }}
+                    className="w-full flex items-center justify-center gap-2 mt-4 py-3"
+                    style={{ border: `0.5px solid ${theme.border}`, borderRadius: '4px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', color: theme.text, textTransform: 'uppercase' }}
                   >
                     <Activity className="w-4 h-4" /> View full training log
                   </button>
@@ -606,54 +602,35 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* ── Own profile metric strip ── */}
-      {isOwn && (
-        <div style={{ background: '#12121E', borderTop: '0.5px solid rgba(255,255,255,0.06)', padding: '12px 0', marginTop: '32px' }}>
-          <div style={{ maxWidth: '896px', margin: '0 auto', padding: '0 16px' }}>
-            <div className="flex items-center gap-2">
-              <span className="font-display font-black text-2xl text-accent">{viewCount}</span>
-              <span className="text-text-muted uppercase tracking-wide" style={{ fontSize: '11px' }}>Views this week</span>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ── Toast ── */}
       {toast && (
         <div
-          className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 bg-accent text-primary px-5 py-2.5 text-sm font-bold animate-slide-up whitespace-nowrap"
-          style={{ borderRadius: '4px' }}
+          className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 animate-slide-up whitespace-nowrap"
+          style={{ background: theme.accent, color: onAccent, padding: '10px 20px', borderRadius: '4px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '13px', textTransform: 'uppercase' }}
         >
           {toast}
         </div>
       )}
 
-      {/* ── Video Modal ── */}
+      {/* ── Video Modal (faux fullscreen) ── */}
       {videoModal && (
         <div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 animate-fade-in"
-          style={{ background: 'rgba(0,0,0,0.96)' }}
+          className="absolute top-0 left-0 right-0 flex items-center justify-center animate-fade-in"
+          style={{ minHeight: '100vh', background: 'rgba(0,0,0,0.97)', zIndex: 100 }}
           onClick={() => setVideoModal(null)}
         >
-          <div className="w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full" style={{ maxWidth: '800px', padding: '16px' }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3 px-1">
               <div className="flex items-center gap-3 min-w-0">
-                <h3 className="font-display font-bold uppercase text-white truncate tracking-wide" style={{ fontSize: '16px' }}>
+                <h3 className="truncate" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '16px', color: '#fff', textTransform: 'uppercase' }}>
                   {videoModal.title}
                 </h3>
-                {videoModal.sport && (
-                  <span
-                    className="font-display font-semibold text-accent uppercase flex-shrink-0"
-                    style={{ fontSize: '10px', background: 'rgba(232,255,71,0.1)', letterSpacing: '0.06em', padding: '2px 8px', borderRadius: '3px' }}
-                  >
-                    {videoModal.sport}
-                  </span>
-                )}
+                {videoModal.sport && <span style={badgeStyle} className="flex-shrink-0">{videoModal.sport}</span>}
               </div>
               <button
                 onClick={() => setVideoModal(null)}
-                className="w-9 h-9 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0 ml-3"
-                style={{ borderRadius: '4px' }}
+                className="flex items-center justify-center flex-shrink-0 ml-3"
+                style={{ width: '36px', height: '36px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', color: '#fff' }}
                 aria-label="Close video"
               >
                 <X className="w-5 h-5" />
@@ -664,11 +641,12 @@ export default function ProfilePage() {
               controls
               autoPlay
               playsInline
-              className="w-full bg-black"
-              style={{ maxHeight: '75vh', borderRadius: '4px' }}
+              preload="metadata"
+              className="w-full"
+              style={{ background: '#000', borderRadius: '4px', maxHeight: '75vh' }}
             />
             {videoModal.description && (
-              <p className="text-sm text-white/60 mt-3 px-1">{videoModal.description}</p>
+              <p className="mt-3 px-1" style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>{videoModal.description}</p>
             )}
           </div>
         </div>

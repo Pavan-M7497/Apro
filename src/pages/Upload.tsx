@@ -97,7 +97,7 @@ export default function Upload() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-primary pt-20 md:pt-20 flex items-center justify-center px-4">
+      <div className="min-h-screen pt-6 md:pt-10 flex items-center justify-center px-4">
         <div className="text-center animate-fade-in">
           <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-8 h-8 text-success" />
@@ -124,7 +124,7 @@ export default function Upload() {
   }
 
   return (
-    <div className="min-h-screen bg-primary pt-20 md:pt-20 pb-24">
+    <div className="min-h-screen pt-6 md:pt-10 pb-24">
       <div className="max-w-2xl mx-auto px-4">
         <h1 className="text-2xl font-bold mb-6">Upload Highlight</h1>
 

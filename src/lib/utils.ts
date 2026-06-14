@@ -78,6 +78,48 @@ export function getRoleAccent(role: string | undefined): string {
   }
 }
 
+export interface RoleTheme {
+  bg: string;          // darkest bg
+  surface: string;     // card/sidebar bg
+  border: string;      // subtle border colour
+  accent: string;      // primary accent
+  accentMuted: string; // accent at low opacity for fills
+  text: string;        // primary text
+  textMuted: string;   // muted/secondary text
+  logoColor: string;   // APRO wordmark colour
+}
+
+export function getRoleTheme(role: string | undefined): RoleTheme {
+  switch (role) {
+    case 'brand': return {
+      bg: '#03080F', surface: '#04101A', border: '#0a1e30',
+      accent: '#378ADD', accentMuted: 'rgba(55,138,221,0.1)',
+      text: '#E8F4FD', textMuted: '#1a4a6e', logoColor: '#378ADD'
+    };
+    case 'coach': return {
+      bg: '#0E0800', surface: '#140C00', border: '#2a1a00',
+      accent: '#EF9F27', accentMuted: 'rgba(239,159,39,0.1)',
+      text: '#FDF6E8', textMuted: '#6a4a10', logoColor: '#EF9F27'
+    };
+    case 'agent': return {
+      bg: '#0E0308', surface: '#160510', border: '#2a0a18',
+      accent: '#D4537E', accentMuted: 'rgba(212,83,126,0.1)',
+      text: '#FDE8F0', textMuted: '#7a2545', logoColor: '#D4537E'
+    };
+    case 'athlete':
+    default: return {
+      bg: '#050A06', surface: '#08100A', border: '#1a2e1c',
+      accent: '#E8FF47', accentMuted: 'rgba(232,255,71,0.08)',
+      text: '#F5FFF0', textMuted: '#4a7a50', logoColor: '#E8FF47'
+    };
+  }
+}
+
+// Contrasting text colour to sit on top of theme.accent fills.
+export function accentTextColor(role: string | undefined): string {
+  return role === 'brand' || role === 'agent' || role === 'coach' ? '#ffffff' : '#050508';
+}
+
 export function getActivityColor(activityType: string): string {
   switch (activityType) {
     case 'running':    return '#378ADD'; // blue

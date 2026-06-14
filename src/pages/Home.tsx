@@ -457,7 +457,7 @@ export default function Home() {
   const roleAccentMuted = getRoleAccentMuted(profile.role);
 
   return (
-    <div className="min-h-screen bg-primary pt-20 md:pt-20 pb-24">
+    <div className="min-h-screen pt-6 md:pt-10 pb-24">
       <div className="max-w-3xl mx-auto px-4">
         <div style={{ background: roleAccentMuted, borderBottom: `1px solid ${roleAccent}22`, padding: '12px 16px', marginBottom: '24px', borderRadius: '4px' }}>
           <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '28px', textTransform: 'uppercase', letterSpacing: '0.02em', color: '#F5F5F0', margin: 0 }}>

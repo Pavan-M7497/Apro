@@ -38,7 +38,7 @@ export default function TrainingProgress() {
     })();
   }, [profile]);
 
-  if (loading) return <div className="min-h-screen bg-primary pt-20"><LoadingSpinner /></div>;
+  if (loading) return <div className="min-h-screen pt-10"><LoadingSpinner /></div>;
 
   const roleAccent = getRoleAccent(profile?.role);
 
@@ -94,7 +94,7 @@ export default function TrainingProgress() {
   });
 
   return (
-    <div className="min-h-screen bg-primary pt-20 md:pt-20 pb-28">
+    <div className="min-h-screen pt-6 md:pt-10 pb-28">
       <div className="max-w-3xl mx-auto px-4">
         <button onClick={() => navigate('/training')} className="flex items-center gap-2 text-text-muted hover:text-text transition-colors text-sm mb-4">
           <ArrowLeft className="w-4 h-4" /> Back to log

@@ -99,7 +99,7 @@ export default function Leaderboard() {
   };
 
   return (
-    <div className="min-h-screen bg-primary pt-20 md:pt-20 pb-24">
+    <div className="min-h-screen pt-6 md:pt-10 pb-24">
       <div className="max-w-3xl mx-auto px-4">
         <h1 className="font-display font-black uppercase text-3xl tracking-wide mb-2">Leaderboard</h1>
         <p className="text-text-muted text-sm mb-6">Top athletes ranked by Apro Score</p>
@@ -150,9 +150,10 @@ export default function Leaderboard() {
                 >
                   {/* Rank */}
                   <span
-                    className="font-display font-black w-8 text-center flex-shrink-0"
+                    className="font-display font-black text-center flex-shrink-0"
                     style={{
-                      fontSize: i === 0 ? '28px' : i <= 2 ? '24px' : '20px',
+                      width: i === 0 ? '48px' : '32px',
+                      fontSize: i === 0 ? '56px' : i <= 2 ? '28px' : '20px',
                       color: i === 0 ? '#E8FF47' : i === 1 ? '#8888A0' : i === 2 ? '#EF9F27' : 'rgba(255,255,255,0.2)',
                       lineHeight: 1,
                     }}
