@@ -111,7 +111,24 @@ export default function Sidebar() {
       >
         {/* Logo */}
         <div style={{ padding: '24px' }}>
-          <Link to="/home">
+          <Link to="/home" className="flex items-center" style={{ gap: '8px' }}>
+            <span
+              className="flex items-center justify-center flex-shrink-0"
+              style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '4px',
+                background: theme.logoColor,
+                color: theme.bg,
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 900,
+                fontSize: '16px',
+                lineHeight: 1,
+              }}
+              aria-hidden="true"
+            >
+              A
+            </span>
             <span
               style={{
                 fontFamily: "'Barlow Condensed', sans-serif",

@@ -5,13 +5,16 @@ export default {
     extend: {
       colors: {
         primary: '#0A0A0F',
-        accent: '#E8FF47',
+        // accent reads from a CSS variable set per-role by ThemeProvider, so
+        // every text-accent / bg-accent / border-accent / accent-/<alpha>
+        // utility re-themes to the logged-in user's role colour world.
+        accent: 'rgb(var(--accent-rgb) / <alpha-value>)',
+        'accent-hover': 'rgb(var(--accent-hover-rgb) / <alpha-value>)',
         card: '#1A1A2E',
         'card-hover': '#222240',
         surface: '#12121E',
         text: '#F5F5F0',
         'text-muted': '#8888A0',
-        'accent-hover': '#D4E840',
         success: '#34D399',
         warning: '#FBBF24',
         error: '#F87171',

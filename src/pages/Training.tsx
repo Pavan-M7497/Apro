@@ -149,15 +149,15 @@ export default function Training() {
                 onClick={() => hasSession && scrollToDate(d.key)}
                 className="flex flex-col items-center gap-1 py-2 transition-colors"
                 style={{
-                  background: isToday ? 'rgba(232,255,71,0.08)' : '#1A1A2E',
-                  border: isToday ? '0.5px solid rgba(232,255,71,0.4)' : '0.5px solid rgba(255,255,255,0.06)',
+                  background: isToday ? 'rgb(var(--accent-rgb) / 0.08)' : '#1A1A2E',
+                  border: isToday ? '0.5px solid rgb(var(--accent-rgb) / 0.4)' : '0.5px solid rgba(255,255,255,0.06)',
                   borderRadius: '4px',
                   cursor: hasSession ? 'pointer' : 'default',
                 }}
               >
-                <span className="font-display font-bold uppercase" style={{ fontSize: '10px', color: isToday ? '#E8FF47' : '#8888A0' }}>{d.abbr}</span>
-                <span className="font-display font-black" style={{ fontSize: '16px', color: isToday ? '#E8FF47' : '#F5F5F0' }}>{d.dateNum}</span>
-                <span style={{ width: '6px', height: '6px', borderRadius: '2px', background: hasSession ? '#E8FF47' : 'transparent' }} />
+                <span className="font-display font-bold uppercase" style={{ fontSize: '10px', color: isToday ? 'rgb(var(--accent-rgb))' : '#8888A0' }}>{d.abbr}</span>
+                <span className="font-display font-black" style={{ fontSize: '16px', color: isToday ? 'rgb(var(--accent-rgb))' : '#F5F5F0' }}>{d.dateNum}</span>
+                <span style={{ width: '6px', height: '6px', borderRadius: '2px', background: hasSession ? 'rgb(var(--accent-rgb))' : 'transparent' }} />
               </button>
             );
           })}
@@ -248,7 +248,7 @@ export default function Training() {
           width: '56px',
           height: '56px',
           borderRadius: '4px',
-          background: '#E8FF47',
+          background: 'rgb(var(--accent-rgb))',
           color: '#0A0A0F',
         }}
         aria-label="Log a session"
