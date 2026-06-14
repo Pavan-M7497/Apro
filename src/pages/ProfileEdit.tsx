@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
 import { calculateProfileCompleteness } from '../lib/utils';
-import { COUNTRIES } from '../lib/types';
+import { useImageUpload } from '../hooks/useImageUpload';
+import { useTheme } from '../contexts/ThemeContext';
 import { SportSelect, PositionSelect } from '../components/SportSelect';
+import { CountrySelect } from '../components/CountrySelect';
 import type { AthleteProfile, Stat, Achievement } from '../lib/types';
 import { Camera, Save, User, Globe, Dumbbell, FileText, BarChart3, Trophy, Plus, Trash2 } from 'lucide-react';
 
@@ -19,12 +21,21 @@ export default function ProfileEdit() {
   const [position, setPosition] = useState('');
   const [availability, setAvailability] = useState<string>('available');
   const [athleteProfile, setAthleteProfile] = useState<AthleteProfile | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile?.avatar_url || null);
   const [coverPreview, setCoverPreview] = useState<string | null>(profile?.cover_url || null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [calculatingScore, setCalculatingScore] = useState(false);
+
+  const theme = useTheme();
+  const { upload: uploadAvatar, uploading: avatarUploading } = useImageUpload('avatars');
+  const { upload: uploadCover, uploading: coverUploading } = useImageUpload('covers');
+
+  const showNotice = (msg: string) => {
+    setNotice(msg);
+    setTimeout(() => setNotice(''), 2500);
+  };
   const [loading, setLoading] = useState(true);
 
   // Stats
@@ -76,27 +87,59 @@ export default function ProfileEdit() {
     setLoading(false);
   };
 
-  const handleFileChange = (type: 'avatar' | 'cover', file: File) => {
-    const url = URL.createObjectURL(file);
-    if (type === 'avatar') {
-      setAvatarFile(file);
-      setAvatarPreview(url);
-    } else {
-      setCoverFile(file);
-      setCoverPreview(url);
-    }
+  const handleAvatarChange = async (file: File | undefined) => {
+    if (!file || !profile) return;
+    setAvatarPreview(URL.createObjectURL(file));
+    const publicUrl = await uploadAvatar(file, `${profile.id}/avatar`);
+    if (!publicUrl) return;
+    await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', profile.id);
+    if (user) await fetchProfile(user.id);
+    showNotice('Profile photo updated!');
   };
 
-  const uploadFile = async (bucket: string, file: File) => {
-    const ext = file.name.split('.').pop();
-    const path = `${user!.id}/${Date.now()}.${ext}`;
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(path, file, { upsert: true });
-    if (uploadError) throw uploadError;
-    const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(path);
-    return publicUrl;
+  const handleCoverChange = async (file: File | undefined) => {
+    if (!file || !profile) return;
+    setCoverPreview(URL.createObjectURL(file));
+    const publicUrl = await uploadCover(file, `${profile.id}/cover`);
+    if (!publicUrl) return;
+    await supabase.from('profiles').update({ cover_url: publicUrl }).eq('id', profile.id);
+    if (user) await fetchProfile(user.id);
+    showNotice('Banner updated!');
   };
+
+  async function calculateAproScore() {
+    if (!profile) return;
+    setCalculatingScore(true);
+
+    const fields = [profile.full_name, profile.bio, profile.avatar_url, profile.cover_url, profile.country, athleteProfile?.sport, athleteProfile?.position, athleteProfile?.date_of_birth];
+    const filled = fields.filter(Boolean).length;
+    const completeness = Math.round((filled / fields.length) * 20);
+
+    const tierScore = (profile.verification_tier || 0) * 10;
+
+    const { data: achievs } = await supabase.from('achievements').select('category').eq('profile_id', profile.id);
+    const weights: Record<string, number> = { world: 30, continental: 20, national: 15, regional: 8, title: 10, award: 6, record: 8, selection: 10, other: 2 };
+    const achievScore = Math.min(30, (achievs || []).reduce((sum: number, a: { category: string }) => sum + (weights[a.category] || 2), 0));
+
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { count } = await supabase.from('profile_views').select('*', { count: 'exact', head: true }).eq('profile_id', profile.id).gte('created_at', thirtyDaysAgo);
+    const engagementScore = Math.min(20, Math.floor((count || 0) / 5));
+
+    const total = completeness + tierScore + achievScore + engagementScore;
+    const breakdown = { completeness, verification: tierScore, achievements: achievScore, engagement: engagementScore };
+
+    await supabase.from('apro_scores').upsert({
+      profile_id: profile.id,
+      sport: athleteProfile?.sport || '',
+      country: profile.country || '',
+      score: total,
+      breakdown,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'profile_id' });
+
+    setCalculatingScore(false);
+    showNotice(`Apro Score updated: ${total}/100`);
+  }
 
   const handleSave = async () => {
     if (!profile) return;
@@ -104,20 +147,14 @@ export default function ProfileEdit() {
     setSaving(true);
 
     try {
-      let avatarUrl = profile.avatar_url;
-      let coverUrl = profile.cover_url;
-
-      if (avatarFile) avatarUrl = await uploadFile('avatars', avatarFile);
-      if (coverFile) coverUrl = await uploadFile('covers', coverFile);
-
+      // Avatar/cover are uploaded immediately on selection; here we only
+      // persist the text fields.
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           full_name: fullName,
           bio: bio || null,
           country,
-          avatar_url: avatarUrl,
-          cover_url: coverUrl,
         })
         .eq('id', profile.id);
 
@@ -251,6 +288,12 @@ export default function ProfileEdit() {
       <div className="max-w-2xl mx-auto px-4">
         <h1 className="text-2xl font-bold mb-6">Edit Profile</h1>
 
+        {notice && (
+          <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 bg-accent text-primary px-5 py-2.5 text-sm font-bold animate-slide-up whitespace-nowrap" style={{ borderRadius: '4px' }}>
+            {notice}
+          </div>
+        )}
+
         {/* Completeness bar */}
         <div className="bg-card rounded-xl p-4 border border-white/5 mb-6">
           <div className="flex items-center justify-between mb-2">
@@ -281,16 +324,17 @@ export default function ProfileEdit() {
             {coverPreview ? (
               <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Camera className="w-8 h-8 text-text-muted/30" />
+              <div className="w-full h-full flex items-center justify-center gap-2">
+                <Camera className="w-6 h-6 text-text-muted/30" />
+                <span className="text-xs text-text-muted/50">{coverUploading ? 'Uploading…' : 'Upload banner'}</span>
               </div>
             )}
             <input
               id="cover-input"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               className="hidden"
-              onChange={(e) => e.target.files?.[0] && handleFileChange('cover', e.target.files[0])}
+              onChange={(e) => handleCoverChange(e.target.files?.[0])}
             />
           </div>
         </div>
@@ -314,11 +358,11 @@ export default function ProfileEdit() {
             <input
               id="avatar-input"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               className="hidden"
-              onChange={(e) => e.target.files?.[0] && handleFileChange('avatar', e.target.files[0])}
+              onChange={(e) => handleAvatarChange(e.target.files?.[0])}
             />
-            <p className="text-xs text-text-muted">Click to change avatar</p>
+            <p className="text-xs text-text-muted">{avatarUploading ? 'Uploading…' : 'Click to change avatar'}</p>
           </div>
         </div>
 
@@ -356,15 +400,12 @@ export default function ProfileEdit() {
           <div>
             <label className="block text-sm font-medium text-text-muted mb-1.5">Country</label>
             <div className="relative">
-              <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-              <select
+              <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted z-10" />
+              <CountrySelect
                 value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                className="w-full bg-surface border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors appearance-none"
-              >
-                <option value="">Select country</option>
-                {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
+                onChange={setCountry}
+                className="bg-surface border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:border-accent/50 transition-colors"
+              />
             </div>
           </div>
 
@@ -572,6 +613,25 @@ export default function ProfileEdit() {
               </div>
             </>
           )}
+        </div>
+
+        {/* Apro Score */}
+        <div className="mt-8 pt-6 border-t border-white/10">
+          <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', color: theme.accent }}>Apro Score</h3>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: theme.textMuted, marginTop: '4px', marginBottom: '12px' }}>
+            Your score determines your ranking on the leaderboard.
+          </p>
+          <button
+            onClick={calculateAproScore}
+            disabled={calculatingScore}
+            className="inline-flex items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-60"
+            style={{ background: theme.accent, color: '#050508', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em', borderRadius: '4px', padding: '8px 16px' }}
+          >
+            {calculatingScore && (
+              <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" style={{ borderColor: '#050508', borderTopColor: 'transparent' }} />
+            )}
+            {calculatingScore ? 'Calculating…' : 'Calculate my score'}
+          </button>
         </div>
 
         {/* Save button */}

@@ -18,6 +18,7 @@ import Calendar from './pages/Calendar';
 import Training from './pages/Training';
 import TrainingLog from './pages/TrainingLog';
 import TrainingProgress from './pages/TrainingProgress';
+import Messages from './pages/Messages';
 
 function ComingSoon({ title }: { title: string }) {
   return (
@@ -63,6 +64,7 @@ export default function App() {
             <Route path="/training" element={<ProtectedRoute><Training /></ProtectedRoute>} />
             <Route path="/training/log" element={<ProtectedRoute><TrainingLog /></ProtectedRoute>} />
             <Route path="/training/progress" element={<ProtectedRoute><TrainingProgress /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/saved" element={<ProtectedRoute><ComingSoon title="Saved" /></ProtectedRoute>} />

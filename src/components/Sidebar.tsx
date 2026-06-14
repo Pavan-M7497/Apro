@@ -4,7 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { initials } from '../lib/utils';
 import {
   Home, Rss, Search, Upload, Activity, Calendar, Trophy,
-  BookMarked, Users, Briefcase, LogOut, type LucideIcon,
+  BookMarked, Users, Briefcase, LogOut, MessageCircle, type LucideIcon,
 } from 'lucide-react';
 
 interface NavLink {
@@ -66,7 +66,9 @@ export default function Sidebar() {
 
   if (!user) return null;
 
-  const links = linksForRole(profile?.role, profile?.username);
+  const base = linksForRole(profile?.role, profile?.username);
+  // Messages available to all roles — insert after Home + Feed.
+  const links = [...base.slice(0, 2), { to: '/messages', label: 'Messages', icon: MessageCircle }, ...base.slice(2)];
   const mobileLinks = links.slice(0, 5);
   const inactiveColor = profile?.role === 'athlete' ? '#555' : '#3a3a3a';
 
