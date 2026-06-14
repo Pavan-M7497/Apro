@@ -1,4 +1,12 @@
+import countries from 'world-countries';
+
 export type UserRole = 'athlete' | 'brand' | 'coach' | 'agent';
+
+export interface Country {
+  code: string;
+  name: string;
+  flag: string;
+}
 
 export interface Profile {
   id: string;
@@ -88,12 +96,13 @@ export const SPORTS = [
   'Handball', 'Cycling', 'Golf', 'Baseball', 'Hockey',
 ];
 
-export const COUNTRIES = [
-  'Argentina', 'Australia', 'Brazil', 'Canada', 'China',
-  'Colombia', 'France', 'Germany', 'India', 'Italy',
-  'Japan', 'Mexico', 'Netherlands', 'Nigeria', 'Portugal',
-  'South Africa', 'South Korea', 'Spain', 'United Kingdom', 'United States',
-];
+export const COUNTRIES: Country[] = countries
+  .map((c) => ({
+    code: c.cca2,
+    name: c.name.common,
+    flag: c.flag,
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
 
 export type ActivityType = 'running' | 'cycling' | 'swimming' | 'gym' | 'team_sport' | 'general';
 

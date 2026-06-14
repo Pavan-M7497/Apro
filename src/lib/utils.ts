@@ -1,16 +1,13 @@
+import { COUNTRIES } from './types';
+
 export function cn(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
+const FLAG_BY_NAME = new Map(COUNTRIES.map((c) => [c.name, c.flag]));
+
 export function getCountryFlag(country: string): string {
-  const codes: Record<string, string> = {
-    Argentina: '🇦🇷', Australia: '🇦🇺', Brazil: '🇧🇷', Canada: '🇨🇦',
-    China: '🇨🇳', Colombia: '🇨🇴', France: '🇫🇷', Germany: '🇩🇪',
-    India: '🇮🇳', Italy: '🇮🇹', Japan: '🇯🇵', Mexico: '🇲🇽',
-    Netherlands: '🇳🇱', Nigeria: '🇳🇬', Portugal: '🇵🇹', 'South Africa': '🇿🇦',
-    'South Korea': '🇰🇷', Spain: '🇪🇸', 'United Kingdom': '🇬🇧', 'United States': '🇺🇸',
-  };
-  return codes[country] || '🏳️';
+  return FLAG_BY_NAME.get(country) || '🏳️';
 }
 
 export function initials(name: string): string {

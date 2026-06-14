@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
+import { useImageUpload } from '../hooks/useImageUpload';
 import { getCountryFlag, initials, formatDate, timeAgo, getRoleAccent, getActivityColor, getRoleTheme, accentTextColor, calculateProfileCompleteness } from '../lib/utils';
 import type { Profile as ProfileType, AthleteProfile, Highlight, Stat, Achievement, TrainingSession } from '../lib/types';
 import { ACTIVITY_TYPES } from '../lib/types';
@@ -31,8 +32,15 @@ function computeStreak(dateKeys: Set<string>): number {
 
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
-  const { user, profile: myProfile } = useAppStore();
+  const { user, profile: myProfile, fetchProfile } = useAppStore();
   const navigate = useNavigate();
+
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const { upload: uploadAvatar, uploading: avatarUploading } = useImageUpload('avatars');
+  const { upload: uploadCover, uploading: coverUploading } = useImageUpload('covers');
+  const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
+  const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
 
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [athleteProfile, setAthleteProfile] = useState<AthleteProfile | null>(null);
@@ -195,19 +203,33 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
-  const handleFollow = async () => {
+  const handleConnect = async () => {
     if (!myProfile || !profile) return;
-    if (isFollowing) {
-      await supabase.from('follows').delete()
-        .eq('follower_id', myProfile.id)
-        .eq('following_id', profile.id);
-    } else {
-      await supabase.from('follows').insert({
-        follower_id: myProfile.id,
-        following_id: profile.id,
-      });
+
+    // Following is part of "connecting" — keep the follow relationship.
+    if (!isFollowing) {
+      await supabase.from('follows').insert({ follower_id: myProfile.id, following_id: profile.id });
+      setIsFollowing(true);
     }
-    setIsFollowing(!isFollowing);
+
+    // Find an existing conversation in either direction, else create one.
+    const { data: existing } = await supabase
+      .from('conversations')
+      .select('id')
+      .or(`and(participant_a.eq.${myProfile.id},participant_b.eq.${profile.id}),and(participant_a.eq.${profile.id},participant_b.eq.${myProfile.id})`)
+      .maybeSingle();
+
+    let convId = existing?.id as string | undefined;
+    if (!convId) {
+      const { data: created } = await supabase
+        .from('conversations')
+        .insert({ participant_a: myProfile.id, participant_b: profile.id })
+        .select('id')
+        .single();
+      convId = created?.id;
+    }
+
+    if (convId) navigate(`/messages?conversation=${convId}`);
   };
 
   const handleShare = async () => {
@@ -224,6 +246,26 @@ export default function ProfilePage() {
       await navigator.clipboard.writeText(url);
       showToast('Profile link copied!');
     }
+  };
+
+  const handleAvatarChange = async (file: File | undefined) => {
+    if (!file || !profile) return;
+    setLocalAvatarUrl(URL.createObjectURL(file));
+    const publicUrl = await uploadAvatar(file, `${profile.id}/avatar`);
+    if (!publicUrl) return;
+    await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', profile.id);
+    if (user) await fetchProfile(user.id);
+    showToast('Profile photo updated!');
+  };
+
+  const handleCoverChange = async (file: File | undefined) => {
+    if (!file || !profile) return;
+    setLocalCoverUrl(URL.createObjectURL(file));
+    const publicUrl = await uploadCover(file, `${profile.id}/cover`);
+    if (!publicUrl) return;
+    await supabase.from('profiles').update({ cover_url: publicUrl }).eq('id', profile.id);
+    if (user) await fetchProfile(user.id);
+    showToast('Banner updated!');
   };
 
   if (loading) return <LoadingSpinner />;
@@ -275,11 +317,45 @@ export default function ProfilePage() {
 
       {/* ── Cover hero (full width) ── */}
       <div className="relative w-full overflow-hidden h-[240px] md:h-[320px]" style={{ background: theme.surface }}>
-        {profile.cover_url && (
-          <img src={profile.cover_url} alt="" className="w-full h-full object-cover" />
+        {(localCoverUrl || profile.cover_url) && (
+          <img src={localCoverUrl || profile.cover_url || ''} alt="" className="w-full h-full object-cover" />
         )}
         {/* The one allowed gradient — name legibility */}
         <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 20%, ${theme.bg} 100%)` }} />
+
+        {/* Banner upload (own profile) */}
+        {isOwn && (
+          <>
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => handleCoverChange(e.target.files?.[0])}
+            />
+            {!(localCoverUrl || profile.cover_url) ? (
+              <button
+                onClick={() => coverInputRef.current?.click()}
+                className="absolute flex items-center"
+                style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', gap: '8px', border: '1.5px dashed rgba(255,255,255,0.2)', borderRadius: '4px', padding: '10px 16px', zIndex: 10 }}
+              >
+                <Camera style={{ width: '14px', height: '14px', color: 'rgba(255,255,255,0.4)' }} />
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '11px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
+                  {coverUploading ? 'Uploading…' : 'Upload banner'}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={() => coverInputRef.current?.click()}
+                className="absolute flex items-center justify-center"
+                style={{ top: '10px', left: '10px', width: '32px', height: '32px', background: 'rgba(0,0,0,0.5)', border: '0.5px solid rgba(255,255,255,0.15)', borderRadius: '4px', zIndex: 10 }}
+                aria-label="Change banner"
+              >
+                <Camera style={{ width: '14px', height: '14px', color: '#fff' }} />
+              </button>
+            )}
+          </>
+        )}
 
         {/* Action buttons — top right */}
         <div className="absolute flex" style={{ top: '12px', right: '16px', gap: '8px', zIndex: 10 }}>
@@ -300,7 +376,7 @@ export default function ProfilePage() {
           )}
           {canConnect && (
             <button
-              onClick={handleFollow}
+              onClick={handleConnect}
               className="flex items-center"
               style={
                 isFollowing
@@ -345,24 +421,43 @@ export default function ProfilePage() {
 
       {/* ── Avatar overlapping cover ── */}
       <div className="relative inline-block" style={{ marginTop: '-40px', marginLeft: '20px', zIndex: 20 }}>
-        <div className="overflow-hidden" style={{ width: '72px', height: '72px', borderRadius: '4px', border: `3px solid ${theme.bg}`, background: theme.surface }}>
-          {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
+        <div
+          onClick={() => isOwn && avatarInputRef.current?.click()}
+          className="relative overflow-hidden"
+          style={{ width: '72px', height: '72px', borderRadius: '4px', border: `3px solid ${theme.bg}`, background: theme.surface, cursor: isOwn ? 'pointer' : 'default' }}
+        >
+          {(localAvatarUrl || profile.avatar_url) ? (
+            <img src={localAvatarUrl || profile.avatar_url || ''} alt={profile.full_name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '20px', color: theme.accent }}>
               {initials(profile.full_name)}
             </div>
           )}
+          {/* Upload progress bar */}
+          {avatarUploading && (
+            <div className="absolute left-0 right-0 bottom-0" style={{ height: '2px', background: 'rgba(255,255,255,0.15)' }}>
+              <div className="animate-pulse" style={{ height: '100%', width: '100%', background: theme.accent }} />
+            </div>
+          )}
         </div>
         {isOwn && (
-          <Link
-            to="/profile/edit"
-            className="absolute flex items-center justify-center"
-            style={{ width: '16px', height: '16px', borderRadius: '3px', background: theme.accent, bottom: '-2px', right: '-2px' }}
-            aria-label="Change avatar"
-          >
-            <Camera style={{ width: '10px', height: '10px', color: onAccent }} />
-          </Link>
+          <>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => handleAvatarChange(e.target.files?.[0])}
+            />
+            <button
+              onClick={() => avatarInputRef.current?.click()}
+              className="absolute flex items-center justify-center"
+              style={{ width: '16px', height: '16px', borderRadius: '3px', background: theme.accent, bottom: '-2px', right: '-2px' }}
+              aria-label="Change avatar"
+            >
+              <Camera style={{ width: '10px', height: '10px', color: onAccent }} />
+            </button>
+          </>
         )}
       </div>
 
@@ -616,10 +711,10 @@ export default function ProfilePage() {
       {videoModal && (
         <div
           className="absolute top-0 left-0 right-0 flex items-center justify-center animate-fade-in"
-          style={{ minHeight: '100vh', background: 'rgba(0,0,0,0.97)', zIndex: 100 }}
+          style={{ minHeight: '100vh', background: 'rgba(0,0,0,0.98)', zIndex: 100, padding: '12px' }}
           onClick={() => setVideoModal(null)}
         >
-          <div className="w-full" style={{ maxWidth: '800px', padding: '16px' }} onClick={(e) => e.stopPropagation()}>
+          <div className="w-full" style={{ maxWidth: '800px' }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3 px-1">
               <div className="flex items-center gap-3 min-w-0">
                 <h3 className="truncate" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '16px', color: '#fff', textTransform: 'uppercase' }}>
@@ -641,9 +736,10 @@ export default function ProfilePage() {
               controls
               autoPlay
               playsInline
+              webkit-playsinline="true"
               preload="metadata"
-              className="w-full"
-              style={{ background: '#000', borderRadius: '4px', maxHeight: '75vh' }}
+              controlsList="nodownload"
+              style={{ width: '100%', backgroundColor: '#000', borderRadius: '4px', maxHeight: '75vh', display: 'block' }}
             />
             {videoModal.description && (
               <p className="mt-3 px-1" style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>{videoModal.description}</p>

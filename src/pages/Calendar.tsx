@@ -30,7 +30,7 @@ const LEVEL_STYLES: Record<string, { background: string; color: string }> = {
   regional:    { background: 'rgba(96,165,250,0.15)',   color: 'rgba(96,165,250,0.9)' },
   national:    { background: 'rgba(251,191,36,0.15)',   color: 'rgba(251,191,36,0.9)' },
   continental: { background: 'rgba(167,139,250,0.15)',  color: 'rgba(167,139,250,0.9)' },
-  world:       { background: 'rgba(232,255,71,0.15)',   color: '#E8FF47' },
+  world:       { background: 'rgb(var(--accent-rgb) / 0.15)',   color: 'rgb(var(--accent-rgb))' },
 };
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -211,7 +211,7 @@ export default function Calendar() {
             style={{ borderRadius: '4px' }}
           >
             <option value="">All countries</option>
-            {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
           </select>
           <select
             value={filterLevel}
@@ -450,7 +450,7 @@ export default function Calendar() {
                   style={{ borderRadius: '4px' }}
                 >
                   <option value="">Select country</option>
-                  {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
                 </select>
               </div>
 

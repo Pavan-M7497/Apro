@@ -122,7 +122,7 @@ export default function Leaderboard() {
             style={{ borderRadius: '4px' }}
           >
             <option value="">All countries</option>
-            {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
           </select>
         </div>
 
@@ -154,7 +154,7 @@ export default function Leaderboard() {
                     style={{
                       width: i === 0 ? '48px' : '32px',
                       fontSize: i === 0 ? '56px' : i <= 2 ? '28px' : '20px',
-                      color: i === 0 ? '#E8FF47' : i === 1 ? '#8888A0' : i === 2 ? '#EF9F27' : 'rgba(255,255,255,0.2)',
+                      color: i === 0 ? 'rgb(var(--accent-rgb))' : i === 1 ? '#8888A0' : i === 2 ? '#EF9F27' : 'rgba(255,255,255,0.2)',
                       lineHeight: 1,
                     }}
                   >
@@ -191,7 +191,7 @@ export default function Leaderboard() {
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <div className="hidden sm:block w-24">
                       <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px' }}>
-                        <div style={{ height: '100%', width: `${row.score}%`, background: '#E8FF47', borderRadius: '2px' }} />
+                        <div style={{ height: '100%', width: `${row.score}%`, background: 'rgb(var(--accent-rgb))', borderRadius: '2px' }} />
                       </div>
                     </div>
                     <span className="font-display font-black text-accent w-12 text-right" style={{ fontSize: '22px' }}>

@@ -136,7 +136,7 @@ export default function Discover() {
                   className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-xs text-text focus:border-accent/50 transition-colors appearance-none"
                 >
                   <option value="">All countries</option>
-                  {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
                 </select>
               </div>
               <div>

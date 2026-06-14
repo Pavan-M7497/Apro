@@ -236,8 +236,8 @@ export default function TrainingLog() {
                     className="text-left p-4 transition-colors"
                     style={{
                       borderRadius: '4px',
-                      border: selected ? '1.5px solid #E8FF47' : '0.5px solid rgba(255,255,255,0.1)',
-                      background: selected ? 'rgba(232,255,71,0.06)' : '#1A1A2E',
+                      border: selected ? '1.5px solid rgb(var(--accent-rgb))' : '0.5px solid rgba(255,255,255,0.1)',
+                      background: selected ? 'rgb(var(--accent-rgb) / 0.06)' : '#1A1A2E',
                     }}
                   >
                     <i className={`ti ${a.icon}`} style={{ fontSize: '28px', color }} aria-hidden="true" />
@@ -252,7 +252,7 @@ export default function TrainingLog() {
               className="w-full font-display font-black uppercase py-3 transition-opacity"
               style={{
                 borderRadius: '4px',
-                background: activityType ? '#E8FF47' : 'rgba(255,255,255,0.06)',
+                background: activityType ? 'rgb(var(--accent-rgb))' : 'rgba(255,255,255,0.06)',
                 color: activityType ? '#0A0A0F' : '#8888A0',
                 cursor: activityType ? 'pointer' : 'not-allowed',
                 letterSpacing: '0.04em',
@@ -406,7 +406,7 @@ export default function TrainingLog() {
                 type="button"
                 onClick={() => setIsPublic((p) => !p)}
                 className="relative transition-colors"
-                style={{ width: '44px', height: '24px', borderRadius: '12px', background: isPublic ? '#E8FF47' : 'rgba(255,255,255,0.15)' }}
+                style={{ width: '44px', height: '24px', borderRadius: '12px', background: isPublic ? 'rgb(var(--accent-rgb))' : 'rgba(255,255,255,0.15)' }}
                 aria-pressed={isPublic}
               >
                 <span
@@ -422,7 +422,7 @@ export default function TrainingLog() {
               onClick={handleSubmit}
               disabled={saving}
               className="w-full font-display font-black uppercase py-3 hover:opacity-90 transition-opacity"
-              style={{ borderRadius: '4px', background: '#E8FF47', color: '#0A0A0F', letterSpacing: '0.04em', opacity: saving ? 0.7 : 1 }}
+              style={{ borderRadius: '4px', background: 'rgb(var(--accent-rgb))', color: '#0A0A0F', letterSpacing: '0.04em', opacity: saving ? 0.7 : 1 }}
             >
               {saving ? 'Saving…' : 'Save session'}
             </button>

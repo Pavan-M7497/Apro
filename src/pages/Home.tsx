@@ -235,7 +235,7 @@ function BrandHome({ roleAccent }: { roleAccent: string }) {
             style={{ borderRadius: '4px' }}
           >
             <option value="">All countries</option>
-            {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
           </select>
           <button
             onClick={handleSearch}
@@ -368,7 +368,7 @@ function CoachHome({ roleAccent }: { roleAccent: string }) {
             style={{ borderRadius: '4px' }}
           >
             <option value="">All countries</option>
-            {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
           </select>
           <button
             onClick={handleScout}

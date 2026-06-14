@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Zap, Mail, Lock, Eye, EyeOff, User, Globe, ChevronRight, ChevronLeft, Dumbbell, Briefcase, ClipboardList, Handshake } from 'lucide-react';
 import type { UserRole } from '../lib/types';
-import { COUNTRIES } from '../lib/types';
+import { CountrySelect } from '../components/CountrySelect';
 import { SportSelect, PositionSelect } from '../components/SportSelect';
 
 const ROLES: { value: UserRole; label: string; desc: string; icon: typeof Dumbbell }[] = [
@@ -194,15 +194,12 @@ export default function Register() {
               <div>
                 <label className="block text-sm font-medium text-text-muted mb-1.5">Country</label>
                 <div className="relative">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                  <select
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted z-10" />
+                  <CountrySelect
                     value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    className="w-full bg-surface border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors appearance-none"
-                  >
-                    <option value="">Select country</option>
-                    {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                    onChange={setCountry}
+                    className="bg-surface border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:border-accent/50 transition-colors"
+                  />
                 </div>
               </div>
             </div>

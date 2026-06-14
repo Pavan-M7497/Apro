@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Default (athlete / public) accent — overridden per role by ThemeProvider */
+  --accent-rgb: 232 255 71;
+  --accent-hover-rgb: 212 232 64;
+}
+
 * {
   margin: 0;
   padding: 0;

@@ -107,7 +107,7 @@ export default function Feed() {
   };
 
   return (
-    <div className="min-h-screen pt-6 md:pt-10 pb-24">
+    <div className="relative min-h-screen pt-6 md:pt-10 pb-24">
       <div className="max-w-2xl mx-auto px-4">
         <h1 className="font-display font-black uppercase text-2xl tracking-wide mb-6" style={{ letterSpacing: '0.02em' }}>Feed</h1>
 
@@ -222,7 +222,8 @@ export default function Feed() {
       {/* Video Modal */}
       {videoModal && (
         <div
-          className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 animate-fade-in"
+          className="absolute top-0 left-0 right-0 flex flex-col items-center justify-center animate-fade-in"
+          style={{ minHeight: '100vh', background: 'rgba(0,0,0,0.98)', zIndex: 100, padding: '12px' }}
           onClick={() => setVideoModal(null)}
         >
           <div className="w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
@@ -251,8 +252,10 @@ export default function Feed() {
               controls
               autoPlay
               playsInline
-              className="w-full bg-black"
-              style={{ maxHeight: '75vh', borderRadius: '4px' }}
+              webkit-playsinline="true"
+              preload="metadata"
+              controlsList="nodownload"
+              style={{ width: '100%', backgroundColor: '#000', borderRadius: '4px', maxHeight: '75vh', display: 'block' }}
             />
           </div>
         </div>

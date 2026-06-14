@@ -74,7 +74,7 @@ export default function AthleteCard({ profile, athleteProfile, compact }: Athlet
               className="font-display font-semibold text-accent uppercase"
               style={{
                 fontSize: '10px',
-                background: 'rgba(232,255,71,0.1)',
+                background: 'rgb(var(--accent-rgb) / 0.1)',
                 letterSpacing: '0.06em',
                 padding: '2px 8px',
                 borderRadius: '3px',
@@ -97,7 +97,7 @@ export default function AthleteCard({ profile, athleteProfile, compact }: Athlet
         )}
         {athleteProfile?.availability === 'open_to_offers' && !compact && (
           <div className="flex items-center gap-1.5">
-            <div style={{ width: '6px', height: '6px', borderRadius: '2px', background: '#E8FF47', flexShrink: 0 }} />
+            <div style={{ width: '6px', height: '6px', borderRadius: '2px', background: 'rgb(var(--accent-rgb))', flexShrink: 0 }} />
             <span className="font-medium text-accent uppercase tracking-wide" style={{ fontSize: '10px' }}>Open to offers</span>
           </div>
         )}
