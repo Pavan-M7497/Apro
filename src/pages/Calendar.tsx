@@ -211,7 +211,7 @@ export default function Calendar() {
             style={{ borderRadius: '4px' }}
           >
             <option value="">All countries</option>
-            {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
           </select>
           <select
             value={filterLevel}
@@ -450,7 +450,7 @@ export default function Calendar() {
                   style={{ borderRadius: '4px' }}
                 >
                   <option value="">Select country</option>
-                  {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
                 </select>
               </div>
 

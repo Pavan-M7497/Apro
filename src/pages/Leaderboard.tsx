@@ -122,7 +122,7 @@ export default function Leaderboard() {
             style={{ borderRadius: '4px' }}
           >
             <option value="">All countries</option>
-            {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
           </select>
         </div>
 
