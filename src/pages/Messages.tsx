@@ -180,14 +180,14 @@ export default function Messages() {
               <button
                 key={c.id}
                 onClick={() => openConversation(c.id)}
-                className="w-full flex items-center gap-3 text-left transition-colors hover:bg-white/5"
+                className="w-full flex items-center gap-3 text-left transition-colors hover:bg-surface"
                 style={{
                   padding: '12px 16px',
                   borderLeft: c.unread ? `2px solid ${theme.accent}` : '2px solid transparent',
                   background: c.id === activeId ? theme.surface : 'transparent',
                 }}
               >
-                <div className="overflow-hidden flex items-center justify-center flex-shrink-0" style={{ width: '36px', height: '36px', borderRadius: '4px', background: theme.accentMuted }}>
+                <div className="overflow-hidden flex items-center justify-center flex-shrink-0" style={{ width: '36px', height: '36px', borderRadius: '12px', background: theme.accentMuted }}>
                   {c.other?.avatar_url ? (
                     <img src={c.other.avatar_url} alt="" className="w-full h-full object-cover" />
                   ) : (
@@ -222,7 +222,7 @@ export default function Messages() {
               </button>
               {activeConv?.other && (
                 <Link to={`/profile/${activeConv.other.username}`} className="flex items-center gap-2 hover:opacity-80">
-                  <div className="overflow-hidden flex items-center justify-center" style={{ width: '30px', height: '30px', borderRadius: '4px', background: theme.accentMuted }}>
+                  <div className="overflow-hidden flex items-center justify-center" style={{ width: '30px', height: '30px', borderRadius: '12px', background: theme.accentMuted }}>
                     {activeConv.other.avatar_url ? (
                       <img src={activeConv.other.avatar_url} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -246,7 +246,7 @@ export default function Messages() {
                       alignSelf: own ? 'flex-end' : 'flex-start',
                       background: own ? theme.accentMuted : theme.surface,
                       border: `1px solid ${theme.border}`,
-                      borderRadius: '4px',
+                      borderRadius: '12px',
                       padding: '8px 12px',
                     }}
                   >
@@ -266,14 +266,14 @@ export default function Messages() {
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                 maxLength={2000}
                 placeholder="Type a message…"
-                className="flex-1 bg-surface border border-white/10 px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors"
-                style={{ borderRadius: '4px', background: theme.surface, borderColor: theme.border, color: theme.text }}
+                className="flex-1 bg-surface border border-line px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors"
+                style={{ borderRadius: '12px', background: theme.surface, borderColor: theme.border, color: theme.text }}
               />
               <button
                 onClick={handleSend}
                 disabled={sending || !input.trim()}
                 className="flex items-center justify-center disabled:opacity-50"
-                style={{ width: '40px', height: '40px', borderRadius: '4px', background: theme.accent, color: '#050508' }}
+                style={{ width: '40px', height: '40px', borderRadius: '12px', background: theme.accent, color: 'var(--on-accent)' }}
                 aria-label="Send"
               >
                 <Send className="w-4 h-4" />

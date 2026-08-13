@@ -3,12 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
 import { getCountryFlag, initials, timeAgo, getRoleAccent, getRoleAccentMuted } from '../lib/utils';
-import { COUNTRIES } from '../lib/types';
+import { StateSelect } from '../components/StateSelect';
 import type { Profile } from '../lib/types';
 import { Eye, Play, Users, Upload, Search, UserPlus, UserCheck } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
-import { SportSelect } from '../components/SportSelect';
+import { DisciplineSelect } from '../components/DisciplineSelect';
 
 // ── Athlete Home ────────────────────────────────────────────────────────────
 interface ProfileViewRow {
@@ -91,7 +91,7 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
           { label: 'Highlight plays', value: highlightPlays, icon: Play },
           { label: 'Followers', value: followers, icon: Users },
         ].map(({ label, value, icon: Icon }) => (
-          <div key={label} style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '16px' }}>
+          <div key={label} style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
             <Icon className="w-4 h-4 mb-2" style={{ color: roleAccent }} />
             <div className="font-display font-black" style={{ fontSize: '40px', lineHeight: 1, color: roleAccent }}>{value}</div>
             <div className="text-text-muted uppercase" style={{ fontSize: '11px', letterSpacing: '0.06em', marginTop: '4px' }}>{label}</div>
@@ -107,31 +107,31 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
         ) : (
           <div className="space-y-2">
             {recentViewers.map((v) => (
-              <div key={v.id} className="flex items-center gap-3" style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '10px 14px' }}>
+              <div key={v.id} className="flex items-center gap-3" style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '12px', padding: '10px 14px' }}>
                 {v.viewer ? (
                   <Link to={`/profile/${v.viewer.username}`} className="flex items-center gap-3 flex-1 hover:opacity-80">
-                    <div className="w-8 h-8 flex-shrink-0 overflow-hidden bg-surface" style={{ borderRadius: '4px' }}>
+                    <div className="w-8 h-8 flex-shrink-0 overflow-hidden bg-surface" style={{ borderRadius: '12px' }}>
                       {v.viewer.avatar_url ? (
                         <img src={v.viewer.avatar_url} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs font-display font-bold text-accent bg-accent/10">
+                        <div className="w-full h-full flex items-center justify-center text-xs font-display font-bold text-accent-ink bg-accent-soft">
                           {initials(v.viewer.full_name)}
                         </div>
                       )}
                     </div>
                     <div>
                       <span className="text-sm font-medium">{v.viewer.full_name}</span>
-                      <span className="ml-1.5 inline-block" style={{ background: getRoleAccentMuted(v.viewer?.role), color: getRoleAccent(v.viewer?.role), fontSize: '10px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '2px 7px', borderRadius: '3px' }}>
+                      <span className="ml-1.5 inline-block" style={{ background: getRoleAccentMuted(v.viewer?.role), color: getRoleAccent(v.viewer?.role), fontSize: '10px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '2px 7px', borderRadius: '999px' }}>
                         {v.viewer.role}
                       </span>
                     </div>
                   </Link>
                 ) : (
                   <div className="flex items-center gap-3 flex-1">
-                    <div className="w-8 h-8 flex-shrink-0 bg-surface flex items-center justify-center" style={{ borderRadius: '4px' }}>
+                    <div className="w-8 h-8 flex-shrink-0 bg-surface flex items-center justify-center" style={{ borderRadius: '12px' }}>
                       <Eye className="w-4 h-4 text-text-muted/40" />
                     </div>
-                    <span className="text-sm text-text-muted">Someone from {getCountryFlag('Unknown') || '🌍'}</span>
+                    <span className="text-sm text-text-muted">Someone viewed your profile</span>
                   </div>
                 )}
                 <span className="text-[10px] text-text-muted flex-shrink-0">{timeAgo(v.created_at)}</span>
@@ -145,7 +145,7 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
       <button
         onClick={() => navigate('/upload')}
         className="w-full flex items-center justify-center gap-3 font-display font-black uppercase hover:opacity-90 transition-opacity"
-        style={{ background: roleAccent, color: '#0A0A0F', borderRadius: '4px', padding: '14px', fontSize: '15px', letterSpacing: '0.04em' }}
+        style={{ background: roleAccent, color: 'var(--on-accent)', borderRadius: '12px', padding: '14px', fontSize: '15px', letterSpacing: '0.04em' }}
       >
         <Upload className="w-5 h-5" />
         Upload a highlight
@@ -154,10 +154,10 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
       {/* Log a workout CTA */}
       <button
         onClick={() => navigate('/training/log')}
-        style={{ borderRadius: '4px', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.12)', width: '100%', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer' }}
+        style={{ borderRadius: '12px', background: 'var(--surface-2)', border: '1px solid var(--border)', width: '100%', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer' }}
       >
-        <i className="ti ti-barbell" style={{ fontSize: '20px', color: '#F5F5F0' }} aria-hidden="true" />
-        <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#F5F5F0' }}>Log a workout</span>
+        <i className="ti ti-barbell" style={{ fontSize: '20px', color: 'var(--text)' }} aria-hidden="true" />
+        <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--text)' }}>Log a workout</span>
       </button>
 
       {/* Recent highlights */}
@@ -169,15 +169,15 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
               <Link
                 key={h.id}
                 to={`/profile/${profile?.username}`}
-                className="bg-card border border-white/5 overflow-hidden hover:border-accent/20 transition-colors"
-                style={{ borderRadius: '4px' }}
+                className="bg-card border border-line overflow-hidden hover:border-accent/20 transition-colors"
+                style={{ borderRadius: '12px' }}
               >
                 <div className="relative aspect-video bg-surface">
                   {h.thumbnail_url ? (
                     <img src={h.thumbnail_url} alt={h.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Play className="w-8 h-8 text-accent/30" />
+                      <Play className="w-8 h-8 text-accent-ink/30" />
                     </div>
                   )}
                 </div>
@@ -217,30 +217,22 @@ function BrandHome({ roleAccent }: { roleAccent: string }) {
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (sport) params.set('sport', sport);
-    if (country) params.set('country', country);
+    if (country) params.set('state', country);
     navigate(`/discover?${params.toString()}`);
   };
 
   return (
     <div className="space-y-6">
       {/* Search bar */}
-      <div className="bg-card border border-white/5 p-4" style={{ borderRadius: '4px' }}>
+      <div className="bg-card border border-line p-4" style={{ borderRadius: '12px' }}>
         <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>Find athletes</h2>
         <div className="flex flex-col sm:flex-row gap-3">
-          <SportSelect value={sport} onChange={setSport} className="flex-1" />
-          <select
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className="flex-1 bg-surface border border-white/10 px-4 py-2.5 text-sm text-text appearance-none"
-            style={{ borderRadius: '4px' }}
-          >
-            <option value="">All countries</option>
-            {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
-          </select>
+          <DisciplineSelect value={sport} onChange={setSport} className="flex-1" />
+          <StateSelect value={country} onChange={setCountry} placeholder="All states" className="flex-1 bg-surface border border-line px-4 py-2.5 text-sm rounded-pill" />
           <button
             onClick={handleSearch}
             className="flex items-center gap-2 px-6 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
-            style={{ background: roleAccent, color: '#0A0A0F', borderRadius: '4px' }}
+            style={{ background: roleAccent, color: 'var(--on-accent)', borderRadius: '12px' }}
           >
             <Search className="w-4 h-4" /> Search
           </button>
@@ -250,7 +242,7 @@ function BrandHome({ roleAccent }: { roleAccent: string }) {
       {/* Saved shortlists placeholder */}
       <div>
         <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>Saved shortlists</h2>
-        <div className="bg-card border border-white/5 p-6 text-center" style={{ borderRadius: '4px' }}>
+        <div className="bg-card border border-line p-6 text-center" style={{ borderRadius: '12px' }}>
           <p className="text-text-muted text-sm mb-3">No shortlists yet</p>
           <p className="text-xs text-text-muted/60">Create shortlists to save and organise athletes you're interested in — coming soon.</p>
         </div>
@@ -265,14 +257,14 @@ function BrandHome({ roleAccent }: { roleAccent: string }) {
               <Link
                 key={a.id}
                 to={`/profile/${a.username}`}
-                className="bg-card border border-white/5 p-3 hover:border-accent/20 transition-colors text-center"
-                style={{ borderRadius: '4px' }}
+                className="bg-card border border-line p-3 hover:border-accent/20 transition-colors text-center"
+                style={{ borderRadius: '12px' }}
               >
-                <div className="w-12 h-12 mx-auto overflow-hidden bg-surface mb-2" style={{ borderRadius: '4px' }}>
+                <div className="w-12 h-12 mx-auto overflow-hidden bg-surface mb-2" style={{ borderRadius: '12px' }}>
                   {a.avatar_url ? (
                     <img src={a.avatar_url} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center font-display font-black text-accent text-sm bg-accent/10">
+                    <div className="w-full h-full flex items-center justify-center font-display font-black text-accent-ink text-sm bg-accent-soft">
                       {initials(a.full_name)}
                     </div>
                   )}
@@ -288,8 +280,8 @@ function BrandHome({ roleAccent }: { roleAccent: string }) {
       {/* Post opportunity CTA */}
       <Link
         to="/opportunities"
-        className="w-full flex items-center justify-center gap-3 py-4 font-display font-black uppercase text-base tracking-wide hover:bg-white/5 transition-colors"
-        style={{ border: `1px solid ${roleAccent}`, color: roleAccent, borderRadius: '4px' }}
+        className="w-full flex items-center justify-center gap-3 py-4 font-display font-black uppercase text-base tracking-wide hover:bg-surface transition-colors"
+        style={{ border: `1px solid ${roleAccent}`, color: roleAccent, borderRadius: '12px' }}
       >
         Post an opportunity
       </Link>
@@ -350,30 +342,22 @@ function CoachHome({ roleAccent }: { roleAccent: string }) {
   const handleScout = () => {
     const params = new URLSearchParams();
     if (sport) params.set('sport', sport);
-    if (country) params.set('country', country);
+    if (country) params.set('state', country);
     navigate(`/discover?${params.toString()}`);
   };
 
   return (
     <div className="space-y-6">
       {/* Talent search shortcut */}
-      <div className="bg-card border border-white/5 p-4" style={{ borderRadius: '4px' }}>
+      <div className="bg-card border border-line p-4" style={{ borderRadius: '12px' }}>
         <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>Talent search</h2>
         <div className="flex flex-col sm:flex-row gap-3">
-          <SportSelect value={sport} onChange={setSport} className="flex-1" />
-          <select
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className="flex-1 bg-surface border border-white/10 px-4 py-2.5 text-sm text-text appearance-none"
-            style={{ borderRadius: '4px' }}
-          >
-            <option value="">All countries</option>
-            {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
-          </select>
+          <DisciplineSelect value={sport} onChange={setSport} className="flex-1" />
+          <StateSelect value={country} onChange={setCountry} placeholder="All states" className="flex-1 bg-surface border border-line px-4 py-2.5 text-sm rounded-pill" />
           <button
             onClick={handleScout}
             className="flex items-center gap-2 px-6 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
-            style={{ background: roleAccent, color: '#0A0A0F', borderRadius: '4px' }}
+            style={{ background: roleAccent, color: 'var(--on-accent)', borderRadius: '12px' }}
           >
             <Search className="w-4 h-4" /> Scout
           </button>
@@ -393,13 +377,13 @@ function CoachHome({ roleAccent }: { roleAccent: string }) {
         ) : (
           <div className="space-y-2">
             {watchlist.map((a) => (
-              <div key={a.id} className="flex items-center gap-3 bg-card border border-white/5 p-3 hover:border-accent/20 transition-colors" style={{ borderRadius: '4px' }}>
+              <div key={a.id} className="flex items-center gap-3 bg-card border border-line p-3 hover:border-accent/20 transition-colors" style={{ borderRadius: '12px' }}>
                 <Link to={`/profile/${a.username}`} className="flex items-center gap-3 flex-1 hover:opacity-80">
-                  <div className="w-10 h-10 flex-shrink-0 overflow-hidden bg-surface" style={{ borderRadius: '4px' }}>
+                  <div className="w-10 h-10 flex-shrink-0 overflow-hidden bg-surface" style={{ borderRadius: '12px' }}>
                     {a.avatar_url ? (
                       <img src={a.avatar_url} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center font-display font-black text-sm text-accent bg-accent/10">
+                      <div className="w-full h-full flex items-center justify-center font-display font-black text-sm text-accent-ink bg-accent-soft">
                         {initials(a.full_name)}
                       </div>
                     )}
@@ -415,13 +399,13 @@ function CoachHome({ roleAccent }: { roleAccent: string }) {
                   onClick={() => handleFollowToggle(a.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold transition-colors flex-shrink-0 ${
                     following.includes(a.id)
-                      ? 'bg-white/5 border border-white/10 text-text-muted hover:text-error'
+                      ? 'bg-surface border border-line text-text-muted hover:text-error'
                       : 'hover:opacity-90'
                   }`}
                   style={
                     following.includes(a.id)
-                      ? { borderRadius: '3px' }
-                      : { background: roleAccent, color: '#0A0A0F', borderRadius: '3px' }
+                      ? { borderRadius: '999px' }
+                      : { background: roleAccent, color: 'var(--on-accent)', borderRadius: '999px' }
                   }
                 >
                   {following.includes(a.id) ? <UserCheck className="w-3 h-3" /> : <UserPlus className="w-3 h-3" />}
@@ -459,8 +443,8 @@ export default function Home() {
   return (
     <div className="min-h-screen pt-6 md:pt-10 pb-24">
       <div className="max-w-3xl mx-auto px-4">
-        <div style={{ background: roleAccentMuted, borderBottom: `1px solid ${roleAccent}22`, padding: '12px 16px', marginBottom: '24px', borderRadius: '4px' }}>
-          <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '28px', textTransform: 'uppercase', letterSpacing: '0.02em', color: '#F5F5F0', margin: 0 }}>
+        <div style={{ background: roleAccentMuted, borderBottom: `1px solid ${roleAccent}22`, padding: '12px 16px', marginBottom: '24px', borderRadius: '12px' }}>
+          <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '28px', textTransform: 'uppercase', letterSpacing: '0.02em', color: 'var(--text)', margin: 0 }}>
             {heading}
           </h1>
         </div>

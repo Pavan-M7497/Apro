@@ -116,7 +116,7 @@ export default function TrainingProgress() {
                     style={{
                       height: `${Math.max(heightPct, w.minutes > 0 ? 4 : 0)}%`,
                       minHeight: w.minutes > 0 ? '4px' : '0',
-                      background: w.minutes > 0 ? roleAccent : 'rgba(255,255,255,0.06)',
+                      background: w.minutes > 0 ? roleAccent : 'var(--surface-2)',
                       borderRadius: '3px 3px 0 0',
                     }}
                   />
@@ -136,9 +136,9 @@ export default function TrainingProgress() {
               { icon: TrendingUp, label: 'Longest run', value: longestRun > 0 ? `${Math.round(longestRun * 10) / 10} km` : '—' },
               { icon: Route, label: 'Total distance', value: totalKm > 0 ? `${Math.round(totalKm * 10) / 10} km` : '—' },
             ].map(({ icon: Icon, label, value }) => (
-              <div key={label} style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '16px' }}>
-                <Icon className="w-4 h-4 text-accent mb-2" />
-                <div className="font-display font-black text-accent" style={{ fontSize: '24px', lineHeight: 1 }}>{value}</div>
+              <div key={label} style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
+                <Icon className="w-4 h-4 text-accent-ink mb-2" />
+                <div className="font-display font-black text-accent-ink" style={{ fontSize: '24px', lineHeight: 1 }}>{value}</div>
                 <div className="text-text-muted uppercase" style={{ fontSize: '10px', letterSpacing: '0.06em', marginTop: '6px' }}>{label}</div>
               </div>
             ))}
@@ -153,15 +153,15 @@ export default function TrainingProgress() {
           ) : (
             <div className="space-y-2">
               {pbs.map((pb) => (
-                <div key={pb.exercise} className="flex items-center gap-3 p-3" style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px' }}>
-                  <div className="flex items-center justify-center flex-shrink-0" style={{ width: '36px', height: '36px', borderRadius: '4px', background: 'rgba(239,159,39,0.15)' }}>
+                <div key={pb.exercise} className="flex items-center gap-3 p-3" style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                  <div className="flex items-center justify-center flex-shrink-0" style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'rgba(239,159,39,0.15)' }}>
                     <Dumbbell className="w-4 h-4" style={{ color: '#EF9F27' }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-display font-bold uppercase text-sm truncate">{pb.exercise}</p>
                     <p className="text-[10px] text-text-muted">{formatDate(pb.date)}</p>
                   </div>
-                  <span className="font-display font-black text-accent text-xl flex-shrink-0">{pb.weight} kg</span>
+                  <span className="font-display font-black text-accent-ink text-xl flex-shrink-0">{pb.weight} kg</span>
                 </div>
               ))}
             </div>

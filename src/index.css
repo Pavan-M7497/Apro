@@ -3,9 +3,30 @@
 @tailwind utilities;
 
 :root {
-  /* Default (athlete / public) accent — overridden per role by ThemeProvider */
-  --accent-rgb: 232 255 71;
-  --accent-hover-rgb: 212 232 64;
+  --bg: #FFFFFF;
+  --bg-soft: #FAFAF7;
+  --surface: #FFFFFF;
+  --surface-2: #F4F4EF;
+  --border: #ECECE6;
+  --text: #0E0E10;
+  --text-muted: #7A7A75;
+  --text-soft: #A8A8A2;
+  --accent: #B8E62E;
+  --accent-soft: #EFFAC8;
+  --accent-ink: #4A6B00;
+  --on-accent: #0E0E10;
+
+  /* RGB channels so Tailwind utilities can apply opacity */
+  --bg-rgb: 255 255 255;
+  --bg-soft-rgb: 250 250 247;
+  --surface-2-rgb: 244 244 239;
+  --border-rgb: 236 236 230;
+  --text-rgb: 14 14 16;
+  --text-muted-rgb: 122 122 117;
+  --accent-rgb: 184 230 46;
+  --accent-soft-rgb: 239 250 200;
+  --accent-ink-rgb: 74 107 0;
+  --accent-hover-rgb: 168 212 40;
 }
 
 * {
@@ -19,8 +40,8 @@ html {
 }
 
 body {
-  background-color: #0A0A0F;
-  color: #F5F5F0;
+  background-color: var(--bg);
+  color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -31,22 +52,26 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0A0A0F;
+  background: var(--bg-soft);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1A1A2E;
-  border-radius: 3px;
+  background: #DEDED6;
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2A2A40;
+  background: #C9C9C0;
 }
 
 input, textarea, select {
   outline: none;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-soft);
 }

@@ -35,14 +35,14 @@ export default function Login() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <Zap className="w-8 h-8 text-accent" fill="currentColor" />
+            <Zap className="w-8 h-8 text-accent-ink" fill="currentColor" />
             <span className="text-2xl font-black tracking-tight">Apro</span>
           </Link>
           <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
           <p className="text-text-muted text-sm">Sign in to your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-card rounded-xl p-6 border border-white/5">
+        <form onSubmit={handleSubmit} className="bg-card rounded-xl p-6 border border-line">
           {error && (
             <div className="bg-error/10 border border-error/20 rounded-lg px-4 py-3 mb-4 text-sm text-error">
               {error}
@@ -59,7 +59,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@email.com"
-                  className="w-full bg-surface border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
+                  className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
                 />
               </div>
             </div>
@@ -73,7 +73,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full bg-surface border border-white/10 rounded-lg pl-10 pr-10 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
+                  className="w-full bg-surface border border-line rounded-lg pl-10 pr-10 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
                 />
                 <button
                   type="button"
@@ -96,7 +96,7 @@ export default function Login() {
 
           <p className="text-center text-sm text-text-muted mt-4">
             Don't have an account?{' '}
-            <Link to="/register" className="text-accent font-medium hover:underline">
+            <Link to="/register" className="text-accent-ink font-medium hover:underline">
               Sign up
             </Link>
           </p>

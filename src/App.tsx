@@ -19,6 +19,9 @@ import Training from './pages/Training';
 import TrainingLog from './pages/TrainingLog';
 import TrainingProgress from './pages/TrainingProgress';
 import Messages from './pages/Messages';
+import Meets from './pages/Meets';
+import AdminImport from './pages/AdminImport';
+import ClaimProfile from './pages/ClaimProfile';
 
 function ComingSoon({ title }: { title: string }) {
   return (
@@ -40,7 +43,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-primary">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -50,7 +53,7 @@ export default function App() {
     <ThemeProvider role={profile?.role}>
       <BrowserRouter>
         <Sidebar />
-        <div className={user ? 'md:ml-[200px] pb-[60px] md:pb-0' : ''}>
+        <div className={user ? 'md:ml-[220px] pb-[60px] md:pb-0' : ''}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
@@ -65,6 +68,9 @@ export default function App() {
             <Route path="/training/log" element={<ProtectedRoute><TrainingLog /></ProtectedRoute>} />
             <Route path="/training/progress" element={<ProtectedRoute><TrainingProgress /></ProtectedRoute>} />
             <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+            <Route path="/meets" element={<Meets />} />
+            <Route path="/claim/:username" element={<ClaimProfile />} />
+            <Route path="/admin/import" element={<ProtectedRoute><AdminImport /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/saved" element={<ProtectedRoute><ComingSoon title="Saved" /></ProtectedRoute>} />

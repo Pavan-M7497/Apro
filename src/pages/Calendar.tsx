@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
-import { getCountryFlag } from '../lib/utils';
-import { COUNTRIES } from '../lib/types';
+
 import { CalendarDays, Plus, X, ExternalLink, Users } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
-import { SportSelect } from '../components/SportSelect';
+import { DisciplineSelect } from '../components/DisciplineSelect';
 
 interface Competition {
   id: string;
@@ -26,7 +25,7 @@ interface Competition {
 }
 
 const LEVEL_STYLES: Record<string, { background: string; color: string }> = {
-  local:       { background: 'rgba(255,255,255,0.1)',   color: 'rgba(255,255,255,0.6)' },
+  local:       { background: 'var(--border)',   color: 'rgba(255,255,255,0.6)' },
   regional:    { background: 'rgba(96,165,250,0.15)',   color: 'rgba(96,165,250,0.9)' },
   national:    { background: 'rgba(251,191,36,0.15)',   color: 'rgba(251,191,36,0.9)' },
   continental: { background: 'rgba(167,139,250,0.15)',  color: 'rgba(167,139,250,0.9)' },
@@ -53,7 +52,6 @@ export default function Calendar() {
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [participatingIds, setParticipatingIds] = useState<string[]>([]);
   const [filterSport, setFilterSport] = useState('');
-  const [filterCountry, setFilterCountry] = useState(profile?.country || '');
   const [filterLevel, setFilterLevel] = useState('');
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -61,7 +59,7 @@ export default function Calendar() {
 
   // Form state
   const [form, setForm] = useState({
-    title: '', sport: '', country: '', city: '', start_date: '', end_date: '',
+    title: '', sport: '', country: 'India', city: '', start_date: '', end_date: '',
     level: 'national' as Competition['level'], description: '', registration_url: '', stream_url: '',
   });
   const [formError, setFormError] = useState('');
@@ -69,7 +67,7 @@ export default function Calendar() {
 
   useEffect(() => {
     loadCompetitions();
-  }, [filterSport, filterCountry, filterLevel]);
+  }, [filterSport, filterLevel]);
 
   useEffect(() => {
     if (user && profile) loadParticipating();
@@ -83,7 +81,6 @@ export default function Calendar() {
       .order('start_date', { ascending: true });
 
     if (filterSport) query = query.eq('sport', filterSport);
-    if (filterCountry) query = query.eq('country', filterCountry);
     if (filterLevel) query = query.eq('level', filterLevel as Competition['level']);
 
     const { data } = await query;
@@ -165,7 +162,7 @@ export default function Calendar() {
   const handleSubmitForm = async () => {
     if (!form.title.trim()) { setFormError('Title is required'); return; }
     if (!form.sport) { setFormError('Sport is required'); return; }
-    if (!form.country) { setFormError('Country is required'); return; }
+    if (!form.city) { setFormError('City is required'); return; }
     if (!form.city.trim()) { setFormError('City is required'); return; }
     if (!form.start_date) { setFormError('Start date is required'); return; }
     if (!form.end_date) { setFormError('End date is required'); return; }
@@ -183,7 +180,7 @@ export default function Calendar() {
         stream_url: form.stream_url || null,
       });
       setShowForm(false);
-      setForm({ title: '', sport: '', country: '', city: '', start_date: '', end_date: '', level: 'national', description: '', registration_url: '', stream_url: '' });
+      setForm({ title: '', sport: '', country: 'India', city: '', start_date: '', end_date: '', level: 'national', description: '', registration_url: '', stream_url: '' });
       loadCompetitions();
     } catch (err: any) {
       setFormError(err.message || 'Failed to submit');
@@ -203,21 +200,12 @@ export default function Calendar() {
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
-          <SportSelect value={filterSport} onChange={setFilterSport} className="w-40" />
-          <select
-            value={filterCountry}
-            onChange={(e) => setFilterCountry(e.target.value)}
-            className="bg-card border border-white/10 px-3 py-2 text-sm text-text appearance-none"
-            style={{ borderRadius: '4px' }}
-          >
-            <option value="">All countries</option>
-            {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
-          </select>
+          <DisciplineSelect value={filterSport} onChange={setFilterSport} className="w-40" />
           <select
             value={filterLevel}
             onChange={(e) => setFilterLevel(e.target.value)}
-            className="bg-card border border-white/10 px-3 py-2 text-sm text-text appearance-none"
-            style={{ borderRadius: '4px' }}
+            className="bg-card border border-line px-3 py-2 text-sm text-text appearance-none"
+            style={{ borderRadius: '12px' }}
           >
             <option value="">All levels</option>
             {['local','regional','national','continental','world'].map((l) => (
@@ -230,23 +218,23 @@ export default function Calendar() {
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => { if (month === 0) { setYear(year - 1); setMonth(11); } else setMonth(month - 1); }}
-            className="px-3 py-1.5 bg-card border border-white/10 text-sm hover:bg-white/5 transition-colors"
-            style={{ borderRadius: '4px' }}
+            className="px-3 py-1.5 bg-card border border-line text-sm hover:bg-surface transition-colors"
+            style={{ borderRadius: '12px' }}
           >
             ‹
           </button>
           <h2 className="font-display font-black uppercase text-xl tracking-wide">{MONTHS[month]} {year}</h2>
           <button
             onClick={() => { if (month === 11) { setYear(year + 1); setMonth(0); } else setMonth(month + 1); }}
-            className="px-3 py-1.5 bg-card border border-white/10 text-sm hover:bg-white/5 transition-colors"
-            style={{ borderRadius: '4px' }}
+            className="px-3 py-1.5 bg-card border border-line text-sm hover:bg-surface transition-colors"
+            style={{ borderRadius: '12px' }}
           >
             ›
           </button>
         </div>
 
         {/* Calendar grid */}
-        <div className="bg-card border border-white/5 p-4 mb-6" style={{ borderRadius: '4px' }}>
+        <div className="bg-card border border-line p-4 mb-6" style={{ borderRadius: '12px' }}>
           <div className="grid grid-cols-7 mb-2">
             {DAYS.map((d) => (
               <div key={d} className="text-center text-[11px] font-display font-bold uppercase text-text-muted py-1">{d}</div>
@@ -266,15 +254,15 @@ export default function Calendar() {
                   onClick={() => handleDayClick(dateStr)}
                   className={`relative aspect-square flex flex-col items-center justify-center text-sm transition-colors ${
                     isSelected ? 'bg-accent text-primary font-bold' :
-                    isToday ? 'border border-accent text-accent' :
-                    hasComp ? 'text-text hover:bg-white/5' :
-                    'text-text-muted hover:bg-white/5'
+                    isToday ? 'border border-accent text-accent-ink' :
+                    hasComp ? 'text-text hover:bg-surface' :
+                    'text-text-muted hover:bg-surface'
                   }`}
-                  style={{ borderRadius: '4px' }}
+                  style={{ borderRadius: '12px' }}
                 >
                   {day}
                   {hasComp && !isSelected && (
-                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-accent" style={{ borderRadius: '2px' }} />
+                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-accent" style={{ borderRadius: '999px' }} />
                   )}
                 </button>
               );
@@ -310,13 +298,13 @@ export default function Calendar() {
                 const isLive = today >= new Date(comp.start_date) && today <= new Date(comp.end_date);
                 const isParticipating = participatingIds.includes(comp.id);
                 return (
-                  <div key={comp.id} className="bg-card border border-white/5 p-4 hover:border-accent/20 transition-colors" style={{ borderRadius: '4px' }}>
+                  <div key={comp.id} className="bg-card border border-line p-4 hover:border-accent/20 transition-colors" style={{ borderRadius: '12px' }}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <h3 className="font-display font-black uppercase text-base tracking-wide">{comp.title}</h3>
                           {!comp.is_verified && (
-                            <span className="text-[10px] text-text-muted/60 border border-white/10 px-1.5 py-0.5 font-display uppercase" style={{ borderRadius: '3px' }}>
+                            <span className="text-[10px] text-text-muted/60 border border-line px-1.5 py-0.5 font-display uppercase" style={{ borderRadius: '999px' }}>
                               Unverified
                             </span>
                           )}
@@ -324,15 +312,15 @@ export default function Calendar() {
                         <div className="flex items-center gap-2 flex-wrap mb-2">
                           <span
                             className="font-display font-bold uppercase"
-                            style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '3px', ...(LEVEL_STYLES[comp.level] || LEVEL_STYLES.local) }}
+                            style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '999px', ...(LEVEL_STYLES[comp.level] || LEVEL_STYLES.local) }}
                           >
                             {comp.level}
                           </span>
-                          <span className="font-display text-[10px] font-semibold text-accent bg-accent/10 px-2 py-0.5 uppercase" style={{ borderRadius: '3px' }}>
+                          <span className="font-display text-[10px] font-semibold text-accent-ink bg-accent-soft px-2 py-0.5 uppercase" style={{ borderRadius: '999px' }}>
                             {comp.sport}
                           </span>
                           <span className="text-xs text-text-muted">
-                            {getCountryFlag(comp.country)} {comp.city}, {comp.country}
+                            {comp.city}
                           </span>
                         </div>
                         <p className="text-xs text-text-muted">
@@ -354,7 +342,7 @@ export default function Calendar() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-1 bg-accent text-primary px-3 py-1.5 text-xs font-bold hover:bg-accent-hover transition-colors"
-                            style={{ borderRadius: '4px' }}
+                            style={{ borderRadius: '12px' }}
                           >
                             <ExternalLink className="w-3 h-3" /> Watch Live
                           </a>
@@ -364,10 +352,10 @@ export default function Calendar() {
                             onClick={() => handleParticipate(comp.id)}
                             className={`px-3 py-1.5 text-xs font-bold transition-colors ${
                               isParticipating
-                                ? 'bg-accent/20 text-accent border border-accent/30 hover:bg-error/10 hover:text-error hover:border-error/30'
-                                : 'bg-white/5 border border-white/10 text-text-muted hover:text-text hover:border-white/20'
+                                ? 'bg-accent-soft text-accent-ink border border-accent/30 hover:bg-error/10 hover:text-error hover:border-error/30'
+                                : 'bg-surface border border-line text-text-muted hover:text-text hover:border-line'
                             }`}
-                            style={{ borderRadius: '4px' }}
+                            style={{ borderRadius: '12px' }}
                           >
                             {isParticipating ? "I'm competing ✓" : "I'm competing"}
                           </button>
@@ -387,7 +375,7 @@ export default function Calendar() {
         <button
           onClick={() => setShowForm(true)}
           className="fixed bottom-24 md:bottom-8 right-6 w-12 h-12 bg-accent text-primary flex items-center justify-center shadow-lg hover:bg-accent-hover transition-colors z-30"
-          style={{ borderRadius: '4px' }}
+          style={{ borderRadius: '12px' }}
           title="Submit a competition"
         >
           <Plus className="w-6 h-6" />
@@ -400,7 +388,7 @@ export default function Calendar() {
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
           onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}
         >
-          <div className="w-full max-w-lg bg-primary border border-white/10 p-6 overflow-y-auto max-h-[90vh]" style={{ borderRadius: '4px' }}>
+          <div className="w-full max-w-lg bg-white border border-line p-6 overflow-y-auto max-h-[90vh]" style={{ borderRadius: '12px' }}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display font-black uppercase text-xl tracking-wide">Submit competition</h2>
               <button onClick={() => setShowForm(false)} className="text-text-muted hover:text-text">
@@ -409,7 +397,7 @@ export default function Calendar() {
             </div>
 
             {formError && (
-              <div className="bg-error/10 border border-error/20 px-4 py-3 mb-4 text-sm text-error" style={{ borderRadius: '4px' }}>
+              <div className="bg-error/10 border border-error/20 px-4 py-3 mb-4 text-sm text-error" style={{ borderRadius: '12px' }}>
                 {formError}
               </div>
             )}
@@ -430,28 +418,15 @@ export default function Calendar() {
                     placeholder={placeholder}
                     value={(form as any)[key]}
                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    className="w-full bg-surface border border-white/10 px-3 py-2 text-sm text-text placeholder:text-text-muted/40 focus:border-accent/50 transition-colors"
-                    style={{ borderRadius: '4px' }}
+                    className="w-full bg-surface border border-line px-3 py-2 text-sm text-text placeholder:text-text-muted/40 focus:border-accent/50 transition-colors"
+                    style={{ borderRadius: '12px' }}
                   />
                 </div>
               ))}
 
               <div>
                 <label className="block text-xs font-medium text-text-muted mb-1">Sport</label>
-                <SportSelect value={form.sport} onChange={(s) => setForm({ ...form, sport: s })} />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Country</label>
-                <select
-                  value={form.country}
-                  onChange={(e) => setForm({ ...form, country: e.target.value })}
-                  className="w-full bg-surface border border-white/10 px-3 py-2 text-sm text-text appearance-none focus:border-accent/50"
-                  style={{ borderRadius: '4px' }}
-                >
-                  <option value="">Select country</option>
-                  {COUNTRIES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
-                </select>
+                <DisciplineSelect value={form.sport} onChange={(s) => setForm({ ...form, sport: s })} />
               </div>
 
               <div>
@@ -459,8 +434,8 @@ export default function Calendar() {
                 <select
                   value={form.level}
                   onChange={(e) => setForm({ ...form, level: e.target.value as Competition['level'] })}
-                  className="w-full bg-surface border border-white/10 px-3 py-2 text-sm text-text appearance-none focus:border-accent/50"
-                  style={{ borderRadius: '4px' }}
+                  className="w-full bg-surface border border-line px-3 py-2 text-sm text-text appearance-none focus:border-accent/50"
+                  style={{ borderRadius: '12px' }}
                 >
                   {['local','regional','national','continental','world'].map((l) => (
                     <option key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</option>
@@ -474,8 +449,8 @@ export default function Calendar() {
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={2}
-                  className="w-full bg-surface border border-white/10 px-3 py-2 text-sm text-text placeholder:text-text-muted/40 focus:border-accent/50 resize-none"
-                  style={{ borderRadius: '4px' }}
+                  className="w-full bg-surface border border-line px-3 py-2 text-sm text-text placeholder:text-text-muted/40 focus:border-accent/50 resize-none"
+                  style={{ borderRadius: '12px' }}
                 />
               </div>
             </div>
@@ -484,7 +459,7 @@ export default function Calendar() {
               onClick={handleSubmitForm}
               disabled={submitting}
               className="w-full mt-5 bg-accent text-primary py-3 font-display font-black uppercase text-base tracking-wide hover:bg-accent-hover transition-colors disabled:opacity-50"
-              style={{ borderRadius: '4px' }}
+              style={{ borderRadius: '12px' }}
             >
               {submitting ? 'Submitting...' : 'Submit competition'}
             </button>

@@ -1,117 +1,127 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getCountryFlag, initials } from '../lib/utils';
+import { initials } from '../lib/utils';
 import type { Profile, AthleteProfile } from '../lib/types';
+import { disciplineName, parsePrimaryEvents } from '../lib/types';
 
 interface AthleteCardProps {
   profile: Profile;
   athleteProfile?: AthleteProfile | null;
   compact?: boolean;
+  /** Optional headline result, e.g. "100m Freestyle · 52.14". */
+  bestLine?: string;
 }
 
-export default function AthleteCard({ profile, athleteProfile, compact }: AthleteCardProps) {
-  const sportInitial = athleteProfile?.sport?.[0]?.toUpperCase() || '?';
+const AVAILABILITY_LABEL: Record<string, string> = {
+  available: 'Available',
+  open_to_offers: 'Open to offers',
+  unavailable: 'Unavailable',
+};
+
+export default function AthleteCard({ profile, athleteProfile, compact, bestLine }: AthleteCardProps) {
+  const [hover, setHover] = useState(false);
+
+  const discipline = disciplineName(athleteProfile?.sport);
+  const isWaterpolo = athleteProfile?.sport === 'waterpolo';
+  const events = isWaterpolo ? [] : parsePrimaryEvents(athleteProfile?.position);
+  const secondary =
+    bestLine ||
+    (isWaterpolo ? athleteProfile?.position : events[0]) ||
+    AVAILABILITY_LABEL[athleteProfile?.availability || ''] ||
+    '';
 
   return (
     <Link
       to={`/profile/${profile.username}`}
-      className="group relative block overflow-visible hover:-translate-y-0.5 hover:border-accent/25 transition-all duration-150 border border-white/[0.06]"
-      style={{ background: '#1A1A2E', borderRadius: '4px' }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="block transition-all duration-150"
+      style={{
+        background: '#FFFFFF',
+        border: `1px solid ${hover ? '#D8D8CF' : 'var(--border)'}`,
+        borderRadius: '16px',
+        padding: '20px',
+        transform: hover ? 'translateY(-2px)' : 'none',
+      }}
     >
-      {/* Large faded sport initial — trading card feel */}
+      {/* Avatar tile */}
       <div
-        className="absolute top-2 right-3 font-display font-black select-none pointer-events-none leading-none z-0"
-        style={{ fontSize: '88px', color: 'rgba(255,255,255,0.03)' }}
-        aria-hidden="true"
+        className="overflow-hidden flex items-center justify-center"
+        style={{
+          width: '56px',
+          height: '56px',
+          borderRadius: '12px',
+          background: 'var(--accent-soft)',
+          marginBottom: '14px',
+        }}
       >
-        {sportInitial}
-      </div>
-
-      {/* Cover strip */}
-      <div className="relative overflow-hidden" style={{ height: '72px', background: '#12121E', borderRadius: '4px 4px 0 0' }}>
-        {profile.cover_url && (
-          <img src={profile.cover_url} alt="" className="w-full h-full object-cover" />
+        {profile.avatar_url ? (
+          <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
+        ) : (
+          <span
+            className="font-display"
+            style={{ fontWeight: 800, fontSize: '18px', color: 'var(--accent-ink)' }}
+          >
+            {initials(profile.full_name)}
+          </span>
         )}
       </div>
 
-      {/* Avatar */}
-      <div className="relative px-4">
-        <div
-          className="overflow-hidden bg-surface"
+      {/* Name */}
+      <h3
+        className="font-display truncate"
+        style={{ fontWeight: 800, fontSize: '19px', letterSpacing: '-0.01em', color: 'var(--text)' }}
+      >
+        {profile.full_name}
+      </h3>
+
+      {/* Unclaimed marker */}
+      {profile.is_claimed === false && (
+        <span
+          className="inline-block"
           style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '4px',
-            border: '2px solid #1A1A2E',
-            marginTop: '-26px',
+            background: 'var(--surface-2)', color: 'var(--text-muted)',
+            fontSize: '11px', fontWeight: 500, padding: '4px 12px',
+            borderRadius: '999px', marginTop: '8px', marginRight: '6px',
           }}
         >
-          {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center font-display font-bold text-lg text-accent">
-              {initials(profile.full_name)}
-            </div>
-          )}
-        </div>
-      </div>
+          Unclaimed
+        </span>
+      )}
 
-      <div className="px-4 pt-2 pb-4 relative z-10">
-        {/* Name + flag */}
-        <div className="flex items-center gap-2 mb-1 min-w-0">
-          <h3
-            className="font-display font-black text-text truncate"
-            style={{ fontSize: '16px', letterSpacing: '0.01em' }}
-          >
-            {profile.full_name.toUpperCase()}
-          </h3>
-          <span className="text-sm flex-shrink-0">{getCountryFlag(profile.country)}</span>
-        </div>
+      {/* Discipline pill */}
+      {discipline && (
+        <span
+          className="inline-block"
+          style={{
+            background: 'var(--accent-soft)',
+            color: 'var(--accent-ink)',
+            fontSize: '11px',
+            fontWeight: 500,
+            padding: '4px 12px',
+            borderRadius: '999px',
+            marginTop: '8px',
+          }}
+        >
+          {discipline}
+        </span>
+      )}
 
-        {/* Sport badge + position */}
-        {athleteProfile?.sport && (
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span
-              className="font-display font-semibold text-accent uppercase"
-              style={{
-                fontSize: '10px',
-                background: 'rgb(var(--accent-rgb) / 0.1)',
-                letterSpacing: '0.06em',
-                padding: '2px 8px',
-                borderRadius: '3px',
-              }}
-            >
-              {athleteProfile.sport}
-            </span>
-            {athleteProfile.position && (
-              <span className="text-text-muted" style={{ fontSize: '11px' }}>{athleteProfile.position}</span>
-            )}
-          </div>
-        )}
+      {/* Best event / secondary line */}
+      {secondary && (
+        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '10px' }} className="truncate">
+          {secondary}
+        </p>
+      )}
 
-        {/* Availability — static square dot, no pulse */}
-        {athleteProfile?.availability === 'available' && !compact && (
-          <div className="flex items-center gap-1.5">
-            <div style={{ width: '6px', height: '6px', borderRadius: '2px', background: '#34D399', flexShrink: 0 }} />
-            <span className="font-medium text-success uppercase tracking-wide" style={{ fontSize: '10px' }}>Available</span>
-          </div>
-        )}
-        {athleteProfile?.availability === 'open_to_offers' && !compact && (
-          <div className="flex items-center gap-1.5">
-            <div style={{ width: '6px', height: '6px', borderRadius: '2px', background: 'rgb(var(--accent-rgb))', flexShrink: 0 }} />
-            <span className="font-medium text-accent uppercase tracking-wide" style={{ fontSize: '10px' }}>Open to offers</span>
-          </div>
-        )}
-        {athleteProfile?.availability === 'unavailable' && !compact && (
-          <div className="flex items-center gap-1.5">
-            <div style={{ width: '6px', height: '6px', borderRadius: '2px', background: '#F87171', flexShrink: 0 }} />
-            <span className="font-medium text-error uppercase tracking-wide" style={{ fontSize: '10px' }}>Unavailable</span>
-          </div>
-        )}
-
-        {profile.bio && !compact && (
-          <p className="text-xs text-text-muted mt-2 line-clamp-2">{profile.bio}</p>
-        )}
-      </div>
+      {profile.bio && !compact && (
+        <p
+          className="line-clamp-2"
+          style={{ fontSize: '13px', color: 'var(--text-soft)', marginTop: '8px', lineHeight: 1.5 }}
+        >
+          {profile.bio}
+        </p>
+      )}
     </Link>
   );
 }
