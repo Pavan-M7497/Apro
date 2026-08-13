@@ -68,9 +68,9 @@ export default function Sidebar() {
 
   const base = linksForRole(profile?.role, profile?.username);
   // Messages available to all roles — insert after Home + Feed.
-  const links = [...base.slice(0, 2), { to: '/messages', label: 'Messages', icon: MessageCircle }, ...base.slice(2)];
+  const links = [...base.slice(0, 2), { to: '/messages', label: 'Messages', icon: MessageCircle }, { to: '/meets', label: 'Meets', icon: Calendar }, ...base.slice(2)];
   const mobileLinks = links.slice(0, 5);
-  const inactiveColor = profile?.role === 'athlete' ? '#555' : '#3a3a3a';
+  const inactiveColor = theme.textMuted;
 
   const isActive = (to: string) =>
     location.pathname === to || location.pathname.startsWith(to + '/');
@@ -88,12 +88,12 @@ export default function Sidebar() {
         to={to}
         className="flex items-center transition-colors"
         style={{
-          gap: '10px',
-          padding: '8px 10px',
-          borderRadius: '4px',
-          borderLeft: active ? `2px solid ${theme.accent}` : '2px solid transparent',
+          gap: '12px',
+          padding: '10px 16px',
+          borderRadius: '999px',
           background: active ? theme.accentMuted : 'transparent',
-          color: active ? theme.accent : inactiveColor,
+          color: active ? theme.accentInk : inactiveColor,
+          fontWeight: active ? 600 : 500,
         }}
       >
         <Icon className="w-[18px] h-[18px]" />
@@ -107,22 +107,21 @@ export default function Sidebar() {
       {/* ── Desktop sidebar ── */}
       <aside
         className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-50"
-        style={{ width: '200px', background: theme.surface, borderRight: `1px solid ${theme.border}` }}
+        style={{ width: '220px', background: theme.bgSoft, borderRight: `1px solid ${theme.border}` }}
       >
         {/* Logo */}
-        <div style={{ padding: '24px' }}>
-          <Link to="/home" className="flex items-center" style={{ gap: '8px' }}>
+        <div style={{ padding: '24px 20px' }}>
+          <Link to="/home" className="flex items-center" style={{ gap: '10px' }}>
             <span
-              className="flex items-center justify-center flex-shrink-0"
+              className="flex items-center justify-center flex-shrink-0 font-display"
               style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '4px',
-                background: theme.logoColor,
-                color: theme.bg,
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 900,
-                fontSize: '16px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '10px',
+                background: theme.accent,
+                color: theme.onAccent,
+                fontWeight: 800,
+                fontSize: '18px',
                 lineHeight: 1,
               }}
               aria-hidden="true"
@@ -130,22 +129,16 @@ export default function Sidebar() {
               A
             </span>
             <span
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 900,
-                fontSize: '22px',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: theme.logoColor,
-              }}
+              className="font-display"
+              style={{ fontWeight: 800, fontSize: '22px', letterSpacing: '-0.01em', color: theme.text }}
             >
-              APRO
+              Apro
             </span>
           </Link>
         </div>
 
         {/* Nav links */}
-        <nav className="flex flex-col" style={{ gap: '2px', padding: '0 10px' }}>
+        <nav className="flex flex-col" style={{ gap: '4px', padding: '0 12px' }}>
           {links.map(renderLink)}
         </nav>
 
@@ -153,7 +146,7 @@ export default function Sidebar() {
         <div className="flex-1" />
 
         {/* Profile mini-card */}
-        <div style={{ padding: '12px 10px', borderTop: `1px solid ${theme.border}` }}>
+        <div style={{ padding: '16px 14px', borderTop: `1px solid ${theme.border}` }}>
           <div className="flex items-center" style={{ gap: '10px' }}>
             <Link
               to={profile?.username ? `/profile/${profile.username}` : '/profile'}
@@ -162,12 +155,12 @@ export default function Sidebar() {
             >
               <div
                 className="overflow-hidden flex items-center justify-center flex-shrink-0"
-                style={{ width: '28px', height: '28px', borderRadius: '4px', background: theme.accentMuted }}
+                style={{ width: '28px', height: '28px', borderRadius: '12px', background: theme.accentMuted }}
               >
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '11px', color: theme.accent }}>
+                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '12px', color: theme.accentInk }}>
                     {initials(profile?.full_name || '?')}
                   </span>
                 )}
@@ -175,11 +168,11 @@ export default function Sidebar() {
               <div className="min-w-0">
                 <div
                   className="truncate"
-                  style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', color: theme.accent }}
+                  style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '14px', color: theme.text }}
                 >
                   {profile?.full_name || 'Profile'}
                 </div>
-                <div className="truncate" style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', color: theme.textMuted, textTransform: 'capitalize' }}>
+                <div className="truncate" style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: theme.textMuted, textTransform: 'capitalize' }}>
                   {profile?.role}
                 </div>
               </div>
@@ -199,7 +192,7 @@ export default function Sidebar() {
       {/* ── Mobile bottom tab bar ── */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around"
-        style={{ height: '60px', background: theme.surface, borderTop: `1px solid ${theme.border}` }}
+        style={{ height: '64px', background: theme.bgSoft, borderTop: `1px solid ${theme.border}` }}
       >
         {mobileLinks.map(({ to, label, icon: Icon }) => {
           const active = isActive(to);

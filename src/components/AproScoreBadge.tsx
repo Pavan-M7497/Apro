@@ -38,19 +38,19 @@ export default function AproScoreBadge({ profileId }: Props) {
       <button
         onClick={() => setShowTooltip(!showTooltip)}
         onBlur={() => setShowTooltip(false)}
-        className="flex items-center gap-1 bg-accent/10 border border-accent/20 px-2.5 py-1 hover:bg-accent/20 transition-colors"
-        style={{ borderRadius: '4px' }}
+        className="flex items-center gap-1 bg-accent-soft border border-accent/20 px-2.5 py-1 hover:bg-accent-soft transition-colors"
+        style={{ borderRadius: '12px' }}
       >
-        <span className="font-display font-black text-accent text-sm">{score}</span>
-        <span className="text-[10px] text-accent/70 font-display uppercase tracking-wide">Apro</span>
+        <span className="font-display font-black text-accent-ink text-sm">{score}</span>
+        <span className="text-[10px] text-accent-ink/70 font-display uppercase tracking-wide">Apro</span>
       </button>
 
       {showTooltip && breakdown && (
         <div
-          className="absolute left-0 top-full mt-1 z-20 bg-primary border border-white/10 p-3 text-xs space-y-1.5 shadow-xl"
-          style={{ borderRadius: '4px', minWidth: '200px' }}
+          className="absolute left-0 top-full mt-1 z-20 bg-white border border-line p-3 text-xs space-y-1.5 shadow-xl"
+          style={{ borderRadius: '12px', minWidth: '200px' }}
         >
-          <div className="font-display font-black uppercase text-accent text-sm mb-2">Score breakdown</div>
+          <div className="font-display font-black uppercase text-accent-ink text-sm mb-2">Score breakdown</div>
           <div className="flex justify-between">
             <span className="text-text-muted">Profile completeness</span>
             <span className="font-bold">{breakdown.profile_completeness}/20</span>
@@ -67,9 +67,9 @@ export default function AproScoreBadge({ profileId }: Props) {
             <span className="text-text-muted">Engagement</span>
             <span className="font-bold">{breakdown.engagement}/20</span>
           </div>
-          <div className="border-t border-white/10 mt-2 pt-2 flex justify-between font-bold">
+          <div className="border-t border-line mt-2 pt-2 flex justify-between font-bold">
             <span>Total</span>
-            <span className="text-accent">{score}/100</span>
+            <span className="text-accent-ink">{score}/100</span>
           </div>
         </div>
       )}

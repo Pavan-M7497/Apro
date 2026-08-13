@@ -131,8 +131,8 @@ export default function Training() {
           </div>
           <button
             onClick={() => navigate('/training/progress')}
-            className="flex items-center gap-2 px-3 py-2 text-sm font-medium hover:bg-white/10 transition-colors flex-shrink-0"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px' }}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium hover:bg-surface transition-colors flex-shrink-0"
+            style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '12px' }}
           >
             <LineChart className="w-4 h-4" /> Progress
           </button>
@@ -149,15 +149,15 @@ export default function Training() {
                 onClick={() => hasSession && scrollToDate(d.key)}
                 className="flex flex-col items-center gap-1 py-2 transition-colors"
                 style={{
-                  background: isToday ? 'rgb(var(--accent-rgb) / 0.08)' : '#1A1A2E',
-                  border: isToday ? '0.5px solid rgb(var(--accent-rgb) / 0.4)' : '0.5px solid rgba(255,255,255,0.06)',
-                  borderRadius: '4px',
+                  background: isToday ? 'rgb(var(--accent-rgb) / 0.08)' : 'var(--bg-soft)',
+                  border: isToday ? '0.5px solid rgb(var(--accent-rgb) / 0.4)' : '1px solid var(--border)',
+                  borderRadius: '12px',
                   cursor: hasSession ? 'pointer' : 'default',
                 }}
               >
-                <span className="font-display font-bold uppercase" style={{ fontSize: '10px', color: isToday ? 'rgb(var(--accent-rgb))' : '#8888A0' }}>{d.abbr}</span>
-                <span className="font-display font-black" style={{ fontSize: '16px', color: isToday ? 'rgb(var(--accent-rgb))' : '#F5F5F0' }}>{d.dateNum}</span>
-                <span style={{ width: '6px', height: '6px', borderRadius: '2px', background: hasSession ? 'rgb(var(--accent-rgb))' : 'transparent' }} />
+                <span className="font-display font-bold uppercase" style={{ fontSize: '10px', color: isToday ? 'rgb(var(--accent-rgb))' : 'var(--text-muted)' }}>{d.abbr}</span>
+                <span className="font-display font-black" style={{ fontSize: '16px', color: isToday ? 'rgb(var(--accent-rgb))' : 'var(--text)' }}>{d.dateNum}</span>
+                <span style={{ width: '6px', height: '6px', borderRadius: '999px', background: hasSession ? 'rgb(var(--accent-rgb))' : 'transparent' }} />
               </button>
             );
           })}
@@ -189,12 +189,12 @@ export default function Training() {
                       <div
                         key={s.id}
                         className="flex items-center gap-3 p-3"
-                        style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px' }}
+                        style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '12px' }}
                       >
                         {/* Icon square */}
                         <div
                           className="flex items-center justify-center flex-shrink-0"
-                          style={{ width: '40px', height: '40px', borderRadius: '4px', background: `${color}22` }}
+                          style={{ width: '40px', height: '40px', borderRadius: '12px', background: `${color}22` }}
                         >
                           <i className={`ti ${meta.icon}`} style={{ fontSize: '22px', color }} aria-hidden="true" />
                         </div>
@@ -206,7 +206,7 @@ export default function Training() {
                             {s.intensity_rpe != null && (
                               <span
                                 className="font-display font-bold uppercase"
-                                style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '3px', background: `${rpeColor(s.intensity_rpe)}22`, color: rpeColor(s.intensity_rpe) }}
+                                style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '999px', background: `${rpeColor(s.intensity_rpe)}22`, color: rpeColor(s.intensity_rpe) }}
                               >
                                 RPE {s.intensity_rpe}/10
                               </span>
@@ -247,9 +247,9 @@ export default function Training() {
           right: '20px',
           width: '56px',
           height: '56px',
-          borderRadius: '4px',
+          borderRadius: '12px',
           background: 'rgb(var(--accent-rgb))',
-          color: '#0A0A0F',
+          color: 'var(--on-accent)',
         }}
         aria-label="Log a session"
       >
@@ -260,7 +260,7 @@ export default function Training() {
       {toast && (
         <div
           className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 bg-accent text-primary px-5 py-2.5 text-sm font-bold animate-slide-up whitespace-nowrap"
-          style={{ borderRadius: '4px' }}
+          style={{ borderRadius: '12px' }}
         >
           {toast}
         </div>

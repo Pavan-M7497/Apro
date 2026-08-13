@@ -4,21 +4,31 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#0A0A0F',
-        // accent reads from a CSS variable set per-role by ThemeProvider, so
-        // every text-accent / bg-accent / border-accent / accent-/<alpha>
-        // utility re-themes to the logged-in user's role colour world.
+        // Light design system — tokens live in src/index.css.
+        // `primary` is the ink colour: `text-primary` sits on accent fills.
+        primary: 'rgb(var(--text-rgb) / <alpha-value>)',
         accent: 'rgb(var(--accent-rgb) / <alpha-value>)',
         'accent-hover': 'rgb(var(--accent-hover-rgb) / <alpha-value>)',
-        card: '#1A1A2E',
-        'card-hover': '#222240',
-        surface: '#12121E',
-        text: '#F5F5F0',
-        'text-muted': '#8888A0',
-        success: '#34D399',
-        warning: '#FBBF24',
-        error: '#F87171',
-        info: '#60A5FA',
+        'accent-soft': 'rgb(var(--accent-soft-rgb) / <alpha-value>)',
+        'accent-ink': 'rgb(var(--accent-ink-rgb) / <alpha-value>)',
+        card: 'rgb(var(--bg-soft-rgb) / <alpha-value>)',
+        'card-hover': 'rgb(var(--surface-2-rgb) / <alpha-value>)',
+        surface: 'rgb(var(--surface-2-rgb) / <alpha-value>)',
+        text: 'rgb(var(--text-rgb) / <alpha-value>)',
+        'text-muted': 'rgb(var(--text-muted-rgb) / <alpha-value>)',
+        line: 'rgb(var(--border-rgb) / <alpha-value>)',
+        success: '#3FA34D',
+        warning: '#D99100',
+        error: '#D64545',
+        info: '#3B82F6',
+      },
+      borderColor: {
+        DEFAULT: 'rgb(var(--border-rgb) / <alpha-value>)',
+      },
+      borderRadius: {
+        card: '16px',
+        tile: '12px',
+        pill: '999px',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

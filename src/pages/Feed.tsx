@@ -125,15 +125,15 @@ export default function Feed() {
             {items.map((item) => {
               const isFollowingItem = following.includes(item.profile.id);
               return (
-                <div key={item.id} className="bg-card border border-white/5 overflow-hidden animate-fade-in" style={{ borderRadius: '4px' }}>
+                <div key={item.id} className="bg-card border border-line overflow-hidden animate-fade-in" style={{ borderRadius: '12px' }}>
                   {/* Header */}
                   <div className="flex items-center justify-between p-4">
                     <Link to={`/profile/${item.profile.username}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                      <div className="w-10 h-10 overflow-hidden bg-surface flex-shrink-0" style={{ borderRadius: '4px' }}>
+                      <div className="w-10 h-10 overflow-hidden bg-surface flex-shrink-0" style={{ borderRadius: '12px' }}>
                         {item.profile.avatar_url ? (
                           <img src={item.profile.avatar_url} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xs font-display font-bold text-accent bg-accent/10">
+                          <div className="w-full h-full flex items-center justify-center text-xs font-display font-bold text-accent-ink bg-accent-soft">
                             {initials(item.profile.full_name)}
                           </div>
                         )}
@@ -152,10 +152,10 @@ export default function Feed() {
                         onClick={() => handleFollowToggle(item.profile.id)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold transition-colors ${
                           isFollowingItem
-                            ? 'bg-white/5 border border-white/10 text-text-muted hover:text-error'
+                            ? 'bg-surface border border-line text-text-muted hover:text-error'
                             : 'bg-accent text-primary hover:bg-accent-hover'
                         }`}
-                        style={{ borderRadius: '3px' }}
+                        style={{ borderRadius: '999px' }}
                       >
                         {isFollowingItem ? <UserCheck className="w-3 h-3" /> : <UserPlus className="w-3 h-3" />}
                         {isFollowingItem ? 'Following' : 'Follow'}
@@ -176,11 +176,11 @@ export default function Feed() {
                             <img src={item.highlight.thumbnail_url} alt={item.highlight.title} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <Play className="w-10 h-10 text-accent/30" />
+                              <Play className="w-10 h-10 text-accent-ink/30" />
                             </div>
                           )}
                           <div className="absolute inset-0 bg-black/30 group-hover:bg-black/15 transition-colors flex items-center justify-center">
-                            <div className="w-12 h-12 bg-accent/90 group-hover:bg-accent flex items-center justify-center transition-colors" style={{ borderRadius: '3px' }}>
+                            <div className="w-12 h-12 bg-accent/90 group-hover:bg-accent flex items-center justify-center transition-colors" style={{ borderRadius: '999px' }}>
                               <Play className="w-6 h-6 text-primary fill-current" />
                             </div>
                           </div>
@@ -191,7 +191,7 @@ export default function Feed() {
                         {item.highlight.description && (
                           <p className="text-xs text-text-muted mt-1">{item.highlight.description}</p>
                         )}
-                        <span className="font-display text-[10px] text-accent font-semibold bg-accent/10 px-2 py-0.5 mt-2 inline-block uppercase tracking-wide" style={{ borderRadius: '3px' }}>
+                        <span className="font-display text-[10px] text-accent-ink font-semibold bg-accent-soft px-2 py-0.5 mt-2 inline-block uppercase tracking-wide" style={{ borderRadius: '999px' }}>
                           {item.highlight.sport}
                         </span>
                       </div>
@@ -201,9 +201,9 @@ export default function Feed() {
                   {/* Achievement content */}
                   {item.type === 'achievement' && item.achievement && (
                     <div className="p-4 pt-0">
-                      <div className="bg-surface p-4 flex items-start gap-3" style={{ borderRadius: '4px' }}>
-                        <div className="w-10 h-10 bg-accent/10 flex items-center justify-center flex-shrink-0" style={{ borderRadius: '3px' }}>
-                          <Trophy className="w-5 h-5 text-accent" />
+                      <div className="bg-surface p-4 flex items-start gap-3" style={{ borderRadius: '12px' }}>
+                        <div className="w-10 h-10 bg-accent-soft flex items-center justify-center flex-shrink-0" style={{ borderRadius: '999px' }}>
+                          <Trophy className="w-5 h-5 text-accent-ink" />
                         </div>
                         <div>
                           <h3 className="font-display font-bold uppercase text-sm tracking-wide">{item.achievement.title}</h3>
@@ -233,15 +233,15 @@ export default function Feed() {
                   {videoModal.title}
                 </h3>
                 {videoModal.sport && (
-                  <span className="font-display text-[10px] font-semibold text-accent bg-accent/10 px-2 py-0.5 uppercase tracking-wide flex-shrink-0" style={{ borderRadius: '3px' }}>
+                  <span className="font-display text-[10px] font-semibold text-accent-ink bg-accent-soft px-2 py-0.5 uppercase tracking-wide flex-shrink-0" style={{ borderRadius: '999px' }}>
                     {videoModal.sport}
                   </span>
                 )}
               </div>
               <button
                 onClick={() => setVideoModal(null)}
-                className="w-9 h-9 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0 ml-3"
-                style={{ borderRadius: '4px' }}
+                className="w-9 h-9 flex items-center justify-center text-white flex-shrink-0 ml-3"
+                style={{ background: 'rgba(255,255,255,0.12)', borderRadius: '999px' }}
                 aria-label="Close video"
               >
                 <X className="w-5 h-5" />
@@ -255,7 +255,7 @@ export default function Feed() {
               webkit-playsinline="true"
               preload="metadata"
               controlsList="nodownload"
-              style={{ width: '100%', backgroundColor: '#000', borderRadius: '4px', maxHeight: '75vh', display: 'block' }}
+              style={{ width: '100%', backgroundColor: '#000', borderRadius: '12px', maxHeight: '75vh', display: 'block' }}
             />
           </div>
         </div>

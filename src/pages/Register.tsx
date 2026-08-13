@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Zap, Mail, Lock, Eye, EyeOff, User, Globe, ChevronRight, ChevronLeft, Dumbbell, Briefcase, ClipboardList, Handshake } from 'lucide-react';
-import type { UserRole } from '../lib/types';
-import { CountrySelect } from '../components/CountrySelect';
-import { SportSelect, PositionSelect } from '../components/SportSelect';
+import type { UserRole, Gender } from '../lib/types';
+import { GENDERS } from '../lib/types';
+import { StateSelect } from '../components/StateSelect';
+import { DisciplineSelect, WaterpoloPositionSelect, PrimaryEventsSelect } from '../components/DisciplineSelect';
 
 const ROLES: { value: UserRole; label: string; desc: string; icon: typeof Dumbbell }[] = [
-  { value: 'athlete', label: 'Athlete', desc: 'Showcase your skills and get discovered', icon: Dumbbell },
-  { value: 'brand', label: 'Brand', desc: 'Find athletes that match your values', icon: Briefcase },
-  { value: 'coach', label: 'Coach', desc: 'Discover talent and build your team', icon: ClipboardList },
-  { value: 'agent', label: 'Agent', desc: 'Connect with the next generation of stars', icon: Handshake },
+  { value: 'athlete', label: 'Athlete', desc: 'Log your times and get discovered', icon: Dumbbell },
+  { value: 'brand', label: 'Brand / Sponsor', desc: 'Back athletes who match your values', icon: Briefcase },
+  { value: 'coach', label: 'Coach / Selector', desc: 'Find talent and build your squad', icon: ClipboardList },
+  { value: 'agent', label: 'Agent', desc: 'Represent the next generation', icon: Handshake },
 ];
 
 export default function Register() {
@@ -20,9 +21,11 @@ export default function Register() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [country, setCountry] = useState('');
+  const [stateCode, setStateCode] = useState('');
   const [sport, setSport] = useState('');
   const [position, setPosition] = useState('');
+  const [events, setEvents] = useState<string[]>([]);
+  const [gender, setGender] = useState<Gender | ''>('');
   const [dob, setDob] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
@@ -32,7 +35,7 @@ export default function Register() {
     if (!fullName.trim()) return 'Name is required';
     if (!email.trim() || !email.includes('@')) return 'Valid email is required';
     if (password.length < 6) return 'Password must be at least 6 characters';
-    if (!country) return 'Please select a country';
+    if (!stateCode) return 'Please select a state';
     return null;
   };
 
@@ -51,7 +54,17 @@ export default function Register() {
     }
   };
 
+  const validateStep3 = () => {
+    if (!sport) return 'Please select a discipline';
+    if (!gender) return 'Please select a gender — leaderboards are split by it';
+    return null;
+  };
+
   const handleSignUp = async () => {
+    if (role === 'athlete') {
+      const err = validateStep3();
+      if (err) { setError(err); return; }
+    }
     setError('');
     setLoading(true);
 
@@ -62,9 +75,11 @@ export default function Register() {
         data: {
           full_name: fullName,
           role,
-          country,
+          country: 'India',
+          state_code: stateCode,
+          gender: role === 'athlete' ? gender : undefined,
           sport: role === 'athlete' ? sport : undefined,
-          position: role === 'athlete' ? position : undefined,
+          position: role === 'athlete' ? (sport === 'waterpolo' ? position : events.join(', ')) : undefined,
           date_of_birth: role === 'athlete' && dob ? dob : undefined,
         },
       },
@@ -87,7 +102,7 @@ export default function Register() {
       <div className="w-full max-w-lg">
         <div className="text-center mb-6">
           <Link to="/" className="inline-flex items-center gap-2 mb-4">
-            <Zap className="w-8 h-8 text-accent" fill="currentColor" />
+            <Zap className="w-8 h-8 text-accent-ink" fill="currentColor" />
             <span className="text-2xl font-black tracking-tight">Apro</span>
           </Link>
           <h1 className="text-2xl font-bold mb-1">Create your account</h1>
@@ -100,13 +115,13 @@ export default function Register() {
             <div
               key={s}
               className={`h-1 flex-1 rounded-full transition-colors ${
-                s <= step ? 'bg-accent' : 'bg-white/10'
+                s <= step ? 'bg-accent' : 'bg-surface'
               } ${role !== 'athlete' && s === 3 ? 'hidden' : ''}`}
             />
           ))}
         </div>
 
-        <div className="bg-card rounded-xl p-6 border border-white/5">
+        <div className="bg-card rounded-xl p-6 border border-line">
           {error && (
             <div className="bg-error/10 border border-error/20 rounded-lg px-4 py-3 mb-4 text-sm text-error">
               {error}
@@ -124,11 +139,11 @@ export default function Register() {
                     onClick={() => setRole(value)}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       role === value
-                        ? 'border-accent bg-accent/10'
-                        : 'border-white/10 hover:border-white/20 bg-surface'
+                        ? 'border-accent bg-accent-soft'
+                        : 'border-line hover:border-line bg-surface'
                     }`}
                   >
-                    <Icon className={`w-6 h-6 mb-2 ${role === value ? 'text-accent' : 'text-text-muted'}`} />
+                    <Icon className={`w-6 h-6 mb-2 ${role === value ? 'text-accent-ink' : 'text-text-muted'}`} />
                     <div className="font-bold text-sm text-text">{label}</div>
                     <div className="text-xs text-text-muted mt-0.5">{desc}</div>
                   </button>
@@ -151,7 +166,7 @@ export default function Register() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Your full name"
-                    className="w-full bg-surface border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
+                    className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
                   />
                 </div>
               </div>
@@ -165,7 +180,7 @@ export default function Register() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@email.com"
-                    className="w-full bg-surface border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
+                    className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
                   />
                 </div>
               </div>
@@ -179,7 +194,7 @@ export default function Register() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Min. 6 characters"
-                    className="w-full bg-surface border border-white/10 rounded-lg pl-10 pr-10 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
+                    className="w-full bg-surface border border-line rounded-lg pl-10 pr-10 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
                   />
                   <button
                     type="button"
@@ -192,13 +207,13 @@ export default function Register() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-muted mb-1.5">Country</label>
+                <label className="block text-sm font-medium text-text-muted mb-1.5">State</label>
                 <div className="relative">
                   <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted z-10" />
-                  <CountrySelect
-                    value={country}
-                    onChange={setCountry}
-                    className="bg-surface border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:border-accent/50 transition-colors"
+                  <StateSelect
+                    value={stateCode}
+                    onChange={setStateCode}
+                    className="bg-white border border-line rounded-pill pl-10 pr-4 py-2.5 text-sm focus:border-accent transition-colors"
                   />
                 </div>
               </div>
@@ -211,16 +226,45 @@ export default function Register() {
               <h2 className="text-lg font-bold mb-2">Athlete details</h2>
 
               <div>
-                <label className="block text-sm font-medium text-text-muted mb-1.5">Sport</label>
-                <SportSelect value={sport} onChange={(s) => { setSport(s); setPosition(''); }} />
+                <label className="block text-sm font-medium text-text-muted mb-1.5">Discipline</label>
+                <DisciplineSelect value={sport} onChange={(d) => { setSport(d); setPosition(''); setEvents([]); }} />
               </div>
 
-              {sport && (
+              {sport === 'waterpolo' && (
                 <div>
                   <label className="block text-sm font-medium text-text-muted mb-1.5">Position</label>
-                  <PositionSelect sport={sport} value={position} onChange={setPosition} />
+                  <WaterpoloPositionSelect value={position} onChange={setPosition} />
                 </div>
               )}
+
+              {sport && sport !== 'waterpolo' && (
+                <div>
+                  <label className="block text-sm font-medium text-text-muted mb-1.5">Primary events</label>
+                  <PrimaryEventsSelect discipline={sport} value={events} onChange={setEvents} />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-text-muted mb-1.5">Gender</label>
+                <div className="flex gap-2">
+                  {GENDERS.map((g) => (
+                    <button
+                      key={g.id}
+                      type="button"
+                      onClick={() => setGender(g.id)}
+                      className="flex-1 rounded-pill text-sm transition-colors"
+                      style={
+                        gender === g.id
+                          ? { background: 'var(--accent-soft)', color: 'var(--accent-ink)', border: '1px solid var(--accent)', fontWeight: 600, padding: '10px 16px' }
+                          : { background: '#fff', color: 'var(--text-muted)', border: '1px solid var(--border)', fontWeight: 500, padding: '10px 16px' }
+                      }
+                    >
+                      {g.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-text-muted mt-1.5">Leaderboards are split by gender.</p>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-text-muted mb-1.5">Date of birth</label>
@@ -228,7 +272,7 @@ export default function Register() {
                   type="date"
                   value={dob}
                   onChange={(e) => setDob(e.target.value)}
-                  className="w-full bg-surface border border-white/10 rounded-lg px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors"
+                  className="w-full bg-surface border border-line rounded-lg px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors"
                 />
               </div>
             </div>
@@ -239,7 +283,7 @@ export default function Register() {
             {step > 1 && (
               <button
                 onClick={() => { setStep(step - 1); setError(''); }}
-                className="flex items-center gap-1 px-4 py-2.5 rounded-lg text-sm font-medium border border-white/10 text-text-muted hover:text-text hover:border-white/20 transition-colors"
+                className="flex items-center gap-1 px-4 py-2.5 rounded-lg text-sm font-medium border border-line text-text-muted hover:text-text hover:border-line transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" /> Back
               </button>
@@ -260,7 +304,7 @@ export default function Register() {
 
           <p className="text-center text-sm text-text-muted mt-4">
             Already have an account?{' '}
-            <Link to="/login" className="text-accent font-medium hover:underline">
+            <Link to="/login" className="text-accent-ink font-medium hover:underline">
               Sign in
             </Link>
           </p>

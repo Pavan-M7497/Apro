@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
-import { SportSelect } from '../components/SportSelect';
+import { DisciplineSelect } from '../components/DisciplineSelect';
 import { Upload as UploadIcon, FileVideo, X, CheckCircle } from 'lucide-react';
 
 export default function Upload() {
@@ -107,7 +107,7 @@ export default function Upload() {
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => { setSuccess(false); setTitle(''); setDescription(''); setSport(''); setVideoFile(null); setVideoPreview(null); setProgress(0); }}
-              className="bg-white/5 border border-white/10 px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-white/10 transition-colors"
+              className="bg-surface border border-line px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-surface transition-colors"
             >
               Upload another
             </button>
@@ -137,10 +137,10 @@ export default function Upload() {
         {/* Video picker */}
         <div className="mb-6">
           {!videoFile ? (
-            <label className="block h-48 md:h-56 bg-surface border-2 border-dashed border-white/10 rounded-xl cursor-pointer hover:border-accent/20 transition-colors">
+            <label className="block h-48 md:h-56 bg-surface border-2 border-dashed border-line rounded-xl cursor-pointer hover:border-accent/20 transition-colors">
               <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-                <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center">
-                  <FileVideo className="w-7 h-7 text-accent" />
+                <div className="w-14 h-14 rounded-2xl bg-accent-soft flex items-center justify-center">
+                  <FileVideo className="w-7 h-7 text-accent-ink" />
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-medium text-text">Click to select video</p>
@@ -183,7 +183,7 @@ export default function Upload() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Goal vs Barcelona"
-              className="w-full bg-surface border border-white/10 rounded-lg px-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
+              className="w-full bg-surface border border-line rounded-lg px-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
               disabled={uploading}
             />
           </div>
@@ -195,14 +195,14 @@ export default function Upload() {
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="What happened in this clip?"
-              className="w-full bg-surface border border-white/10 rounded-lg px-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors resize-none"
+              className="w-full bg-surface border border-line rounded-lg px-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors resize-none"
               disabled={uploading}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-text-muted mb-1.5">Sport</label>
-            <SportSelect value={sport} onChange={setSport} disabled={uploading} />
+            <DisciplineSelect value={sport} onChange={setSport} disabled={uploading} />
           </div>
         </div>
 
@@ -211,7 +211,7 @@ export default function Upload() {
           <div className="mt-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium">Uploading...</span>
-              <span className="text-sm text-accent font-bold">{Math.round(progress)}%</span>
+              <span className="text-sm text-accent-ink font-bold">{Math.round(progress)}%</span>
             </div>
             <div className="h-2 bg-surface rounded-full overflow-hidden">
               <div

@@ -1,11 +1,9 @@
-import countries from 'world-countries';
-
 export type UserRole = 'athlete' | 'brand' | 'coach' | 'agent';
 
-export interface Country {
+export interface IndianState {
   code: string;
   name: string;
-  flag: string;
+  type: 'state' | 'ut';
 }
 
 export interface Profile {
@@ -17,8 +15,17 @@ export interface Profile {
   cover_url: string | null;
   bio: string | null;
   country: string;
+  state_code: string | null;
+  city: string | null;
+  club_id: string | null;
+  gender: Gender | null;
   role: UserRole;
+  sfi_id: string | null;
+  state_assoc_id: string | null;
+  is_claimed?: boolean;
+  claim_token?: string | null;
   verification_tier?: number;
+  verified_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -26,7 +33,13 @@ export interface Profile {
 export interface AthleteProfile {
   id: string;
   profile_id: string;
+  /** Aquatics discipline id — see DISCIPLINES. Reuses the legacy `sport` column. */
   sport: string;
+  /**
+   * Water polo: the playing position (see WATERPOLO_POSITIONS).
+   * All other disciplines: comma-separated primary events (max MAX_PRIMARY_EVENTS).
+   * Reuses the legacy `position` column.
+   */
   position: string;
   date_of_birth: string | null;
   availability: 'available' | 'unavailable' | 'open_to_offers';
@@ -90,19 +103,139 @@ export interface FeedItem {
   created_at: string;
 }
 
-export const SPORTS = [
-  'Football', 'Basketball', 'Tennis', 'Athletics', 'Swimming',
-  'Cricket', 'Rugby', 'Boxing', 'MMA', 'Volleyball',
-  'Handball', 'Cycling', 'Golf', 'Baseball', 'Hockey',
+export const DISCIPLINES = [
+  { id: 'swimming',  name: 'Swimming'   },
+  { id: 'waterpolo', name: 'Water Polo' },
+  { id: 'diving',    name: 'Diving'     },
+] as const;
+
+export type DisciplineId = typeof DISCIPLINES[number]['id'];
+
+export const EVENTS: Record<DisciplineId, string[]> = {
+  swimming: [
+    '50m Freestyle','100m Freestyle','200m Freestyle','400m Freestyle','800m Freestyle','1500m Freestyle',
+    '50m Backstroke','100m Backstroke','200m Backstroke',
+    '50m Breaststroke','100m Breaststroke','200m Breaststroke',
+    '50m Butterfly','100m Butterfly','200m Butterfly',
+    '200m Individual Medley','400m Individual Medley',
+  ],
+  diving: ['1m Springboard','3m Springboard','10m Platform'],
+  waterpolo: [],
+};
+
+export const DIVING_SYNCHRO = ['3m Synchronised','10m Synchronised','Mixed Synchronised'];
+
+export const WATERPOLO_POSITIONS = [
+  'Goalkeeper','Centre Forward','Centre Back','Driver','Wing','Point','Utility',
 ];
 
-export const COUNTRIES: Country[] = countries
-  .map((c) => ({
-    code: c.cca2,
-    name: c.name.common,
-    flag: c.flag,
-  }))
-  .sort((a, b) => a.name.localeCompare(b.name));
+export function isDisciplineId(id: string | null | undefined): id is DisciplineId {
+  return DISCIPLINES.some((d) => d.id === id);
+}
+
+/** Safe accessor — EVENTS is keyed by DisciplineId, call sites hold plain strings. */
+export function eventsFor(discipline: string | null | undefined): string[] {
+  return isDisciplineId(discipline) ? EVENTS[discipline] : [];
+}
+
+export const MEET_LEVELS = [
+  { id: 'school',       name: 'School',            weight: 2 },
+  { id: 'district',     name: 'District',          weight: 5 },
+  { id: 'state',        name: 'State',             weight: 10 },
+  { id: 'zonal',        name: 'Zonal / Inter-State', weight: 15 },
+  { id: 'national',     name: 'National',          weight: 22 },
+  { id: 'khelo_india',  name: 'Khelo India',       weight: 25 },
+  { id: 'international',name: 'International',     weight: 30 },
+] as const;
+
+export type MeetLevelId = typeof MEET_LEVELS[number]['id'];
+export type Course = 'SCM' | 'LCM' | 'NA';
+
+/** Disciplines measured on the clock — course (SCM/LCM) is required. */
+export const TIMED_DISCIPLINES = ['swimming'];
+/** Disciplines scored by judges — results are points, not seconds. */
+export const SCORED_DISCIPLINES = ['diving'];
+
+export type Gender = 'male' | 'female' | 'other';
+
+export const GENDERS: { id: Gender; label: string }[] = [
+  { id: 'male', label: 'Male' },
+  { id: 'female', label: 'Female' },
+  { id: 'other', label: 'Other' },
+];
+
+export interface AgeGroup {
+  id: string;
+  discipline: string;
+  label: string;
+  min_age: number;
+  max_age: number | null;
+  sort_order: number;
+}
+
+export interface Club {
+  id: string;
+  name: string;
+  short_name: string | null;
+  state_code: string | null;
+  city: string | null;
+  created_at: string;
+}
+
+export interface DivingResult {
+  id: string;
+  profile_id: string;
+  event: string;
+  total_score: number;
+  dive_count: number | null;
+  average_dd: number | null;
+  meet_name: string | null;
+  meet_level: string | null;
+  meet_date: string | null;
+  is_personal_best: boolean;
+  verified: boolean;
+  created_at: string;
+}
+
+export interface BaseTime {
+  id: string;
+  event: string;
+  course: 'SCM' | 'LCM';
+  gender: 'male' | 'female';
+  base_seconds: number;
+  season_year: number;
+}
+
+export const MAX_PRIMARY_EVENTS = 3;
+
+export interface PerformanceRecord {
+  id: string;
+  profile_id: string;
+  discipline: string;
+  event: string;
+  course: Course | null;
+  result_seconds: number | null;
+  result_points: number | null;
+  meet_name: string | null;
+  meet_level: MeetLevelId | null;
+  meet_date: string | null;
+  is_personal_best: boolean;
+  verified: boolean;
+  created_at: string;
+}
+
+export interface WaterpoloStat {
+  id: string;
+  profile_id: string;
+  season: string;
+  competition: string | null;
+  matches: number;
+  goals: number;
+  assists: number;
+  saves: number;
+  exclusions_drawn: number;
+  created_at: string;
+}
 
 export type ActivityType = 'running' | 'cycling' | 'swimming' | 'gym' | 'team_sport' | 'general';
 
@@ -158,20 +291,58 @@ export const ACTIVITY_TYPES: { value: ActivityType; label: string; icon: string 
 
 export const STROKE_TYPES = ['Freestyle', 'Backstroke', 'Breaststroke', 'Butterfly', 'Medley', 'Mixed'];
 
-export const POSITIONS: Record<string, string[]> = {
-  Football: ['Goalkeeper', 'Defender', 'Midfielder', 'Striker', 'Winger'],
-  Basketball: ['Point Guard', 'Shooting Guard', 'Small Forward', 'Power Forward', 'Center'],
-  Tennis: ['Singles', 'Doubles'],
-  Athletics: ['Sprinter', 'Marathon', 'Jumper', 'Thrower', 'Hurdler'],
-  Swimming: ['Freestyle', 'Backstroke', 'Breaststroke', 'Butterfly', 'Medley'],
-  Cricket: ['Batsman', 'Bowler', 'All-rounder', 'Wicketkeeper'],
-  Rugby: ['Forward', 'Back', 'Halfback', 'Center', 'Wing'],
-  Boxing: ['Heavyweight', 'Middleweight', 'Welterweight', 'Lightweight'],
-  MMA: ['Striker', 'Grappler', 'All-rounder'],
-  Volleyball: ['Setter', 'Outside Hitter', 'Middle Blocker', 'Opposite', 'Libero'],
-  Handball: ['Goalkeeper', 'Left Wing', 'Right Wing', 'Center Back', 'Pivot'],
-  Cycling: ['Sprinter', 'Climber', 'Time Trialist', 'All-rounder'],
-  Golf: ['Professional', 'Amateur'],
-  Baseball: ['Pitcher', 'Catcher', 'Infielder', 'Outfielder'],
-  Hockey: ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'],
+export function disciplineName(id: string | null | undefined): string {
+  return DISCIPLINES.find((d) => d.id === id)?.name || '';
+}
+
+export function meetLevel(id: string | null | undefined) {
+  return MEET_LEVELS.find((m) => m.id === id);
+}
+
+/** Colour per meet level — low tiers muted, national and above hot. */
+export const MEET_LEVEL_COLORS: Record<string, string> = {
+  school:        '#8888A0',
+  district:      '#60A5FA',
+  state:         '#34D399',
+  zonal:         '#2DD4BF',
+  national:      '#EF9F27',
+  khelo_india:   '#D4537E',
+  international: '#A78BFA',
 };
+
+/** Seconds -> mm:ss.SS (or ss.SS when under a minute). */
+export function formatSwimTime(seconds: number | null | undefined): string {
+  if (seconds == null || Number.isNaN(seconds) || seconds <= 0) return '—';
+  const mins = Math.floor(seconds / 60);
+  const rest = seconds - mins * 60;
+  const secStr = rest.toFixed(2).padStart(5, '0');
+  return mins > 0 ? `${mins}:${secStr}` : rest.toFixed(2);
+}
+
+/** Primary events are stored comma-separated in athlete_profiles.position. */
+export function parsePrimaryEvents(position: string | null | undefined): string[] {
+  if (!position) return [];
+  return position.split(',').map((e) => e.trim()).filter(Boolean);
+}
+
+export interface VerificationRequest {
+  id: string;
+  profile_id: string;
+  requested_tier: number;
+  sfi_id: string | null;
+  document_url: string | null;
+  note: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewer_note: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+}
+
+/** What each verification tier means and what unlocks the next one. */
+export const VERIFICATION_TIERS: { tier: number; name: string; earned: string }[] = [
+  { tier: 0, name: 'Unverified',            earned: 'Confirm your email to reach tier 1.' },
+  { tier: 1, name: 'Email verified',        earned: 'Automatic once you confirm your email.' },
+  { tier: 2, name: 'ID on file',            earned: 'Add your SFI or state association number.' },
+  { tier: 3, name: 'Result matched',        earned: 'Earned when one of your results is confirmed from an official meet import.' },
+  { tier: 4, name: 'Association confirmed', earned: 'Approved by us after your club or association confirms you.' },
+];

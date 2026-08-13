@@ -1,13 +1,10 @@
-import { COUNTRIES } from './types';
-
 export function cn(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-const FLAG_BY_NAME = new Map(COUNTRIES.map((c) => [c.name, c.flag]));
-
-export function getCountryFlag(country: string): string {
-  return FLAG_BY_NAME.get(country) || '🏳️';
+/** Apro is India-only — every athlete carries the Indian flag. */
+export function getCountryFlag(_country?: string): string {
+  return '🇮🇳';
 }
 
 export function initials(name: string): string {
@@ -65,56 +62,49 @@ export function generateUsername(name: string): string {
   return `${base}${num}`;
 }
 
-export function getRoleAccent(role: string | undefined): string {
-  switch (role) {
-    case 'brand':   return '#378ADD';
-    case 'coach':   return '#EF9F27';
-    case 'agent':   return '#D4537E';
-    case 'athlete':
-    default:        return '#E8FF47';
-  }
+/** Single light accent. Per-role colour worlds were removed. */
+export function getRoleAccent(_role?: string): string {
+  return '#B8E62E';
 }
 
 export interface RoleTheme {
-  bg: string;          // darkest bg
-  surface: string;     // card/sidebar bg
-  border: string;      // subtle border colour
-  accent: string;      // primary accent
-  accentMuted: string; // accent at low opacity for fills
+  bg: string;          // page background
+  bgSoft: string;      // card / panel background
+  surface: string;     // input + secondary fill
+  border: string;      // hairline border
+  accent: string;      // lime accent
+  accentMuted: string; // accent-soft fill
+  accentInk: string;   // readable text on accent-soft
   text: string;        // primary text
-  textMuted: string;   // muted/secondary text
-  logoColor: string;   // APRO wordmark colour
+  textMuted: string;   // secondary text
+  textSoft: string;    // tertiary text
+  onAccent: string;    // text on a solid accent fill
+  logoColor: string;   // Apro wordmark colour
 }
 
-export function getRoleTheme(role: string | undefined): RoleTheme {
-  switch (role) {
-    case 'brand': return {
-      bg: '#03080F', surface: '#04101A', border: '#0a1e30',
-      accent: '#378ADD', accentMuted: 'rgba(55,138,221,0.1)',
-      text: '#E8F4FD', textMuted: '#1a4a6e', logoColor: '#378ADD'
-    };
-    case 'coach': return {
-      bg: '#0E0800', surface: '#140C00', border: '#2a1a00',
-      accent: '#EF9F27', accentMuted: 'rgba(239,159,39,0.1)',
-      text: '#FDF6E8', textMuted: '#6a4a10', logoColor: '#EF9F27'
-    };
-    case 'agent': return {
-      bg: '#0E0308', surface: '#160510', border: '#2a0a18',
-      accent: '#D4537E', accentMuted: 'rgba(212,83,126,0.1)',
-      text: '#FDE8F0', textMuted: '#7a2545', logoColor: '#D4537E'
-    };
-    case 'athlete':
-    default: return {
-      bg: '#050A06', surface: '#08100A', border: '#1a2e1c',
-      accent: '#E8FF47', accentMuted: 'rgba(232,255,71,0.08)',
-      text: '#F5FFF0', textMuted: '#4a7a50', logoColor: '#E8FF47'
-    };
-  }
+const LIGHT_THEME: RoleTheme = {
+  bg: '#FFFFFF',
+  bgSoft: '#FAFAF7',
+  surface: '#F4F4EF',
+  border: '#ECECE6',
+  accent: '#B8E62E',
+  accentMuted: '#EFFAC8',
+  accentInk: '#4A6B00',
+  text: '#0E0E10',
+  textMuted: '#7A7A75',
+  textSoft: '#A8A8A2',
+  onAccent: '#0E0E10',
+  logoColor: '#0E0E10',
+};
+
+/** One light theme for everyone — `role` is ignored. */
+export function getRoleTheme(_role?: string): RoleTheme {
+  return LIGHT_THEME;
 }
 
-// Contrasting text colour to sit on top of theme.accent fills.
-export function accentTextColor(role: string | undefined): string {
-  return role === 'brand' || role === 'agent' || role === 'coach' ? '#ffffff' : '#050508';
+// Contrasting text colour to sit on top of an accent fill.
+export function accentTextColor(_role?: string): string {
+  return '#0E0E10';
 }
 
 export function getActivityColor(activityType: string): string {
@@ -136,12 +126,8 @@ export function formatPace(secondsPerKm: number | null | undefined): string {
   return `${m}:${s.toString().padStart(2, '0')}/km`;
 }
 
-export function getRoleAccentMuted(role: string | undefined): string {
-  switch (role) {
-    case 'brand':   return 'rgba(55,138,221,0.12)';
-    case 'coach':   return 'rgba(239,159,39,0.12)';
-    case 'agent':   return 'rgba(212,83,126,0.12)';
-    case 'athlete':
-    default:        return 'rgba(232,255,71,0.10)';
-  }
+/** Accent-soft fill. Per-role colour worlds were removed. */
+export function getRoleAccentMuted(_role?: string): string {
+  return '#EFFAC8';
 }
+

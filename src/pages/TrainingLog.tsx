@@ -204,7 +204,7 @@ export default function TrainingLog() {
     navigate('/training', { state: { toast: 'Session logged!' } });
   };
 
-  const inputClass = 'w-full bg-surface border border-white/10 px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors';
+  const inputClass = 'w-full bg-surface border border-line px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors';
   const labelClass = 'block font-display font-bold uppercase text-xs text-text-muted mb-1.5';
 
   const current = rpeLabel(rpe);
@@ -235,9 +235,9 @@ export default function TrainingLog() {
                     onClick={() => setActivityType(a.value)}
                     className="text-left p-4 transition-colors"
                     style={{
-                      borderRadius: '4px',
-                      border: selected ? '1.5px solid rgb(var(--accent-rgb))' : '0.5px solid rgba(255,255,255,0.1)',
-                      background: selected ? 'rgb(var(--accent-rgb) / 0.06)' : '#1A1A2E',
+                      borderRadius: '12px',
+                      border: selected ? '1.5px solid rgb(var(--accent-rgb))' : '1px solid var(--border)',
+                      background: selected ? 'rgb(var(--accent-rgb) / 0.06)' : 'var(--bg-soft)',
                     }}
                   >
                     <i className={`ti ${a.icon}`} style={{ fontSize: '28px', color }} aria-hidden="true" />
@@ -251,9 +251,9 @@ export default function TrainingLog() {
               disabled={!activityType}
               className="w-full font-display font-black uppercase py-3 transition-opacity"
               style={{
-                borderRadius: '4px',
-                background: activityType ? 'rgb(var(--accent-rgb))' : 'rgba(255,255,255,0.06)',
-                color: activityType ? '#0A0A0F' : '#8888A0',
+                borderRadius: '12px',
+                background: activityType ? 'rgb(var(--accent-rgb))' : 'var(--surface-2)',
+                color: activityType ? 'var(--on-accent)' : 'var(--text-muted)',
                 cursor: activityType ? 'pointer' : 'not-allowed',
                 letterSpacing: '0.04em',
               }}
@@ -270,12 +270,12 @@ export default function TrainingLog() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelClass}>Date</label>
-                <input type="date" max={todayStr()} value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} style={{ borderRadius: '4px' }} />
+                <input type="date" max={todayStr()} value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} style={{ borderRadius: '12px' }} />
                 {errors.date && <p className="text-error text-xs mt-1">{errors.date}</p>}
               </div>
               <div>
                 <label className={labelClass}>Duration (min)</label>
-                <input type="number" min={1} max={600} value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g. 45" className={inputClass} style={{ borderRadius: '4px' }} />
+                <input type="number" min={1} max={600} value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g. 45" className={inputClass} style={{ borderRadius: '12px' }} />
                 {errors.duration && <p className="text-error text-xs mt-1">{errors.duration}</p>}
               </div>
             </div>
@@ -295,11 +295,11 @@ export default function TrainingLog() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>Distance (km)</label>
-                  <input type="number" step="0.01" min={0} value={distanceKm} onChange={(e) => setDistanceKm(e.target.value)} placeholder="e.g. 10.5" className={inputClass} style={{ borderRadius: '4px' }} />
+                  <input type="number" step="0.01" min={0} value={distanceKm} onChange={(e) => setDistanceKm(e.target.value)} placeholder="e.g. 10.5" className={inputClass} style={{ borderRadius: '12px' }} />
                 </div>
                 <div>
                   <label className={labelClass}>Elevation gain (m)</label>
-                  <input type="number" min={0} value={elevationM} onChange={(e) => setElevationM(e.target.value)} placeholder="optional" className={inputClass} style={{ borderRadius: '4px' }} />
+                  <input type="number" min={0} value={elevationM} onChange={(e) => setElevationM(e.target.value)} placeholder="optional" className={inputClass} style={{ borderRadius: '12px' }} />
                 </div>
               </div>
             )}
@@ -309,25 +309,25 @@ export default function TrainingLog() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className={labelClass}>Pool length</label>
-                    <select value={poolLength} onChange={(e) => setPoolLength(parseInt(e.target.value))} className={`${inputClass} appearance-none`} style={{ borderRadius: '4px' }}>
+                    <select value={poolLength} onChange={(e) => setPoolLength(parseInt(e.target.value))} className={`${inputClass} appearance-none`} style={{ borderRadius: '12px' }}>
                       <option value={25}>25 m</option>
                       <option value={50}>50 m</option>
                     </select>
                   </div>
                   <div>
                     <label className={labelClass}>Laps</label>
-                    <input type="number" min={0} value={laps} onChange={(e) => setLaps(e.target.value)} placeholder="e.g. 20" className={inputClass} style={{ borderRadius: '4px' }} />
+                    <input type="number" min={0} value={laps} onChange={(e) => setLaps(e.target.value)} placeholder="e.g. 20" className={inputClass} style={{ borderRadius: '12px' }} />
                   </div>
                 </div>
                 <div>
                   <label className={labelClass}>Stroke</label>
-                  <select value={strokeType} onChange={(e) => setStrokeType(e.target.value)} className={`${inputClass} appearance-none`} style={{ borderRadius: '4px' }}>
+                  <select value={strokeType} onChange={(e) => setStrokeType(e.target.value)} className={`${inputClass} appearance-none`} style={{ borderRadius: '12px' }}>
                     {STROKE_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 {totalSwimDistance > 0 && (
                   <p className="text-sm text-text-muted">
-                    Total distance: <span className="font-display font-bold text-accent">{totalSwimDistance} m</span>
+                    Total distance: <span className="font-display font-bold text-accent-ink">{totalSwimDistance} m</span>
                   </p>
                 )}
               </div>
@@ -336,23 +336,23 @@ export default function TrainingLog() {
             {activityType === 'gym' && (
               <div className="space-y-4">
                 {exercises.map((ex, exIdx) => (
-                  <div key={exIdx} className="p-3" style={{ background: '#1A1A2E', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: '4px' }}>
+                  <div key={exIdx} className="p-3" style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                     <input
                       type="text"
                       value={ex.name}
                       onChange={(e) => updateExerciseName(exIdx, e.target.value)}
                       placeholder="Exercise name (e.g. Bench press)"
                       className={`${inputClass} mb-3`}
-                      style={{ borderRadius: '4px' }}
+                      style={{ borderRadius: '12px' }}
                     />
                     <div className="space-y-2">
                       {ex.sets.map((s, setIdx) => (
                         <div key={setIdx} className="flex items-center gap-2">
                           <span className="text-text-muted text-xs font-display font-bold w-10 flex-shrink-0">SET {setIdx + 1}</span>
-                          <input type="number" min={0} value={s.reps} onChange={(e) => updateSet(exIdx, setIdx, 'reps', e.target.value)} placeholder="reps" className={`${inputClass} flex-1`} style={{ borderRadius: '4px' }} />
-                          <input type="number" step="0.5" min={0} value={s.weight} onChange={(e) => updateSet(exIdx, setIdx, 'weight', e.target.value)} placeholder="kg" className={`${inputClass} flex-1`} style={{ borderRadius: '4px' }} />
+                          <input type="number" min={0} value={s.reps} onChange={(e) => updateSet(exIdx, setIdx, 'reps', e.target.value)} placeholder="reps" className={`${inputClass} flex-1`} style={{ borderRadius: '12px' }} />
+                          <input type="number" step="0.5" min={0} value={s.weight} onChange={(e) => updateSet(exIdx, setIdx, 'weight', e.target.value)} placeholder="kg" className={`${inputClass} flex-1`} style={{ borderRadius: '12px' }} />
                           {isPB(ex.name, s.weight) && (
-                            <span className="flex items-center gap-1 text-accent flex-shrink-0" title="Personal best">
+                            <span className="flex items-center gap-1 text-accent-ink flex-shrink-0" title="Personal best">
                               <Trophy className="w-3.5 h-3.5" />
                               <span className="text-[10px] font-display font-bold uppercase hidden sm:inline">PB</span>
                             </span>
@@ -363,15 +363,15 @@ export default function TrainingLog() {
                         </div>
                       ))}
                     </div>
-                    <button onClick={() => addSet(exIdx)} className="flex items-center gap-1.5 text-accent text-xs font-display font-bold uppercase mt-3 hover:opacity-80">
+                    <button onClick={() => addSet(exIdx)} className="flex items-center gap-1.5 text-accent-ink text-xs font-display font-bold uppercase mt-3 hover:opacity-80">
                       <Plus className="w-3.5 h-3.5" /> Add set
                     </button>
                   </div>
                 ))}
                 <button
                   onClick={addExercise}
-                  className="w-full flex items-center justify-center gap-2 py-3 font-display font-bold uppercase text-sm hover:bg-white/5 transition-colors"
-                  style={{ border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px' }}
+                  className="w-full flex items-center justify-center gap-2 py-3 font-display font-bold uppercase text-sm hover:bg-surface transition-colors"
+                  style={{ border: '1px solid var(--border)', borderRadius: '12px' }}
                 >
                   <Plus className="w-4 h-4" /> Add exercise
                 </button>
@@ -382,13 +382,13 @@ export default function TrainingLog() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>Session type</label>
-                  <select value={teamSessionType} onChange={(e) => setTeamSessionType(e.target.value)} className={`${inputClass} appearance-none`} style={{ borderRadius: '4px' }}>
+                  <select value={teamSessionType} onChange={(e) => setTeamSessionType(e.target.value)} className={`${inputClass} appearance-none`} style={{ borderRadius: '12px' }}>
                     {TEAM_SESSION_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className={labelClass}>Sport</label>
-                  <input type="text" value={sportName} onChange={(e) => setSportName(e.target.value)} placeholder="e.g. Football" className={inputClass} style={{ borderRadius: '4px' }} />
+                  <input type="text" value={sportName} onChange={(e) => setSportName(e.target.value)} placeholder="e.g. Football" className={inputClass} style={{ borderRadius: '12px' }} />
                 </div>
               </div>
             )}
@@ -396,7 +396,7 @@ export default function TrainingLog() {
             {/* Notes */}
             <div>
               <label className={labelClass}>Notes</label>
-              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="How did it go?" rows={3} className={inputClass} style={{ borderRadius: '4px', resize: 'vertical' }} />
+              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="How did it go?" rows={3} className={inputClass} style={{ borderRadius: '12px', resize: 'vertical' }} />
             </div>
 
             {/* Public toggle */}
@@ -406,12 +406,12 @@ export default function TrainingLog() {
                 type="button"
                 onClick={() => setIsPublic((p) => !p)}
                 className="relative transition-colors"
-                style={{ width: '44px', height: '24px', borderRadius: '12px', background: isPublic ? 'rgb(var(--accent-rgb))' : 'rgba(255,255,255,0.15)' }}
+                style={{ width: '44px', height: '24px', borderRadius: '12px', background: isPublic ? 'rgb(var(--accent-rgb))' : 'var(--border)' }}
                 aria-pressed={isPublic}
               >
                 <span
                   className="absolute top-0.5 transition-all"
-                  style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#0A0A0F', left: isPublic ? '22px' : '2px' }}
+                  style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--on-accent)', left: isPublic ? '22px' : '2px' }}
                 />
               </button>
             </label>
@@ -422,7 +422,7 @@ export default function TrainingLog() {
               onClick={handleSubmit}
               disabled={saving}
               className="w-full font-display font-black uppercase py-3 hover:opacity-90 transition-opacity"
-              style={{ borderRadius: '4px', background: 'rgb(var(--accent-rgb))', color: '#0A0A0F', letterSpacing: '0.04em', opacity: saving ? 0.7 : 1 }}
+              style={{ borderRadius: '12px', background: 'rgb(var(--accent-rgb))', color: 'var(--on-accent)', letterSpacing: '0.04em', opacity: saving ? 0.7 : 1 }}
             >
               {saving ? 'Saving…' : 'Save session'}
             </button>

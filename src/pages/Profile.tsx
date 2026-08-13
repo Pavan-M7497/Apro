@@ -3,10 +3,11 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
 import { useImageUpload } from '../hooks/useImageUpload';
-import { getCountryFlag, initials, formatDate, timeAgo, getRoleAccent, getActivityColor, getRoleTheme, accentTextColor, calculateProfileCompleteness } from '../lib/utils';
-import type { Profile as ProfileType, AthleteProfile, Highlight, Stat, Achievement, TrainingSession } from '../lib/types';
-import { ACTIVITY_TYPES } from '../lib/types';
+import { initials, formatDate, timeAgo, getRoleAccent, getActivityColor, getRoleTheme, accentTextColor, calculateProfileCompleteness } from '../lib/utils';
+import type { Profile as ProfileType, AthleteProfile, Highlight, Achievement, TrainingSession, PerformanceRecord, WaterpoloStat } from '../lib/types';
+import { ACTIVITY_TYPES, eventsFor, MEET_LEVELS, MEET_LEVEL_COLORS, disciplineName, formatSwimTime } from '../lib/types';
 import { Play, Trophy, BarChart3, UserPlus, UserCheck, Share2, X, Calendar, Activity, Camera } from 'lucide-react';
+import VerificationBadge from '../components/VerificationBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
 
@@ -45,7 +46,8 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [athleteProfile, setAthleteProfile] = useState<AthleteProfile | null>(null);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
-  const [stats, setStats] = useState<Stat[]>([]);
+  const [perfRecords, setPerfRecords] = useState<PerformanceRecord[]>([]);
+  const [wpStats, setWpStats] = useState<WaterpoloStat[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('highlights');
   const [viewCount, setViewCount] = useState(0);
@@ -127,19 +129,21 @@ export default function ProfilePage() {
 
     if (prof.role === 'athlete') {
       promises.push((async () => {
-        const { data: ap } = await supabase
-          .from('athlete_profiles')
-          .select('id')
+        const { data } = await supabase
+          .from('performance_records')
+          .select('*')
           .eq('profile_id', prof.id)
-          .maybeSingle();
-        if (ap) {
-          const { data } = await supabase
-            .from('stats')
-            .select('*')
-            .eq('athlete_profile_id', ap.id)
-            .order('season', { ascending: false });
-          if (data) setStats(data);
-        }
+          .order('meet_date', { ascending: false });
+        setPerfRecords((data as PerformanceRecord[]) || []);
+      })());
+
+      promises.push((async () => {
+        const { data } = await supabase
+          .from('waterpolo_stats')
+          .select('*')
+          .eq('profile_id', prof.id)
+          .order('season', { ascending: false });
+        setWpStats((data as WaterpoloStat[]) || []);
       })());
     }
 
@@ -275,7 +279,7 @@ export default function ProfilePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="font-display font-bold uppercase text-xl mb-2">Profile not found</h2>
-          <Link to="/discover" className="text-accent text-sm hover:underline">Discover athletes</Link>
+          <Link to="/discover" className="text-accent-ink text-sm hover:underline">Discover athletes</Link>
         </div>
       </div>
     );
@@ -300,9 +304,8 @@ export default function ProfilePage() {
   const completeness = isOwn ? calculateProfileCompleteness(profile, athleteProfile) : 0;
 
   const badgeStyle: React.CSSProperties = {
-    fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '10px',
-    textTransform: 'uppercase', letterSpacing: '0.06em', padding: '2px 7px',
-    borderRadius: '3px', background: theme.accentMuted, color: theme.accent,
+    fontSize: '11px', fontWeight: 500, padding: '4px 12px',
+    borderRadius: '999px', background: theme.accentMuted, color: theme.accentInk,
   };
 
   const tabs = [
@@ -313,15 +316,15 @@ export default function ProfilePage() {
   ] as { key: Tab; label: string }[];
 
   return (
-    <div className="relative" style={{ minHeight: '100vh' }}>
+    <div className="relative" style={{ minHeight: '100vh', padding: '24px 20px 0' }}>
 
       {/* ── Cover hero (full width) ── */}
-      <div className="relative w-full overflow-hidden h-[240px] md:h-[320px]" style={{ background: theme.surface }}>
+      <div className="relative w-full overflow-hidden h-[220px] md:h-[300px] mx-auto" style={{ background: theme.surface, borderRadius: '16px', maxWidth: '1100px' }}>
         {(localCoverUrl || profile.cover_url) && (
           <img src={localCoverUrl || profile.cover_url || ''} alt="" className="w-full h-full object-cover" />
         )}
         {/* The one allowed gradient — name legibility */}
-        <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 20%, ${theme.bg} 100%)` }} />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0) 35%, rgba(0,0,0,0.55) 100%)' }} />
 
         {/* Banner upload (own profile) */}
         {isOwn && (
@@ -337,7 +340,7 @@ export default function ProfilePage() {
               <button
                 onClick={() => coverInputRef.current?.click()}
                 className="absolute flex items-center"
-                style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', gap: '8px', border: '1.5px dashed rgba(255,255,255,0.2)', borderRadius: '4px', padding: '10px 16px', zIndex: 10 }}
+                style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', gap: '8px', border: '1.5px dashed rgba(255,255,255,0.2)', borderRadius: '12px', padding: '10px 16px', zIndex: 10 }}
               >
                 <Camera style={{ width: '14px', height: '14px', color: 'rgba(255,255,255,0.4)' }} />
                 <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '11px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
@@ -348,7 +351,7 @@ export default function ProfilePage() {
               <button
                 onClick={() => coverInputRef.current?.click()}
                 className="absolute flex items-center justify-center"
-                style={{ top: '10px', left: '10px', width: '32px', height: '32px', background: 'rgba(0,0,0,0.5)', border: '0.5px solid rgba(255,255,255,0.15)', borderRadius: '4px', zIndex: 10 }}
+                style={{ top: '10px', left: '10px', width: '32px', height: '32px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border)', borderRadius: '12px', zIndex: 10 }}
                 aria-label="Change banner"
               >
                 <Camera style={{ width: '14px', height: '14px', color: '#fff' }} />
@@ -362,14 +365,14 @@ export default function ProfilePage() {
           <button
             onClick={handleShare}
             className="flex items-center"
-            style={{ gap: '4px', background: 'rgba(0,0,0,0.5)', border: '0.5px solid rgba(255,255,255,0.15)', color: '#fff', borderRadius: '4px', padding: '6px 12px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '10px', textTransform: 'uppercase' }}
+            style={{ gap: '4px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border)', color: '#fff', borderRadius: '12px', padding: '6px 12px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '10px', textTransform: 'uppercase' }}
           >
             <Share2 className="w-3.5 h-3.5" /> Share
           </button>
           {isOwn && (
             <Link
               to="/profile/edit"
-              style={{ background: theme.accent, color: onAccent, borderRadius: '4px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }}
+              style={{ background: theme.accent, color: onAccent, borderRadius: '12px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }}
             >
               Edit
             </Link>
@@ -380,8 +383,8 @@ export default function ProfilePage() {
               className="flex items-center"
               style={
                 isFollowing
-                  ? { gap: '4px', background: 'rgba(0,0,0,0.5)', border: '0.5px solid rgba(255,255,255,0.15)', color: '#fff', borderRadius: '4px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
-                  : { gap: '4px', background: getRoleAccent(myProfile?.role), color: accentTextColor(myProfile?.role), borderRadius: '4px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
+                  ? { gap: '4px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border)', color: '#fff', borderRadius: '12px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
+                  : { gap: '4px', background: getRoleAccent(myProfile?.role), color: accentTextColor(myProfile?.role), borderRadius: '12px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
               }
             >
               {isFollowing ? <UserCheck className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
@@ -391,7 +394,7 @@ export default function ProfilePage() {
           {!user && !isOwn && (
             <Link
               to="/register"
-              style={{ background: theme.accent, color: onAccent, borderRadius: '4px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }}
+              style={{ background: theme.accent, color: onAccent, borderRadius: '12px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }}
             >
               Join
             </Link>
@@ -400,18 +403,18 @@ export default function ProfilePage() {
 
         {/* Name + sport/availability — bottom left */}
         <div className="absolute" style={{ left: '20px', right: '20px', bottom: '12px', zIndex: 10 }}>
-          <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 5vw, 52px)', color: '#F5FFF0', textTransform: 'uppercase', letterSpacing: '-0.015em', lineHeight: 1 }}>
+          <h1 className="flex items-center" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 'clamp(30px, 5vw, 48px)', color: '#FFFFFF', letterSpacing: '-0.015em', lineHeight: 1.05, gap: '10px' }}>
             {profile.full_name}
-            <span style={{ fontSize: '0.5em', marginLeft: '8px' }}>{getCountryFlag(profile.country)}</span>
+            <VerificationBadge tier={profile.verification_tier} size="md" />
           </h1>
           {athleteProfile && (
             <div className="flex items-center flex-wrap" style={{ gap: '10px', marginTop: '8px' }}>
-              {athleteProfile.sport && <span style={badgeStyle}>{athleteProfile.sport}</span>}
+              {athleteProfile.sport && <span style={badgeStyle}>{disciplineName(athleteProfile.sport)}</span>}
               {athleteProfile.position && (
                 <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>{athleteProfile.position}</span>
               )}
               <div className="flex items-center" style={{ gap: '5px' }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '2px', background: availabilityDotColor }} />
+                <span style={{ width: '5px', height: '5px', borderRadius: '999px', background: availabilityDotColor }} />
                 <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{availabilityLabel}</span>
               </div>
             </div>
@@ -420,22 +423,22 @@ export default function ProfilePage() {
       </div>
 
       {/* ── Avatar overlapping cover ── */}
-      <div className="relative inline-block" style={{ marginTop: '-40px', marginLeft: '20px', zIndex: 20 }}>
+      <div className="relative inline-block" style={{ marginTop: '-36px', marginLeft: '32px', zIndex: 20 }}>
         <div
           onClick={() => isOwn && avatarInputRef.current?.click()}
           className="relative overflow-hidden"
-          style={{ width: '72px', height: '72px', borderRadius: '4px', border: `3px solid ${theme.bg}`, background: theme.surface, cursor: isOwn ? 'pointer' : 'default' }}
+          style={{ width: '84px', height: '84px', borderRadius: '12px', border: `4px solid ${theme.bg}`, background: theme.accentMuted, cursor: isOwn ? 'pointer' : 'default' }}
         >
           {(localAvatarUrl || profile.avatar_url) ? (
             <img src={localAvatarUrl || profile.avatar_url || ''} alt={profile.full_name} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '20px', color: theme.accent }}>
+            <div className="w-full h-full flex items-center justify-center" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '26px', color: theme.accentInk }}>
               {initials(profile.full_name)}
             </div>
           )}
           {/* Upload progress bar */}
           {avatarUploading && (
-            <div className="absolute left-0 right-0 bottom-0" style={{ height: '2px', background: 'rgba(255,255,255,0.15)' }}>
+            <div className="absolute left-0 right-0 bottom-0" style={{ height: '2px', background: 'var(--border)' }}>
               <div className="animate-pulse" style={{ height: '100%', width: '100%', background: theme.accent }} />
             </div>
           )}
@@ -452,36 +455,67 @@ export default function ProfilePage() {
             <button
               onClick={() => avatarInputRef.current?.click()}
               className="absolute flex items-center justify-center"
-              style={{ width: '16px', height: '16px', borderRadius: '3px', background: theme.accent, bottom: '-2px', right: '-2px' }}
+              style={{ width: '26px', height: '26px', borderRadius: '999px', background: theme.accent, bottom: '-4px', right: '-4px', border: `2px solid ${theme.bg}` }}
               aria-label="Change avatar"
             >
-              <Camera style={{ width: '10px', height: '10px', color: onAccent }} />
+              <Camera style={{ width: '12px', height: '12px', color: onAccent }} />
             </button>
           </>
         )}
       </div>
 
-      {/* ── Stat strip ── */}
-      <div className="w-full grid grid-cols-3" style={{ background: theme.surface, borderBottom: `1px solid ${theme.border}`, marginTop: '12px' }}>
-        {[
-          { label: 'Views this week', value: viewCount, key: true },
-          { label: 'Highlights', value: highlights.length, key: false },
-          { label: 'Followers', value: followers, key: false },
-        ].map((s, i) => (
-          <div key={s.label} className="text-center" style={{ padding: '12px 0', borderLeft: i === 0 ? 'none' : `1px solid ${theme.border}` }}>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '28px', lineHeight: 1, color: s.key ? theme.accent : theme.text }}>{s.value}</div>
-            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '2px' }}>{s.label}</div>
+      {/* ── Claim banner ── */}
+      {profile.is_claimed === false && (
+        <div
+          className="flex flex-wrap items-center gap-4"
+          style={{ maxWidth: '1100px', margin: '24px auto 0', background: 'var(--accent-soft)', borderRadius: '16px', padding: '20px 24px' }}
+        >
+          <div className="flex-1 min-w-0">
+            <p className="font-display" style={{ fontWeight: 800, fontSize: '18px', color: 'var(--accent-ink)' }}>
+              Is this you?
+            </p>
+            <p style={{ fontSize: '14px', color: 'var(--accent-ink)', opacity: 0.85, marginTop: '2px' }}>
+              Claim this profile to add your photo, film, and bio.
+            </p>
           </div>
-        ))}
+          <Link
+            to={`/claim/${profile.username}`}
+            className="rounded-pill flex-shrink-0"
+            style={{ background: 'var(--text)', color: '#fff', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}
+          >
+            Claim this profile
+          </Link>
+        </div>
+      )}
+
+      {/* ── Stat cards ── */}
+      <div style={{ maxWidth: '1100px', margin: '28px auto 0' }}>
+        <div className="grid grid-cols-3" style={{ gap: '16px' }}>
+          {[
+            { label: 'Views this week', value: viewCount, key: true },
+            { label: 'Highlights', value: highlights.length, key: false },
+            { label: 'Followers', value: followers, key: false },
+          ].map((s2) => (
+            <div
+              key={s2.label}
+              style={{ background: theme.bgSoft, border: `1px solid ${theme.border}`, borderRadius: '16px', padding: '24px 20px' }}
+            >
+              <div className="font-display" style={{ fontWeight: 800, fontSize: '40px', lineHeight: 1, color: s2.key ? theme.accentInk : theme.text }}>
+                {s2.value}
+              </div>
+              <div style={{ fontSize: '13px', color: theme.textMuted, marginTop: '8px' }}>{s2.label}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* ── Content area ── */}
-      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '20px 20px 80px' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 0 80px' }}>
 
         {/* Completeness bar (own) */}
         {isOwn && (
           <div style={{ marginBottom: '16px' }}>
-            <div style={{ height: '3px', background: theme.border, borderRadius: '2px', overflow: 'hidden' }}>
+            <div style={{ height: '3px', background: theme.border, borderRadius: '999px', overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${completeness}%`, background: theme.accent }} />
             </div>
             <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', color: theme.textMuted, textAlign: 'right', marginTop: '4px' }}>{completeness}% complete</div>
@@ -493,22 +527,27 @@ export default function ProfilePage() {
         )}
 
         {/* ── Tab bar ── */}
-        <div className="flex" style={{ borderBottom: `1px solid ${theme.border}`, marginBottom: '20px' }}>
-          {tabs.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setActiveTab(key)}
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '11px',
-                textTransform: 'uppercase', letterSpacing: '0.06em',
-                padding: '0 0 10px', marginRight: '24px',
-                borderBottom: activeTab === key ? `2px solid ${theme.accent}` : '2px solid transparent',
-                color: activeTab === key ? theme.accent : theme.textMuted,
-              }}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="flex flex-wrap" style={{ gap: '8px', marginBottom: '28px' }}>
+          {tabs.map(({ key, label }) => {
+            const on = activeTab === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className="rounded-pill transition-colors"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: on ? 600 : 500,
+                  padding: '10px 20px',
+                  background: on ? theme.accentMuted : 'transparent',
+                  color: on ? theme.accentInk : theme.textMuted,
+                  border: `1px solid ${on ? 'transparent' : theme.border}`,
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         {/* ── Highlights ── */}
@@ -520,7 +559,7 @@ export default function ProfilePage() {
                   key={h.id}
                   onClick={() => setVideoModal(h)}
                   className="text-left overflow-hidden group cursor-pointer w-full transition-all duration-150 hover:-translate-y-px"
-                  style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '4px' }}
+                  style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '12px' }}
                   onMouseEnter={(e) => (e.currentTarget.style.borderColor = theme.accent)}
                   onMouseLeave={(e) => (e.currentTarget.style.borderColor = theme.border)}
                 >
@@ -529,7 +568,7 @@ export default function ProfilePage() {
                       <img src={h.thumbnail_url} alt={h.title} className="w-full h-full object-cover" />
                     )}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="flex items-center justify-center group-hover:brightness-110" style={{ width: '40px', height: '40px', background: theme.accent, borderRadius: '3px' }}>
+                      <div className="flex items-center justify-center group-hover:brightness-110" style={{ width: '40px', height: '40px', background: theme.accent, borderRadius: '999px' }}>
                         <Play style={{ width: '18px', height: '18px', color: onAccent }} className="fill-current" />
                       </div>
                     </div>
@@ -553,34 +592,116 @@ export default function ProfilePage() {
 
         {/* ── Stats ── */}
         {activeTab === 'stats' && (
-          stats.length > 0 ? (
-            <div className="overflow-x-auto pb-8">
-              <table className="w-full text-sm" style={{ borderRadius: '4px', overflow: 'hidden' }}>
-                <thead>
-                  <tr style={{ background: theme.surface }}>
-                    {['Season', 'Apps', 'Goals', 'Assists', 'Minutes'].map((h, i) => (
-                      <th key={h} className={i === 0 ? 'text-left py-3 px-4' : 'text-center py-3 px-3'} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: '11px', letterSpacing: '0.08em', color: theme.textMuted, textTransform: 'uppercase' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.map((s, i) => (
-                    <tr key={s.id} style={{ background: i % 2 === 0 ? theme.surface : 'transparent', borderBottom: `1px solid ${theme.border}` }}>
-                      <td className="py-3 px-4 font-display font-semibold uppercase text-sm tracking-wide" style={{ color: theme.text }}>{s.season}</td>
-                      <td className="py-3 px-3 text-center" style={{ color: theme.textMuted }}>{s.appearances}</td>
-                      <td className="py-3 px-3 text-center font-display font-bold" style={{ fontSize: '18px', color: theme.accent }}>{s.goals}</td>
-                      <td className="py-3 px-3 text-center" style={{ color: theme.textMuted }}>{s.assists}</td>
-                      <td className="py-3 px-3 text-center" style={{ color: theme.textMuted }}>{s.minutes_played}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          athleteProfile?.sport === 'waterpolo' ? (
+            wpStats.length > 0 ? (
+              <div className="space-y-3 pb-8">
+                {wpStats.map((w) => (
+                  <div key={w.id} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
+                    <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+                      <div>
+                        <p className="font-display" style={{ fontWeight: 800, fontSize: '18px' }}>{w.season}</p>
+                        {w.competition && <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{w.competition}</p>}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-5 gap-2 text-center">
+                      {([['Matches', w.matches], ['Goals', w.goals], ['Assists', w.assists], ['Saves', w.saves], ['Exclusions', w.exclusions_drawn]] as const).map(([label, val]) => (
+                        <div key={label}>
+                          <div className="font-display" style={{ fontWeight: 800, fontSize: '28px', lineHeight: 1, color: label === 'Goals' ? 'var(--accent-ink)' : 'var(--text)' }}>{val}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>{label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon={BarChart3}
+                title="No season stats yet"
+                description={isOwn ? 'No season stats yet. Add your first season.' : "This athlete hasn't added season stats yet."}
+              />
+            )
+          ) : perfRecords.length > 0 ? (
+            <div className="space-y-6 pb-8">
+              {(() => {
+                // Group by event, ordered as the discipline lists them.
+                const order = eventsFor(athleteProfile?.sport);
+                const byEvent = new Map<string, PerformanceRecord[]>();
+                perfRecords.forEach((r) => {
+                  if (!byEvent.has(r.event)) byEvent.set(r.event, []);
+                  byEvent.get(r.event)!.push(r);
+                });
+                const rank = (ev: string) => {
+                  const i = order.indexOf(ev);
+                  return i === -1 ? order.length + 1 : i;
+                };
+                return Array.from(byEvent.entries())
+                  .sort((a, b) => rank(a[0]) - rank(b[0]))
+                  .map(([event, rows]) => {
+                    const best = rows.find((r) => r.is_personal_best) || rows[0];
+                    return (
+                      <div key={event} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
+                        <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
+                          <h3 className="font-display" style={{ fontWeight: 800, fontSize: '18px' }}>{event}</h3>
+                          <span className="font-display" style={{ fontWeight: 800, fontSize: '30px', lineHeight: 1, color: 'var(--text)' }}>
+                            {best.result_seconds != null
+                              ? formatSwimTime(Number(best.result_seconds))
+                              : best.result_points != null
+                              ? `${best.result_points} pts`
+                              : '—'}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {rows.map((r) => {
+                            const level = MEET_LEVELS.find((m) => m.id === r.meet_level);
+                            return (
+                              <div key={r.id} className="flex items-center gap-3 flex-wrap" style={{ fontSize: '13px' }}>
+                                <span style={{ color: 'var(--text-muted)' }}>{r.meet_name || 'Unnamed meet'}</span>
+                                {level && (
+                                  <span
+                                    className="rounded-pill"
+                                    style={{
+                                      background: `${MEET_LEVEL_COLORS[level.id] || '#999'}22`,
+                                      color: MEET_LEVEL_COLORS[level.id] || 'var(--text-muted)',
+                                      fontSize: '11px',
+                                      fontWeight: 500,
+                                      padding: '3px 10px',
+                                    }}
+                                  >
+                                    {level.name}
+                                  </span>
+                                )}
+                                {r.course && r.course !== 'NA' && (
+                                  <span className="rounded-pill" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)', fontSize: '11px', padding: '3px 10px' }}>
+                                    {r.course}
+                                  </span>
+                                )}
+                                {r.is_personal_best && (
+                                  <span className="rounded-pill" style={{ background: 'var(--accent-soft)', color: 'var(--accent-ink)', fontSize: '11px', fontWeight: 600, padding: '3px 10px' }}>
+                                    PB
+                                  </span>
+                                )}
+                                <span className="ml-auto" style={{ color: 'var(--text-soft)' }}>
+                                  {r.result_seconds != null
+                                    ? formatSwimTime(Number(r.result_seconds))
+                                    : r.result_points != null
+                                    ? `${r.result_points} pts`
+                                    : '—'}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  });
+              })()}
             </div>
           ) : (
             <EmptyState
               icon={BarChart3}
-              title="No stats yet"
-              description={isOwn ? "Add your season stats to track your performance." : "This athlete hasn't added stats yet."}
+              title="No times yet"
+              description={isOwn ? 'No times yet. Add your first race — even a district heat is a starting point.' : "This athlete hasn't added times yet."}
             />
           )
         )}
@@ -595,11 +716,11 @@ export default function ProfilePage() {
                   <div key={a.id} className="relative" style={{ paddingLeft: '32px' }}>
                     <div
                       className="absolute flex items-center justify-center"
-                      style={{ left: '0', top: '2px', width: '20px', height: '20px', borderRadius: '3px', background: theme.accentMuted, border: `1.5px solid ${theme.accent}` }}
+                      style={{ left: '0', top: '2px', width: '20px', height: '20px', borderRadius: '999px', background: theme.accentMuted, border: `1.5px solid ${theme.accent}` }}
                     >
                       <Trophy style={{ width: '10px', height: '10px', color: theme.accent }} />
                     </div>
-                    <div style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '4px', padding: '10px 12px' }}>
+                    <div style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '12px', padding: '10px 12px' }}>
                       <div className="flex items-center justify-between mb-1">
                         <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: '12px', color: theme.text, textTransform: 'uppercase' }}>{a.title}</h3>
                         <span className="flex items-center gap-1 flex-shrink-0 ml-2" style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', color: theme.textMuted }}>
@@ -656,7 +777,7 @@ export default function ProfilePage() {
                     { label: 'Hours this month', value: monthHours },
                     { label: 'Active streak', value: `${streak}d` },
                   ].map(({ label, value }) => (
-                    <div key={label} style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '4px', padding: '14px' }}>
+                    <div key={label} style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '12px', padding: '14px' }}>
                       <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '28px', lineHeight: 1, color: theme.accent }}>{value}</div>
                       <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '4px' }}>{label}</div>
                     </div>
@@ -668,8 +789,8 @@ export default function ProfilePage() {
                     const m = meta(s.activity_type);
                     const color = getActivityColor(s.activity_type);
                     return (
-                      <div key={s.id} className="flex items-center gap-3 p-3" style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '4px' }}>
-                        <div className="flex items-center justify-center flex-shrink-0" style={{ width: '36px', height: '36px', borderRadius: '4px', background: `${color}22` }}>
+                      <div key={s.id} className="flex items-center gap-3 p-3" style={{ background: theme.surface, border: `0.5px solid ${theme.border}`, borderRadius: '12px' }}>
+                        <div className="flex items-center justify-center flex-shrink-0" style={{ width: '36px', height: '36px', borderRadius: '12px', background: `${color}22` }}>
                           <i className={`ti ${m.icon}`} style={{ fontSize: '20px', color }} aria-hidden="true" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -686,7 +807,7 @@ export default function ProfilePage() {
                   <button
                     onClick={() => navigate('/training')}
                     className="w-full flex items-center justify-center gap-2 mt-4 py-3"
-                    style={{ border: `0.5px solid ${theme.border}`, borderRadius: '4px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', color: theme.text, textTransform: 'uppercase' }}
+                    style={{ border: `0.5px solid ${theme.border}`, borderRadius: '12px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', color: theme.text, textTransform: 'uppercase' }}
                   >
                     <Activity className="w-4 h-4" /> View full training log
                   </button>
@@ -701,7 +822,7 @@ export default function ProfilePage() {
       {toast && (
         <div
           className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 animate-slide-up whitespace-nowrap"
-          style={{ background: theme.accent, color: onAccent, padding: '10px 20px', borderRadius: '4px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '13px', textTransform: 'uppercase' }}
+          style={{ background: theme.accent, color: onAccent, padding: '10px 20px', borderRadius: '12px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '13px', textTransform: 'uppercase' }}
         >
           {toast}
         </div>
@@ -725,7 +846,7 @@ export default function ProfilePage() {
               <button
                 onClick={() => setVideoModal(null)}
                 className="flex items-center justify-center flex-shrink-0 ml-3"
-                style={{ width: '36px', height: '36px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', color: '#fff' }}
+                style={{ width: '36px', height: '36px', background: 'rgba(255,255,255,0.08)', borderRadius: '12px', color: '#fff' }}
                 aria-label="Close video"
               >
                 <X className="w-5 h-5" />
@@ -739,7 +860,7 @@ export default function ProfilePage() {
               webkit-playsinline="true"
               preload="metadata"
               controlsList="nodownload"
-              style={{ width: '100%', backgroundColor: '#000', borderRadius: '4px', maxHeight: '75vh', display: 'block' }}
+              style={{ width: '100%', backgroundColor: '#000', borderRadius: '12px', maxHeight: '75vh', display: 'block' }}
             />
             {videoModal.description && (
               <p className="mt-3 px-1" style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>{videoModal.description}</p>
