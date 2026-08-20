@@ -16,7 +16,7 @@ const AVAILABILITY = [
 ];
 
 const fieldClass =
-  'w-full bg-white border border-line px-4 py-2.5 text-sm text-text focus:border-accent transition-colors appearance-none rounded-pill';
+  'w-full bg-card border border-line px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors appearance-none rounded-xl';
 const labelClass = 'block text-xs font-medium text-text-muted mb-1.5';
 
 export default function Discover() {
@@ -126,7 +126,7 @@ export default function Discover() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name…"
-              className="w-full bg-white border border-line rounded-pill pl-11 pr-4 py-3 text-sm text-text focus:border-accent transition-colors"
+              className="w-full bg-white border border-line rounded-pill pl-11 pr-4 py-3 text-sm text-text focus:border-accent-ink transition-colors"
             />
           </div>
           <button

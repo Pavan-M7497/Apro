@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { StateSelect } from '../components/StateSelect';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
-import { MEET_LEVELS, MEET_LEVEL_COLORS, formatSwimTime } from '../lib/types';
+import { MEET_LEVELS, meetLevelStyle, formatSwimTime } from '../lib/types';
 import { formatDate } from '../lib/utils';
 import { CalendarDays, ChevronDown } from 'lucide-react';
 
@@ -28,7 +28,7 @@ interface ResultRow {
 }
 
 const field =
-  'w-full bg-white border border-line px-4 py-2.5 text-sm text-text focus:border-accent transition-colors appearance-none rounded-pill';
+  'w-full bg-card border border-line px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors appearance-none rounded-xl';
 const labelCls = 'block text-xs font-medium text-text-muted mb-1.5';
 
 export default function Meets() {
@@ -124,7 +124,6 @@ export default function Meets() {
           <div className="space-y-3">
             {visible.map((m) => {
               const lvl = MEET_LEVELS.find((l) => l.id === m.level);
-              const color = MEET_LEVEL_COLORS[m.level] || 'var(--text-muted)';
               const open = expanded === m.id;
               const rows = results[m.id] || [];
               return (
@@ -134,7 +133,7 @@ export default function Meets() {
                       <div className="flex items-center flex-wrap" style={{ gap: '10px' }}>
                         <h3 className="font-display" style={{ fontWeight: 800, fontSize: '18px' }}>{m.name}</h3>
                         {lvl && (
-                          <span className="rounded-pill" style={{ background: `${color}22`, color, fontSize: '11px', fontWeight: 500, padding: '3px 10px' }}>
+                          <span className="rounded-pill" style={{ ...meetLevelStyle(m.level), fontSize: '11px', fontWeight: 600, padding: '3px 10px' }}>
                             {lvl.name}
                           </span>
                         )}

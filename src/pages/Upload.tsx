@@ -137,7 +137,7 @@ export default function Upload() {
         {/* Video picker */}
         <div className="mb-6">
           {!videoFile ? (
-            <label className="block h-48 md:h-56 bg-surface border-2 border-dashed border-line rounded-xl cursor-pointer hover:border-accent/20 transition-colors">
+            <label className="block h-48 md:h-56 bg-surface border-2 border-dashed border-line rounded-xl cursor-pointer hover:border-line-strong transition-colors">
               <div className="w-full h-full flex flex-col items-center justify-center gap-3">
                 <div className="w-14 h-14 rounded-2xl bg-accent-soft flex items-center justify-center">
                   <FileVideo className="w-7 h-7 text-accent-ink" />
@@ -183,7 +183,7 @@ export default function Upload() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Goal vs Barcelona"
-              className="w-full bg-surface border border-line rounded-lg px-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
+              className="w-full bg-surface border border-line rounded-lg px-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent-ink transition-colors"
               disabled={uploading}
             />
           </div>
@@ -195,7 +195,7 @@ export default function Upload() {
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="What happened in this clip?"
-              className="w-full bg-surface border border-line rounded-lg px-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors resize-none"
+              className="w-full bg-surface border border-line rounded-lg px-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent-ink transition-colors resize-none"
               disabled={uploading}
             />
           </div>

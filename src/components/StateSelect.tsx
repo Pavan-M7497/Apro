@@ -81,7 +81,7 @@ export function StateSelect({ value, onChange, className = '', placeholder = 'Se
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search states…"
-              className="w-full bg-surface border border-line pl-8 pr-3 py-2 text-sm text-text focus:border-accent/50 transition-colors"
+              className="w-full bg-surface border border-line pl-8 pr-3 py-2 text-sm text-text focus:border-accent-ink transition-colors"
               style={{ borderRadius: '12px' }}
             />
           </div>

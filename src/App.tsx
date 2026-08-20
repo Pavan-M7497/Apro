@@ -23,17 +23,6 @@ import Meets from './pages/Meets';
 import AdminImport from './pages/AdminImport';
 import ClaimProfile from './pages/ClaimProfile';
 
-function ComingSoon({ title }: { title: string }) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="font-display font-black uppercase text-3xl tracking-wide mb-2">{title}</h1>
-        <p className="text-text-muted">Coming soon</p>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const { initialize, loading, user, profile } = useAppStore();
 
@@ -53,7 +42,7 @@ export default function App() {
     <ThemeProvider role={profile?.role}>
       <BrowserRouter>
         <Sidebar />
-        <div className={user ? 'md:ml-[220px] pb-[60px] md:pb-0' : ''}>
+        <div className={user ? 'md:ml-[220px] pt-[56px] md:pt-0 pb-[64px] md:pb-0' : ''}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
@@ -73,10 +62,6 @@ export default function App() {
             <Route path="/admin/import" element={<ProtectedRoute><AdminImport /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/calendar" element={<Calendar />} />
-            <Route path="/saved" element={<ProtectedRoute><ComingSoon title="Saved" /></ProtectedRoute>} />
-            <Route path="/watchlist" element={<ProtectedRoute><ComingSoon title="Watchlist" /></ProtectedRoute>} />
-            <Route path="/roster" element={<ProtectedRoute><ComingSoon title="Roster" /></ProtectedRoute>} />
-            <Route path="/opportunities" element={<ComingSoon title="Opportunities" />} />
           </Routes>
         </div>
       </BrowserRouter>

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { initials } from '../lib/utils';
 import VerificationBadge from './VerificationBadge';
-import { MEET_LEVELS, MEET_LEVEL_COLORS } from '../lib/types';
+import { MEET_LEVELS, meetLevelStyle } from '../lib/types';
 import type { LeaderboardEntry } from '../lib/leaderboard';
 
 interface Props {
@@ -11,26 +11,46 @@ interface Props {
   emptyMessage?: string;
 }
 
-/** Rank 1 is loud, 2–3 are emphasised, everyone else is muted. */
-function rankStyle(rank: number): React.CSSProperties {
+/** Rank 1 solid lime circle, 2–3 a soft circle, 4+ a plain muted number. */
+function RankMark({ rank }: { rank: number }) {
   if (rank === 1) {
-    return { fontSize: '34px', fontWeight: 800, color: 'var(--accent-ink)', lineHeight: 1 };
+    return (
+      <span
+        className="font-display flex items-center justify-center flex-shrink-0"
+        style={{ width: '44px', height: '44px', borderRadius: '999px', background: 'var(--accent)', color: 'var(--on-accent)', fontWeight: 800, fontSize: '20px' }}
+      >
+        {rank}
+      </span>
+    );
   }
   if (rank <= 3) {
-    return { fontSize: '22px', fontWeight: 800, color: 'var(--text)', lineHeight: 1 };
+    return (
+      <span
+        className="font-display flex items-center justify-center flex-shrink-0"
+        style={{ width: '44px', height: '44px', borderRadius: '999px', background: 'var(--surface-2)', color: 'var(--text)', fontWeight: 800, fontSize: '18px' }}
+      >
+        {rank}
+      </span>
+    );
   }
-  return { fontSize: '18px', fontWeight: 600, color: 'var(--text-soft)', lineHeight: 1 };
+  return (
+    <span
+      className="font-display text-center flex-shrink-0"
+      style={{ width: '44px', color: 'var(--text-muted)', fontWeight: 600, fontSize: '17px' }}
+    >
+      {rank}
+    </span>
+  );
 }
 
 function MeetBadge({ level }: { level?: string | null }) {
   if (!level) return null;
   const meta = MEET_LEVELS.find((m) => m.id === level);
   if (!meta) return null;
-  const color = MEET_LEVEL_COLORS[meta.id] || 'var(--text-muted)';
   return (
     <span
       className="rounded-pill flex-shrink-0"
-      style={{ background: `${color}22`, color, fontSize: '11px', fontWeight: 500, padding: '3px 10px' }}
+      style={{ ...meetLevelStyle(meta.id), fontSize: '11px', fontWeight: 600, padding: '3px 10px' }}
     >
       {meta.name}
     </span>
@@ -58,7 +78,7 @@ export default function LeaderboardList({ entries, secondaryLabel, emptyMessage 
             <Link
               key={e.profileId}
               to={`/profile/${e.username}`}
-              className="flex items-center gap-4 transition-colors hover:border-accent"
+              className="flex items-center gap-4 transition-colors hover:border-line-strong"
               style={{
                 background: '#fff',
                 border: '1px solid var(--border)',
@@ -66,11 +86,7 @@ export default function LeaderboardList({ entries, secondaryLabel, emptyMessage 
                 padding: '16px 20px',
               }}
             >
-              {showRanks && (
-                <span className="font-display text-center flex-shrink-0" style={{ ...rankStyle(rank), width: '44px' }}>
-                  {rank}
-                </span>
-              )}
+              {showRanks && <RankMark rank={rank} />}
 
               {/* Avatar */}
               <div
@@ -116,12 +132,7 @@ export default function LeaderboardList({ entries, secondaryLabel, emptyMessage 
                 <div className="flex items-baseline gap-2 justify-end">
                   <span
                     className="font-display"
-                    style={{
-                      fontWeight: 800,
-                      fontSize: rank === 1 && showRanks ? '26px' : '20px',
-                      color: rank === 1 && showRanks ? 'var(--accent-ink)' : 'var(--text)',
-                      lineHeight: 1,
-                    }}
+                    style={{ fontWeight: 600, fontSize: rank === 1 && showRanks ? '24px' : '20px', color: 'var(--text)', lineHeight: 1 }}
                   >
                     {e.metric}
                   </span>

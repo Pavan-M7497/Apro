@@ -16,7 +16,7 @@ interface Target {
 }
 
 const field =
-  'w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent transition-colors';
+  'w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors';
 const card = { background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px' };
 
 export default function ClaimProfile() {

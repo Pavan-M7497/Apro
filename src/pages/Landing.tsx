@@ -3,6 +3,7 @@ import AthleteCard from '../components/AthleteCard';
 import type { Profile, AthleteProfile } from '../lib/types';
 import { DISCIPLINES } from '../lib/types';
 import { Waves, Target, ArrowDown, type LucideIcon } from 'lucide-react';
+import { AproLockup } from '../components/Logo';
 
 const DISCIPLINE_ICONS: Record<string, LucideIcon> = {
   swimming: Waves,
@@ -66,8 +67,8 @@ export default function Landing() {
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       {/* ── Top bar ── */}
       <nav className="flex items-center justify-between" style={{ padding: '20px 32px' }}>
-        <Link to="/" className="font-display" style={{ fontWeight: 800, fontSize: '24px', letterSpacing: '-0.01em', color: 'var(--text)' }}>
-          Apro
+        <Link to="/">
+          <AproLockup size={26} />
         </Link>
         <div className="flex items-center" style={{ gap: '12px' }}>
           <Link
@@ -228,7 +229,7 @@ export default function Landing() {
         className="flex flex-wrap items-center justify-between"
         style={{ borderTop: '1px solid var(--border)', padding: '24px 32px', gap: '12px' }}
       >
-        <span className="font-display" style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text)' }}>Apro</span>
+        <AproLockup size={20} color="var(--text-muted)" />
         <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Indian aquatics, one profile.</p>
       </footer>
     </div>

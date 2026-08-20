@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
-import { getCountryFlag, initials, timeAgo, getRoleAccent, getRoleAccentMuted } from '../lib/utils';
+import { getCountryFlag, initials, timeAgo } from '../lib/utils';
 import { StateSelect } from '../components/StateSelect';
+import { formatSwimTime } from '../lib/types';
 import type { Profile } from '../lib/types';
-import { Eye, Play, Users, Upload, Search, UserPlus, UserCheck } from 'lucide-react';
+import { Eye, Play, Users, Upload, Search, UserPlus, UserCheck, Trophy, Plus } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
 import { DisciplineSelect } from '../components/DisciplineSelect';
@@ -28,12 +29,11 @@ interface HighlightRow {
   view_count: number;
 }
 
-function AthleteHome({ roleAccent }: { roleAccent: string }) {
+function AthleteHome() {
   const { profile } = useAppStore();
   const navigate = useNavigate();
   const [viewsThisWeek, setViewsThisWeek] = useState(0);
-  const [highlightPlays, setHighlightPlays] = useState(0);
-  const [followers, setFollowers] = useState(0);
+  const [bestResult, setBestResult] = useState<{ label: string; value: string } | null>(null);
   const [recentViewers, setRecentViewers] = useState<ProfileViewRow[]>([]);
   const [recentHighlights, setRecentHighlights] = useState<HighlightRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,11 +46,9 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
   const loadData = async () => {
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [viewsRes, followersRes, viewersRes, highlightsRes] = await Promise.all([
+    const [viewsRes, viewersRes, highlightsRes] = await Promise.all([
       supabase.from('profile_views').select('*', { count: 'exact', head: true })
         .eq('profile_id', profile!.id).gte('created_at', weekAgo),
-      supabase.from('follows').select('*', { count: 'exact', head: true })
-        .eq('following_id', profile!.id),
       supabase.from('profile_views').select('id, created_at, viewer_id')
         .eq('profile_id', profile!.id)
         .order('created_at', { ascending: false })
@@ -62,8 +60,6 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
     ]);
 
     setViewsThisWeek(viewsRes.count || 0);
-    setFollowers(followersRes.count || 0);
-    setHighlightPlays(0);
 
     const viewers = (viewersRes.data || []) as ProfileViewRow[];
     const viewerIds = viewers.filter((v) => v.viewer_id).map((v) => v.viewer_id!);
@@ -77,6 +73,32 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
     }
 
     setRecentHighlights((highlightsRes.data || []) as HighlightRow[]);
+
+    // Headline result: fastest personal best, or top diving score.
+    const [{ data: swims }, { data: dives }] = await Promise.all([
+      supabase.from('performance_records')
+        .select('event, result_seconds, is_personal_best')
+        .eq('profile_id', profile!.id)
+        .not('result_seconds', 'is', null)
+        .order('result_seconds', { ascending: true })
+        .limit(1),
+      supabase.from('diving_results')
+        .select('event, total_score')
+        .eq('profile_id', profile!.id)
+        .order('total_score', { ascending: false })
+        .limit(1),
+    ]);
+
+    const swim = (swims || [])[0] as { event: string; result_seconds: number } | undefined;
+    const dive = (dives || [])[0] as { event: string; total_score: number } | undefined;
+    if (swim) {
+      setBestResult({ label: swim.event, value: formatSwimTime(Number(swim.result_seconds)) });
+    } else if (dive) {
+      setBestResult({ label: dive.event, value: Number(dive.total_score).toFixed(2) });
+    } else {
+      setBestResult(null);
+    }
+
     setLoading(false);
   };
 
@@ -84,20 +106,43 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
 
   return (
     <div className="space-y-6">
-      {/* Metric cards */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: 'Views this week', value: viewsThisWeek, icon: Eye },
-          { label: 'Highlight plays', value: highlightPlays, icon: Play },
-          { label: 'Followers', value: followers, icon: Users },
-        ].map(({ label, value, icon: Icon }) => (
-          <div key={label} style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-            <Icon className="w-4 h-4 mb-2" style={{ color: roleAccent }} />
-            <div className="font-display font-black" style={{ fontSize: '40px', lineHeight: 1, color: roleAccent }}>{value}</div>
-            <div className="text-text-muted uppercase" style={{ fontSize: '11px', letterSpacing: '0.06em', marginTop: '4px' }}>{label}</div>
-          </div>
-        ))}
+      {/* Headline metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px' }}>
+          <Eye className="w-4 h-4 mb-2" style={{ color: 'var(--accent-ink)' }} />
+          <div className="font-display" style={{ fontWeight: 800, fontSize: '44px', lineHeight: 1, color: 'var(--text)' }}>{viewsThisWeek}</div>
+          <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>Profile views this week</div>
+        </div>
+
+        <div style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px' }}>
+          <Trophy className="w-4 h-4 mb-2" style={{ color: 'var(--accent-ink)' }} />
+          {bestResult ? (
+            <>
+              <div className="font-display" style={{ fontWeight: 800, fontSize: '44px', lineHeight: 1, color: 'var(--text)' }}>
+                {bestResult.value}
+              </div>
+              <div className="truncate" style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>
+                Best result · {bestResult.label}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="font-display" style={{ fontWeight: 800, fontSize: '44px', lineHeight: 1, color: 'var(--text-soft)' }}>—</div>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>No results yet</div>
+            </>
+          )}
+        </div>
       </div>
+
+      {/* Primary CTA */}
+      <button
+        onClick={() => navigate('/profile/edit')}
+        className="w-full flex items-center justify-center gap-2 rounded-pill hover:opacity-90 transition-opacity"
+        style={{ background: 'var(--accent)', color: 'var(--on-accent)', padding: '16px', fontSize: '15px', fontWeight: 600 }}
+      >
+        <Plus className="w-5 h-5" />
+        Add a result
+      </button>
 
       {/* Who viewed you */}
       <div>
@@ -121,7 +166,7 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
                     </div>
                     <div>
                       <span className="text-sm font-medium">{v.viewer.full_name}</span>
-                      <span className="ml-1.5 inline-block" style={{ background: getRoleAccentMuted(v.viewer?.role), color: getRoleAccent(v.viewer?.role), fontSize: '10px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '2px 7px', borderRadius: '999px' }}>
+                      <span className="ml-1.5 inline-block" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)', fontSize: '10px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '2px 7px', borderRadius: '999px' }}>
                         {v.viewer.role}
                       </span>
                     </div>
@@ -141,23 +186,14 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
         )}
       </div>
 
-      {/* Upload CTA */}
+      {/* Secondary action */}
       <button
         onClick={() => navigate('/upload')}
-        className="w-full flex items-center justify-center gap-3 font-display font-black uppercase hover:opacity-90 transition-opacity"
-        style={{ background: roleAccent, color: 'var(--on-accent)', borderRadius: '12px', padding: '14px', fontSize: '15px', letterSpacing: '0.04em' }}
+        className="w-full flex items-center justify-center gap-2 rounded-pill transition-colors"
+        style={{ background: '#fff', border: '1px solid var(--border)', color: 'var(--text)', padding: '16px', fontSize: '15px', fontWeight: 600 }}
       >
         <Upload className="w-5 h-5" />
         Upload a highlight
-      </button>
-
-      {/* Log a workout CTA */}
-      <button
-        onClick={() => navigate('/training/log')}
-        style={{ borderRadius: '12px', background: 'var(--surface-2)', border: '1px solid var(--border)', width: '100%', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer' }}
-      >
-        <i className="ti ti-barbell" style={{ fontSize: '20px', color: 'var(--text)' }} aria-hidden="true" />
-        <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--text)' }}>Log a workout</span>
       </button>
 
       {/* Recent highlights */}
@@ -169,7 +205,7 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
               <Link
                 key={h.id}
                 to={`/profile/${profile?.username}`}
-                className="bg-card border border-line overflow-hidden hover:border-accent/20 transition-colors"
+                className="bg-card border border-line overflow-hidden hover:border-line-strong transition-colors"
                 style={{ borderRadius: '12px' }}
               >
                 <div className="relative aspect-video bg-surface">
@@ -194,7 +230,7 @@ function AthleteHome({ roleAccent }: { roleAccent: string }) {
 }
 
 // ── Brand Home ───────────────────────────────────────────────────────────────
-function BrandHome({ roleAccent }: { roleAccent: string }) {
+function BrandHome() {
   const navigate = useNavigate();
   const [sport, setSport] = useState('');
   const [country, setCountry] = useState('');
@@ -232,7 +268,7 @@ function BrandHome({ roleAccent }: { roleAccent: string }) {
           <button
             onClick={handleSearch}
             className="flex items-center gap-2 px-6 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
-            style={{ background: roleAccent, color: 'var(--on-accent)', borderRadius: '12px' }}
+            style={{ background: 'var(--accent)', color: 'var(--on-accent)', borderRadius: '999px', fontWeight: 600 }}
           >
             <Search className="w-4 h-4" /> Search
           </button>
@@ -257,7 +293,7 @@ function BrandHome({ roleAccent }: { roleAccent: string }) {
               <Link
                 key={a.id}
                 to={`/profile/${a.username}`}
-                className="bg-card border border-line p-3 hover:border-accent/20 transition-colors text-center"
+                className="bg-card border border-line p-3 hover:border-line-strong transition-colors text-center"
                 style={{ borderRadius: '12px' }}
               >
                 <div className="w-12 h-12 mx-auto overflow-hidden bg-surface mb-2" style={{ borderRadius: '12px' }}>
@@ -281,7 +317,7 @@ function BrandHome({ roleAccent }: { roleAccent: string }) {
       <Link
         to="/opportunities"
         className="w-full flex items-center justify-center gap-3 py-4 font-display font-black uppercase text-base tracking-wide hover:bg-surface transition-colors"
-        style={{ border: `1px solid ${roleAccent}`, color: roleAccent, borderRadius: '12px' }}
+        style={{ border: '1px solid var(--border-strong)', color: 'var(--text)', borderRadius: '999px', fontWeight: 600 }}
       >
         Post an opportunity
       </Link>
@@ -290,7 +326,7 @@ function BrandHome({ roleAccent }: { roleAccent: string }) {
 }
 
 // ── Coach/Agent Home ─────────────────────────────────────────────────────────
-function CoachHome({ roleAccent }: { roleAccent: string }) {
+function CoachHome() {
   const { profile } = useAppStore();
   const navigate = useNavigate();
   const [watchlist, setWatchlist] = useState<Profile[]>([]);
@@ -357,7 +393,7 @@ function CoachHome({ roleAccent }: { roleAccent: string }) {
           <button
             onClick={handleScout}
             className="flex items-center gap-2 px-6 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
-            style={{ background: roleAccent, color: 'var(--on-accent)', borderRadius: '12px' }}
+            style={{ background: 'var(--accent)', color: 'var(--on-accent)', borderRadius: '999px', fontWeight: 600 }}
           >
             <Search className="w-4 h-4" /> Scout
           </button>
@@ -377,7 +413,7 @@ function CoachHome({ roleAccent }: { roleAccent: string }) {
         ) : (
           <div className="space-y-2">
             {watchlist.map((a) => (
-              <div key={a.id} className="flex items-center gap-3 bg-card border border-line p-3 hover:border-accent/20 transition-colors" style={{ borderRadius: '12px' }}>
+              <div key={a.id} className="flex items-center gap-3 bg-card border border-line p-3 hover:border-line-strong transition-colors" style={{ borderRadius: '12px' }}>
                 <Link to={`/profile/${a.username}`} className="flex items-center gap-3 flex-1 hover:opacity-80">
                   <div className="w-10 h-10 flex-shrink-0 overflow-hidden bg-surface" style={{ borderRadius: '12px' }}>
                     {a.avatar_url ? (
@@ -405,7 +441,7 @@ function CoachHome({ roleAccent }: { roleAccent: string }) {
                   style={
                     following.includes(a.id)
                       ? { borderRadius: '999px' }
-                      : { background: roleAccent, color: 'var(--on-accent)', borderRadius: '999px' }
+                      : { background: 'var(--accent)', color: 'var(--on-accent)', borderRadius: '999px' }
                   }
                 >
                   {following.includes(a.id) ? <UserCheck className="w-3 h-3" /> : <UserPlus className="w-3 h-3" />}
@@ -437,21 +473,19 @@ export default function Home() {
     ? 'Brand dashboard'
     : 'Scout dashboard';
 
-  const roleAccent = getRoleAccent(profile.role);
-  const roleAccentMuted = getRoleAccentMuted(profile.role);
-
+  
   return (
     <div className="min-h-screen pt-6 md:pt-10 pb-24">
       <div className="max-w-3xl mx-auto px-4">
-        <div style={{ background: roleAccentMuted, borderBottom: `1px solid ${roleAccent}22`, padding: '12px 16px', marginBottom: '24px', borderRadius: '12px' }}>
+        <div style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', padding: '16px 20px', marginBottom: '24px', borderRadius: '16px' }}>
           <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '28px', textTransform: 'uppercase', letterSpacing: '0.02em', color: 'var(--text)', margin: 0 }}>
             {heading}
           </h1>
         </div>
 
-        {profile.role === 'athlete' && <AthleteHome roleAccent={roleAccent} />}
-        {profile.role === 'brand' && <BrandHome roleAccent={roleAccent} />}
-        {(profile.role === 'coach' || profile.role === 'agent') && <CoachHome roleAccent={roleAccent} />}
+        {profile.role === 'athlete' && <AthleteHome />}
+        {profile.role === 'brand' && <BrandHome />}
+        {(profile.role === 'coach' || profile.role === 'agent') && <CoachHome />}
       </div>
     </div>
   );

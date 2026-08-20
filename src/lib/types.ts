@@ -299,16 +299,22 @@ export function meetLevel(id: string | null | undefined) {
   return MEET_LEVELS.find((m) => m.id === id);
 }
 
-/** Colour per meet level — low tiers muted, national and above hot. */
-export const MEET_LEVEL_COLORS: Record<string, string> = {
-  school:        '#8888A0',
-  district:      '#60A5FA',
-  state:         '#34D399',
-  zonal:         '#2DD4BF',
-  national:      '#EF9F27',
-  khelo_india:   '#D4537E',
-  international: '#A78BFA',
+/**
+ * Meet level badges. Always a soft background with readable text — never
+ * saturated colour as text on white.
+ */
+export const MEET_LEVEL_STYLES: Record<string, { background: string; color: string }> = {
+  school:        { background: 'var(--surface-2)',  color: 'var(--text-muted)' },
+  district:      { background: 'var(--surface-2)',  color: 'var(--text-muted)' },
+  state:         { background: 'var(--info-soft)',  color: 'var(--info)' },
+  zonal:         { background: 'var(--info-soft)',  color: 'var(--info)' },
+  national:      { background: 'var(--warning-soft)', color: 'var(--warning)' },
+  khelo_india:   { background: 'var(--accent-soft)', color: 'var(--accent-ink)' },
+  international: { background: 'var(--accent-soft)', color: 'var(--accent-ink)' },
 };
+
+export const meetLevelStyle = (id: string | null | undefined) =>
+  MEET_LEVEL_STYLES[id ?? ''] ?? { background: 'var(--surface-2)', color: 'var(--text-muted)' };
 
 /** Seconds -> mm:ss.SS (or ss.SS when under a minute). */
 export function formatSwimTime(seconds: number | null | undefined): string {

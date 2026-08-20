@@ -62,11 +62,6 @@ export function generateUsername(name: string): string {
   return `${base}${num}`;
 }
 
-/** Single light accent. Per-role colour worlds were removed. */
-export function getRoleAccent(_role?: string): string {
-  return '#B8E62E';
-}
-
 export interface RoleTheme {
   bg: string;          // page background
   bgSoft: string;      // card / panel background
@@ -126,8 +121,4 @@ export function formatPace(secondsPerKm: number | null | undefined): string {
   return `${m}:${s.toString().padStart(2, '0')}/km`;
 }
 
-/** Accent-soft fill. Per-role colour worlds were removed. */
-export function getRoleAccentMuted(_role?: string): string {
-  return '#EFFAC8';
-}
 

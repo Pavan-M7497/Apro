@@ -4,10 +4,9 @@ import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
 import { calculateProfileCompleteness } from '../lib/utils';
 import { useImageUpload } from '../hooks/useImageUpload';
-import { useTheme } from '../contexts/ThemeContext';
 import { DisciplineSelect, WaterpoloPositionSelect, PrimaryEventsSelect } from '../components/DisciplineSelect';
 import { StateSelect } from '../components/StateSelect';
-import type { AthleteProfile, Achievement, PerformanceRecord, WaterpoloStat } from '../lib/types';
+import type { AthleteProfile, Achievement, PerformanceRecord, WaterpoloStat, DivingResult } from '../lib/types';
 import { MEET_LEVELS, TIMED_DISCIPLINES, SCORED_DISCIPLINES, formatSwimTime, parsePrimaryEvents, eventsFor, GENDERS, VERIFICATION_TIERS } from '../lib/types';
 import VerificationBadge, { TIER_META } from '../components/VerificationBadge';
 import { Camera, Save, User, Globe, Dumbbell, FileText, BarChart3, Trophy, Plus, Trash2 } from 'lucide-react';
@@ -31,7 +30,6 @@ export default function ProfileEdit() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [calculatingScore, setCalculatingScore] = useState(false);
 
   // Verification
   const [sfiId, setSfiId] = useState(profile?.sfi_id || '');
@@ -40,7 +38,6 @@ export default function ProfileEdit() {
   const [verifSubmitted, setVerifSubmitted] = useState(false);
   const [verifDoc, setVerifDoc] = useState<File | null>(null);
 
-  const theme = useTheme();
   const { upload: uploadAvatar, uploading: avatarUploading } = useImageUpload('avatars');
   const { upload: uploadCover, uploading: coverUploading } = useImageUpload('covers');
 
@@ -58,6 +55,9 @@ export default function ProfileEdit() {
   const [newPerf, setNewPerf] = useState(emptyPerf);
   const emptyWp = { season: '', competition: '', matches: '0', goals: '0', assists: '0', saves: '0', exclusions_drawn: '0' };
   const [newWp, setNewWp] = useState(emptyWp);
+  const [divingResults, setDivingResults] = useState<DivingResult[]>([]);
+  const emptyDive = { event: '', total_score: '', dive_count: '', average_dd: '', meet_name: '', meet_level: 'state', meet_date: '' };
+  const [newDive, setNewDive] = useState(emptyDive);
 
   // Achievements
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -92,6 +92,13 @@ export default function ProfileEdit() {
           .eq('profile_id', profile!.id)
           .order('season', { ascending: false });
         setWpStats((wp as WaterpoloStat[]) || []);
+      } else if (ap.sport === 'diving') {
+        const { data: dr } = await supabase
+          .from('diving_results')
+          .select('*')
+          .eq('profile_id', profile!.id)
+          .order('meet_date', { ascending: false });
+        setDivingResults((dr as DivingResult[]) || []);
       } else {
         const { data: pr } = await supabase
           .from('performance_records')
@@ -132,40 +139,6 @@ export default function ProfileEdit() {
     if (user) await fetchProfile(user.id);
     showNotice('Banner updated!');
   };
-
-  async function calculateAproScore() {
-    if (!profile) return;
-    setCalculatingScore(true);
-
-    const fields = [profile.full_name, profile.bio, profile.avatar_url, profile.cover_url, profile.country, athleteProfile?.sport, athleteProfile?.position, athleteProfile?.date_of_birth];
-    const filled = fields.filter(Boolean).length;
-    const completeness = Math.round((filled / fields.length) * 20);
-
-    const tierScore = (profile.verification_tier || 0) * 10;
-
-    const { data: achievs } = await supabase.from('achievements').select('category').eq('profile_id', profile.id);
-    const weights: Record<string, number> = { world: 30, continental: 20, national: 15, regional: 8, title: 10, award: 6, record: 8, selection: 10, other: 2 };
-    const achievScore = Math.min(30, (achievs || []).reduce((sum: number, a: { category: string }) => sum + (weights[a.category] || 2), 0));
-
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const { count } = await supabase.from('profile_views').select('*', { count: 'exact', head: true }).eq('profile_id', profile.id).gte('created_at', thirtyDaysAgo);
-    const engagementScore = Math.min(20, Math.floor((count || 0) / 5));
-
-    const total = completeness + tierScore + achievScore + engagementScore;
-    const breakdown = { completeness, verification: tierScore, achievements: achievScore, engagement: engagementScore };
-
-    await supabase.from('apro_scores').upsert({
-      profile_id: profile.id,
-      sport: athleteProfile?.sport || '',
-      country: profile.country || '',
-      score: total,
-      breakdown,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'profile_id' });
-
-    setCalculatingScore(false);
-    showNotice(`Apro Score updated: ${total}/100`);
-  }
 
   const tier = profile?.verification_tier ?? 0;
 
@@ -396,6 +369,68 @@ export default function ProfileEdit() {
     }
   };
 
+  const handleAddDiving = async () => {
+    if (!profile) return;
+    if (!newDive.event) { setError('Event is required'); return; }
+    const score = parseFloat(newDive.total_score);
+    if (!newDive.total_score || Number.isNaN(score) || score < 0) {
+      setError('Enter a valid total score'); return;
+    }
+
+    setSavingRow(true);
+    try {
+      // Highest score for the same event wins — diving is judged, not timed.
+      const sameEvent = divingResults.filter((r) => r.event === newDive.event);
+      const isPB = sameEvent.every((r) => score > Number(r.total_score));
+
+      const { data, error: divErr } = await supabase
+        .from('diving_results')
+        .insert({
+          profile_id: profile.id,
+          event: newDive.event,
+          total_score: score,
+          dive_count: newDive.dive_count ? parseInt(newDive.dive_count) : null,
+          average_dd: newDive.average_dd ? parseFloat(newDive.average_dd) : null,
+          meet_name: newDive.meet_name || null,
+          meet_level: newDive.meet_level || null,
+          meet_date: newDive.meet_date || null,
+          is_personal_best: isPB,
+        })
+        .select()
+        .single();
+      if (divErr) throw divErr;
+
+      // Demote the previous best for this event.
+      if (isPB && sameEvent.length > 0) {
+        await supabase
+          .from('diving_results')
+          .update({ is_personal_best: false })
+          .eq('profile_id', profile.id)
+          .eq('event', newDive.event)
+          .neq('id', data.id);
+      }
+
+      setDivingResults((prev) => [
+        data as DivingResult,
+        ...(isPB
+          ? prev.map((r) => (r.event === newDive.event ? { ...r, is_personal_best: false } : r))
+          : prev),
+      ]);
+      setNewDive(emptyDive);
+      setError('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to add result');
+    } finally {
+      setSavingRow(false);
+    }
+  };
+
+  const handleDeleteDiving = async (id: string) => {
+    const { error: delErr } = await supabase.from('diving_results').delete().eq('id', id);
+    if (delErr) { setError(delErr.message); return; }
+    setDivingResults((prev) => prev.filter((r) => r.id !== id));
+  };
+
   const handleDeleteWpStat = async (id: string) => {
     const { error: delErr } = await supabase.from('waterpolo_stats').delete().eq('id', id);
     if (delErr) { setError(delErr.message); return; }
@@ -502,7 +537,7 @@ export default function ProfileEdit() {
           <label className="block text-sm font-medium text-text-muted mb-2">Cover photo</label>
           <div
             onClick={() => document.getElementById('cover-input')?.click()}
-            className="h-32 md:h-40 bg-surface border-2 border-dashed border-line rounded-xl overflow-hidden cursor-pointer hover:border-accent/20 transition-colors relative"
+            className="h-32 md:h-40 bg-surface border-2 border-dashed border-line rounded-xl overflow-hidden cursor-pointer hover:border-line-strong transition-colors relative"
           >
             {coverPreview ? (
               <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
@@ -528,7 +563,7 @@ export default function ProfileEdit() {
           <div className="flex items-center gap-4">
             <div
               onClick={() => document.getElementById('avatar-input')?.click()}
-              className="w-20 h-20 rounded-full bg-surface border-2 border-dashed border-line overflow-hidden cursor-pointer hover:border-accent/20 transition-colors flex-shrink-0"
+              className="w-20 h-20 rounded-full bg-surface border-2 border-dashed border-line overflow-hidden cursor-pointer hover:border-line-strong transition-colors flex-shrink-0"
             >
               {avatarPreview ? (
                 <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
@@ -559,7 +594,7 @@ export default function ProfileEdit() {
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors"
+                className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
               />
             </div>
           </div>
@@ -574,7 +609,7 @@ export default function ProfileEdit() {
                 onChange={(e) => setBio(e.target.value)}
                 rows={3}
                 placeholder="A short bio — club, coach, what you swim…"
-                className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors resize-none"
+                className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent-ink transition-colors resize-none"
               />
             </div>
           </div>
@@ -588,7 +623,7 @@ export default function ProfileEdit() {
                 <StateSelect
                   value={stateCode}
                   onChange={setStateCode}
-                  className="bg-white border border-line rounded-pill pl-10 pr-4 py-2.5 text-sm focus:border-accent transition-colors"
+                  className="bg-white border border-line rounded-pill pl-10 pr-4 py-2.5 text-sm focus:border-accent-ink transition-colors"
                 />
               </div>
             </div>
@@ -599,7 +634,7 @@ export default function ProfileEdit() {
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="e.g. Bengaluru"
-                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent transition-colors"
+                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
               />
             </div>
           </div>
@@ -642,7 +677,7 @@ export default function ProfileEdit() {
                       className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                         availability === a
                           ? a === 'available' ? 'bg-success/20 text-success border border-success/30'
-                            : a === 'open_to_offers' ? 'bg-accent-soft text-accent-ink border border-accent/30'
+                            : a === 'open_to_offers' ? 'bg-accent-soft text-accent-ink border border-accent-ink'
                             : 'bg-error/20 text-error border border-error/30'
                           : 'bg-surface border border-line text-text-muted hover:text-text'
                       }`}
@@ -682,7 +717,91 @@ export default function ProfileEdit() {
                   {sport === 'waterpolo' ? 'Season stats' : 'Results'}
                 </h3>
 
-                {sport === 'waterpolo' ? (
+                {sport === 'diving' ? (
+                  <>
+                    {divingResults.length > 0 && (
+                      <div className="space-y-2 mb-4">
+                        {divingResults.map((r) => (
+                          <div key={r.id} className="flex items-center gap-3 p-4" style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px' }}>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="font-display" style={{ fontWeight: 800, fontSize: '15px' }}>{r.event}</p>
+                                {r.is_personal_best && (
+                                  <span className="rounded-pill" style={{ background: 'var(--accent-soft)', color: 'var(--accent-ink)', fontSize: '10px', fontWeight: 600, padding: '2px 8px' }}>PB</span>
+                                )}
+                              </div>
+                              <p className="text-xs text-text-muted mt-0.5">
+                                {[
+                                  r.meet_name || 'Unnamed meet',
+                                  r.meet_date || null,
+                                  r.dive_count ? `${r.dive_count} dives` : null,
+                                  r.average_dd ? `avg DD ${Number(r.average_dd).toFixed(2)}` : null,
+                                ].filter(Boolean).join(' · ')}
+                              </p>
+                            </div>
+                            <span className="font-display flex-shrink-0" style={{ fontWeight: 800, fontSize: '20px' }}>
+                              {Number(r.total_score).toFixed(2)}
+                            </span>
+                            <button onClick={() => handleDeleteDiving(r.id)} className="text-text-muted hover:text-error transition-colors">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
+                      <p className="text-xs font-medium text-text-muted mb-3">Add a result</p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                        <select value={newDive.event} onChange={(e) => setNewDive({ ...newDive, event: e.target.value })}
+                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm appearance-none">
+                          <option value="">Select event</option>
+                          {eventsFor('diving').map((ev) => <option key={ev} value={ev}>{ev}</option>)}
+                        </select>
+                        <div>
+                          <input type="number" step="0.01" min={0} placeholder="Total score" value={newDive.total_score}
+                            onChange={(e) => setNewDive({ ...newDive, total_score: e.target.value })}
+                            className="w-full bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <label className="block text-text-muted mb-1" style={{ fontSize: '10px' }}>Dive count (optional)</label>
+                          <input type="number" min={0} placeholder="e.g. 6" value={newDive.dive_count}
+                            onChange={(e) => setNewDive({ ...newDive, dive_count: e.target.value })}
+                            className="w-full bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-text-muted mb-1" style={{ fontSize: '10px' }}>Average DD (optional)</label>
+                          <input type="number" step="0.01" min={0} placeholder="e.g. 2.60" value={newDive.average_dd}
+                            onChange={(e) => setNewDive({ ...newDive, average_dd: e.target.value })}
+                            className="w-full bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <input type="text" placeholder="Meet name" value={newDive.meet_name}
+                          onChange={(e) => setNewDive({ ...newDive, meet_name: e.target.value })}
+                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                        <select value={newDive.meet_level} onChange={(e) => setNewDive({ ...newDive, meet_level: e.target.value })}
+                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm appearance-none">
+                          {MEET_LEVELS.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                        </select>
+                        <input type="date" value={newDive.meet_date}
+                          onChange={(e) => setNewDive({ ...newDive, meet_date: e.target.value })}
+                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                      </div>
+
+                      <button onClick={handleAddDiving} disabled={savingRow}
+                        className="mt-4 inline-flex items-center gap-1.5 rounded-pill disabled:opacity-50"
+                        style={{ background: 'var(--text)', color: '#fff', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}>
+                        <Plus className="w-4 h-4" /> {savingRow ? 'Adding…' : 'Add result'}
+                      </button>
+                    </div>
+                  </>
+                ) : sport === 'waterpolo' ? (
                   <>
                     {wpStats.length > 0 && (
                       <div className="space-y-2 mb-4">
@@ -867,20 +986,20 @@ export default function ProfileEdit() {
                       placeholder="Title (e.g. League Champion)"
                       value={newAchievement.title}
                       onChange={(e) => setNewAchievement({ ...newAchievement, title: e.target.value })}
-                      className="w-full bg-card border border-line rounded px-3 py-1.5 text-xs text-text placeholder:text-text-muted/40 focus:border-accent/30"
+                      className="w-full bg-card border border-line rounded px-3 py-1.5 text-xs text-text placeholder:text-text-muted/40 focus:border-accent-ink/30"
                     />
                     <input
                       type="text"
                       placeholder="Description"
                       value={newAchievement.description}
                       onChange={(e) => setNewAchievement({ ...newAchievement, description: e.target.value })}
-                      className="w-full bg-card border border-line rounded px-3 py-1.5 text-xs text-text placeholder:text-text-muted/40 focus:border-accent/30"
+                      className="w-full bg-card border border-line rounded px-3 py-1.5 text-xs text-text placeholder:text-text-muted/40 focus:border-accent-ink/30"
                     />
                     <input
                       type="date"
                       value={newAchievement.date}
                       onChange={(e) => setNewAchievement({ ...newAchievement, date: e.target.value })}
-                      className="bg-card border border-line rounded px-3 py-1.5 text-xs text-text focus:border-accent/30"
+                      className="bg-card border border-line rounded px-3 py-1.5 text-xs text-text focus:border-accent-ink/30"
                     />
                     <div>
                       <label className="text-[10px] text-text-muted block mb-1">Proof (optional — image)</label>
@@ -896,7 +1015,7 @@ export default function ProfileEdit() {
                   <button
                     onClick={handleAddAchievement}
                     disabled={addingAchievement}
-                    className="mt-2 flex items-center gap-1 text-xs font-medium text-accent-ink hover:text-accent-ink-hover transition-colors disabled:opacity-50"
+                    className="mt-2 flex items-center gap-1 text-xs font-medium text-accent-ink hover:opacity-80 transition-colors disabled:opacity-50"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     {addingAchievement ? 'Adding...' : 'Add achievement'}
@@ -934,14 +1053,14 @@ export default function ProfileEdit() {
                 value={sfiId}
                 onChange={(e) => setSfiId(e.target.value)}
                 placeholder="e.g. SFI-2024-01234"
-                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent transition-colors mb-3"
+                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors mb-3"
               />
               <input
                 type="text"
                 value={verifNote}
                 onChange={(e) => setVerifNote(e.target.value)}
                 placeholder="Anything we should know (optional)"
-                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent transition-colors mb-3"
+                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors mb-3"
               />
               <p style={{ fontSize: '12px', color: 'var(--text-soft)', marginBottom: '12px' }}>
                 Self-declared. It marks your ID as on file — it does not verify your results.
@@ -976,7 +1095,7 @@ export default function ProfileEdit() {
                 value={verifNote}
                 onChange={(e) => setVerifNote(e.target.value)}
                 placeholder="Club or association name (optional)"
-                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent transition-colors mb-3"
+                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors mb-3"
               />
               <button
                 onClick={submitAssociationRequest}
@@ -994,25 +1113,6 @@ export default function ProfileEdit() {
               Submitted. We'll be in touch if we need anything else.
             </p>
           )}
-        </div>
-
-        {/* Apro Score */}
-        <div className="mt-8 pt-6 border-t border-line">
-          <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', color: theme.accent }}>Apro Score</h3>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: theme.textMuted, marginTop: '4px', marginBottom: '12px' }}>
-            Your score determines your ranking on the leaderboard.
-          </p>
-          <button
-            onClick={calculateAproScore}
-            disabled={calculatingScore}
-            className="inline-flex items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-60"
-            style={{ background: theme.accent, color: 'var(--on-accent)', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em', borderRadius: '12px', padding: '8px 16px' }}
-          >
-            {calculatingScore && (
-              <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--on-accent)', borderTopColor: 'transparent' }} />
-            )}
-            {calculatingScore ? 'Calculating…' : 'Calculate my score'}
-          </button>
         </div>
 
         {/* Save button */}

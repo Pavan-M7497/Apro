@@ -266,7 +266,7 @@ export default function Messages() {
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                 maxLength={2000}
                 placeholder="Type a message…"
-                className="flex-1 bg-surface border border-line px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors"
+                className="flex-1 bg-surface border border-line px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
                 style={{ borderRadius: '12px', background: theme.surface, borderColor: theme.border, color: theme.text }}
               />
               <button

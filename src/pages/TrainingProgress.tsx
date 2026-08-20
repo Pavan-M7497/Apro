@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
-import { getRoleAccent, formatPace, formatDate } from '../lib/utils';
+import { formatPace, formatDate } from '../lib/utils';
 import type { TrainingSession } from '../lib/types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { ArrowLeft, Dumbbell, Gauge, Route, TrendingUp } from 'lucide-react';
@@ -40,7 +40,6 @@ export default function TrainingProgress() {
 
   if (loading) return <div className="min-h-screen pt-10"><LoadingSpinner /></div>;
 
-  const roleAccent = getRoleAccent(profile?.role);
 
   // ── Weekly volume (last 12 weeks) ──
   const thisWeekStart = startOfWeek(new Date());
@@ -116,7 +115,7 @@ export default function TrainingProgress() {
                     style={{
                       height: `${Math.max(heightPct, w.minutes > 0 ? 4 : 0)}%`,
                       minHeight: w.minutes > 0 ? '4px' : '0',
-                      background: w.minutes > 0 ? roleAccent : 'var(--surface-2)',
+                      background: w.minutes > 0 ? 'var(--accent)' : 'var(--surface-2)',
                       borderRadius: '3px 3px 0 0',
                     }}
                   />

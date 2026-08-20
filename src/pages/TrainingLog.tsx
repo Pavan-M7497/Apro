@@ -204,7 +204,7 @@ export default function TrainingLog() {
     navigate('/training', { state: { toast: 'Session logged!' } });
   };
 
-  const inputClass = 'w-full bg-surface border border-line px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors';
+  const inputClass = 'w-full bg-surface border border-line px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors';
   const labelClass = 'block font-display font-bold uppercase text-xs text-text-muted mb-1.5';
 
   const current = rpeLabel(rpe);

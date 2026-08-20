@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Zap, Mail, Lock, Eye, EyeOff, User, Globe, ChevronRight, ChevronLeft, Dumbbell, Briefcase, ClipboardList, Handshake } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, Globe, ChevronRight, ChevronLeft, Dumbbell, Briefcase, ClipboardList, Handshake } from 'lucide-react';
+import { AproLockup } from '../components/Logo';
 import type { UserRole, Gender } from '../lib/types';
 import { GENDERS } from '../lib/types';
 import { StateSelect } from '../components/StateSelect';
@@ -102,8 +103,7 @@ export default function Register() {
       <div className="w-full max-w-lg">
         <div className="text-center mb-6">
           <Link to="/" className="inline-flex items-center gap-2 mb-4">
-            <Zap className="w-8 h-8 text-accent-ink" fill="currentColor" />
-            <span className="text-2xl font-black tracking-tight">Apro</span>
+            <AproLockup size={30} />
           </Link>
           <h1 className="text-2xl font-bold mb-1">Create your account</h1>
           <p className="text-text-muted text-sm">Step {step} of {role === 'athlete' ? 3 : 2}</p>
@@ -139,7 +139,7 @@ export default function Register() {
                     onClick={() => setRole(value)}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       role === value
-                        ? 'border-accent bg-accent-soft'
+                        ? 'border-accent-ink bg-accent-soft'
                         : 'border-line hover:border-line bg-surface'
                     }`}
                   >
@@ -166,7 +166,7 @@ export default function Register() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Your full name"
-                    className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
+                    className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent-ink transition-colors"
                   />
                 </div>
               </div>
@@ -180,7 +180,7 @@ export default function Register() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@email.com"
-                    className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
+                    className="w-full bg-surface border border-line rounded-lg pl-10 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent-ink transition-colors"
                   />
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default function Register() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Min. 6 characters"
-                    className="w-full bg-surface border border-line rounded-lg pl-10 pr-10 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent/50 transition-colors"
+                    className="w-full bg-surface border border-line rounded-lg pl-10 pr-10 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent-ink transition-colors"
                   />
                   <button
                     type="button"
@@ -213,7 +213,7 @@ export default function Register() {
                   <StateSelect
                     value={stateCode}
                     onChange={setStateCode}
-                    className="bg-white border border-line rounded-pill pl-10 pr-4 py-2.5 text-sm focus:border-accent transition-colors"
+                    className="bg-white border border-line rounded-pill pl-10 pr-4 py-2.5 text-sm focus:border-accent-ink transition-colors"
                   />
                 </div>
               </div>
@@ -272,7 +272,7 @@ export default function Register() {
                   type="date"
                   value={dob}
                   onChange={(e) => setDob(e.target.value)}
-                  className="w-full bg-surface border border-line rounded-lg px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors"
+                  className="w-full bg-surface border border-line rounded-lg px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
                 />
               </div>
             </div>

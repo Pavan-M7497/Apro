@@ -22,7 +22,7 @@ const DIVING_INDIVIDUAL = ['1m Springboard', '3m Springboard', '10m Platform'];
 const MIN_MATCHES = 5;
 
 const field =
-  'w-full bg-white border border-line px-4 py-2.5 text-sm text-text focus:border-accent transition-colors appearance-none rounded-pill';
+  'w-full bg-card border border-line px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors appearance-none rounded-xl';
 const label = 'block text-xs font-medium text-text-muted mb-1.5';
 
 /** Aquatics convention: age is taken as of 31 December of the season. */
@@ -75,6 +75,10 @@ export default function Leaderboard() {
   const [seasons, setSeasons] = useState<string[]>([]);
 
   const [ageGroups, setAgeGroups] = useState<AgeGroup[]>([]);
+  // Points depend on base_times. Until that table is seeded we hide the
+  // points column and the points sub-tab entirely rather than show em dashes.
+  const [hasAnyBaseTimes, setHasAnyBaseTimes] = useState(false);
+  const [boardHasPoints, setBoardHasPoints] = useState(false);
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [unqualified, setUnqualified] = useState<LeaderboardEntry[]>([]);
   const [showUnqualified, setShowUnqualified] = useState(false);
@@ -84,6 +88,21 @@ export default function Leaderboard() {
   const refDate = refDateFor(seasonYear);
 
   useEffect(() => { fetchAgeGroups().then(setAgeGroups); }, []);
+
+  // One cheap probe: does base_times hold anything at all?
+  useEffect(() => {
+    (async () => {
+      const { count } = await supabase
+        .from('base_times')
+        .select('*', { count: 'exact', head: true });
+      setHasAnyBaseTimes((count ?? 0) > 0);
+    })();
+  }, []);
+
+  // A points sub-tab that cannot rank anything should not be reachable.
+  useEffect(() => {
+    if (!hasAnyBaseTimes && swimTab === 'points') setSwimTab('event');
+  }, [hasAnyBaseTimes, swimTab]);
 
   // Season options come from the data itself.
   useEffect(() => {
@@ -123,7 +142,7 @@ export default function Leaderboard() {
 
     const { data } = await q;
     const rows = ((data as any[]) || []).filter((r) => Number(r.result_seconds) > 0);
-    if (rows.length === 0) return { ranked: [], notQualified: [] };
+    if (rows.length === 0) return { ranked: [], notQualified: [], hasPoints: false };
 
     const meta = await fetchAthleteMeta(rows.map((r) => r.profile_id));
     const bases = await fetchBaseTimes(seasonYear);
@@ -134,18 +153,25 @@ export default function Leaderboard() {
       // Fastest time per athlete for this event + course.
       const best = bestPerAthlete(visible, (a, b) => Number(a.result_seconds) < Number(b.result_seconds));
       best.sort((a, b) => Number(a.result_seconds) - Number(b.result_seconds));
+
+      const scoredRows = best.map((r) => {
+        const m = meta.get(r.profile_id)!;
+        const base = m.gender ? bases.get(baseTimeKey(r.event, r.course, m.gender)) : undefined;
+        return { row: r, meta: m, points: swimPoints(base, Number(r.result_seconds)) };
+      });
+      // Only show the column if at least one athlete on this board has one.
+      const anyPoints = scoredRows.some((x) => x.points != null);
+
       return {
-        ranked: best.map((r) => {
-          const m = meta.get(r.profile_id)!;
-          const base = m.gender ? bases.get(baseTimeKey(r.event, r.course, m.gender)) : undefined;
-          const pts = swimPoints(base, Number(r.result_seconds));
-          return toEntry(m, {
-            metric: formatSwimTime(Number(r.result_seconds)),
-            secondary: pts == null ? '—' : String(pts),
-            meetLevel: r.meet_level,
-          });
-        }),
+        ranked: scoredRows.map((x) =>
+          toEntry(x.meta, {
+            metric: formatSwimTime(Number(x.row.result_seconds)),
+            secondary: anyPoints && x.points != null ? String(x.points) : undefined,
+            meetLevel: x.row.meet_level,
+          }),
+        ),
         notQualified: [],
+        hasPoints: anyPoints,
       };
     }
 
@@ -175,6 +201,7 @@ export default function Leaderboard() {
         }),
       ),
       notQualified: [],
+      hasPoints: true,
     };
   }, [swimTab, swimEvent, course, gender, stateCode, ageGroup, ageGroups, refDate, seasonYear]);
 
@@ -187,7 +214,7 @@ export default function Leaderboard() {
       .in('event', DIVING_INDIVIDUAL); // synchro never appears on individual boards
 
     const rows = (data as any[]) || [];
-    if (rows.length === 0) return { ranked: [], notQualified: [] };
+    if (rows.length === 0) return { ranked: [], notQualified: [], hasPoints: false };
 
     const meta = await fetchAthleteMeta(rows.map((r) => r.profile_id));
     const filters = { gender, stateCode, ageGroup, discipline: 'diving' };
@@ -209,6 +236,7 @@ export default function Leaderboard() {
         });
       }),
       notQualified: [],
+      hasPoints: false,
     };
   }, [diveEvent, gender, stateCode, ageGroup, ageGroups, refDate]);
 
@@ -218,7 +246,7 @@ export default function Leaderboard() {
     if (season) q = q.eq('season', season);
     const { data } = await q;
     const rows = (data as any[]) || [];
-    if (rows.length === 0) return { ranked: [], notQualified: [] };
+    if (rows.length === 0) return { ranked: [], notQualified: [], hasPoints: false };
 
     const meta = await fetchAthleteMeta(rows.map((r) => r.profile_id));
     const filters = { gender, stateCode, ageGroup, discipline: 'waterpolo' };
@@ -247,6 +275,7 @@ export default function Leaderboard() {
           metricSub: 'goals',
         })),
         notQualified: [],
+        hasPoints: false,
       };
     }
 
@@ -290,7 +319,7 @@ export default function Leaderboard() {
       return m >= 1 && m < MIN_MATCHES;
     });
 
-    return { ranked: build(qualified), notQualified: build(partial) };
+    return { ranked: build(qualified), notQualified: build(partial), hasPoints: false };
   }, [wpTab, season, gender, stateCode, ageGroup, ageGroups, refDate]);
 
   // ─────────────────────────── Dispatch ───────────────────────────
@@ -300,12 +329,13 @@ export default function Leaderboard() {
       setLoading(true);
       try {
         const loader = board === 'swimming' ? loadSwimming : board === 'diving' ? loadDiving : loadWaterpolo;
-        const { ranked, notQualified } = await loader();
+        const { ranked, notQualified, hasPoints } = await loader();
         if (cancelled) return;
         setEntries(ranked);
         setUnqualified(notQualified);
+        setBoardHasPoints(!!hasPoints);
       } catch {
-        if (!cancelled) { setEntries([]); setUnqualified([]); }
+        if (!cancelled) { setEntries([]); setUnqualified([]); setBoardHasPoints(false); }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -364,8 +394,17 @@ export default function Leaderboard() {
             <Pills
               value={swimTab}
               onChange={setSwimTab}
-              options={[{ id: 'event', label: 'By event' }, { id: 'points', label: 'All events by points' }]}
+              options={
+                hasAnyBaseTimes
+                  ? [{ id: 'event' as SwimTab, label: 'By event' }, { id: 'points' as SwimTab, label: 'All events by points' }]
+                  : [{ id: 'event' as SwimTab, label: 'By event' }]
+              }
             />
+            {!hasAnyBaseTimes && (
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '10px' }}>
+                Points rankings become available once World Aquatics base times are loaded.
+              </p>
+            )}
           </div>
         )}
         {board === 'waterpolo' && (
@@ -473,7 +512,7 @@ export default function Leaderboard() {
             <LeaderboardList
               entries={entries}
               secondaryLabel={
-                board === 'swimming' && swimTab === 'event' ? 'Points'
+                board === 'swimming' && swimTab === 'event' ? (boardHasPoints ? 'Points' : undefined)
                 : board === 'swimming' ? 'Best event'
                 : board === 'waterpolo' && wpTab !== 'teams' ? 'Season'
                 : undefined

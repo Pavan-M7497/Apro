@@ -1,0 +1,13 @@
+{
+  "name": "Apro — The record of your aquatics career",
+  "short_name": "Apro",
+  "description": "Profiles for Indian swimmers, water polo players, and divers.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0E0E10",
+  "background_color": "#FFFFFF",
+  "icons": [
+    { "src": "/pwa-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/pwa-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

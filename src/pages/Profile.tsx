@@ -3,9 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
 import { useImageUpload } from '../hooks/useImageUpload';
-import { initials, formatDate, timeAgo, getRoleAccent, getActivityColor, getRoleTheme, accentTextColor, calculateProfileCompleteness } from '../lib/utils';
-import type { Profile as ProfileType, AthleteProfile, Highlight, Achievement, TrainingSession, PerformanceRecord, WaterpoloStat } from '../lib/types';
-import { ACTIVITY_TYPES, eventsFor, MEET_LEVELS, MEET_LEVEL_COLORS, disciplineName, formatSwimTime } from '../lib/types';
+import { initials, formatDate, timeAgo, getActivityColor, getRoleTheme, accentTextColor, calculateProfileCompleteness } from '../lib/utils';
+import type { Profile as ProfileType, AthleteProfile, Highlight, Achievement, TrainingSession, PerformanceRecord, WaterpoloStat, DivingResult } from '../lib/types';
+import { ACTIVITY_TYPES, eventsFor, MEET_LEVELS, meetLevelStyle, disciplineName, formatSwimTime } from '../lib/types';
 import { Play, Trophy, BarChart3, UserPlus, UserCheck, Share2, X, Calendar, Activity, Camera } from 'lucide-react';
 import VerificationBadge from '../components/VerificationBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -48,6 +48,7 @@ export default function ProfilePage() {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [perfRecords, setPerfRecords] = useState<PerformanceRecord[]>([]);
   const [wpStats, setWpStats] = useState<WaterpoloStat[]>([]);
+  const [divingResults, setDivingResults] = useState<DivingResult[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('highlights');
   const [viewCount, setViewCount] = useState(0);
@@ -144,6 +145,15 @@ export default function ProfilePage() {
           .eq('profile_id', prof.id)
           .order('season', { ascending: false });
         setWpStats((data as WaterpoloStat[]) || []);
+      })());
+
+      promises.push((async () => {
+        const { data } = await supabase
+          .from('diving_results')
+          .select('*')
+          .eq('profile_id', prof.id)
+          .order('meet_date', { ascending: false });
+        setDivingResults((data as DivingResult[]) || []);
       })());
     }
 
@@ -384,7 +394,7 @@ export default function ProfilePage() {
               style={
                 isFollowing
                   ? { gap: '4px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border)', color: '#fff', borderRadius: '12px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
-                  : { gap: '4px', background: getRoleAccent(myProfile?.role), color: accentTextColor(myProfile?.role), borderRadius: '12px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
+                  : { gap: '4px', background: 'var(--accent)', color: 'var(--on-accent)', borderRadius: '12px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
               }
             >
               {isFollowing ? <UserCheck className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
@@ -592,7 +602,79 @@ export default function ProfilePage() {
 
         {/* ── Stats ── */}
         {activeTab === 'stats' && (
-          athleteProfile?.sport === 'waterpolo' ? (
+          athleteProfile?.sport === 'diving' ? (
+            divingResults.length > 0 ? (
+              <div className="space-y-6 pb-8">
+                {(() => {
+                  // Group by event, ordered as the discipline lists them.
+                  const order = eventsFor('diving');
+                  const byEvent = new Map<string, DivingResult[]>();
+                  divingResults.forEach((r) => {
+                    if (!byEvent.has(r.event)) byEvent.set(r.event, []);
+                    byEvent.get(r.event)!.push(r);
+                  });
+                  const rank = (ev: string) => {
+                    const i = order.indexOf(ev);
+                    return i === -1 ? order.length + 1 : i;
+                  };
+                  return Array.from(byEvent.entries())
+                    .sort((a, b) => rank(a[0]) - rank(b[0]))
+                    .map(([event, rows]) => {
+                      const best = rows.reduce((acc, r) =>
+                        Number(r.total_score) > Number(acc.total_score) ? r : acc, rows[0]);
+                      return (
+                        <div key={event} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
+                          <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
+                            <h3 className="font-display" style={{ fontWeight: 800, fontSize: '18px' }}>{event}</h3>
+                            <span className="font-display" style={{ fontWeight: 800, fontSize: '30px', lineHeight: 1, color: 'var(--text)' }}>
+                              {Number(best.total_score).toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="space-y-2">
+                            {rows.map((r) => {
+                              const level = MEET_LEVELS.find((m) => m.id === r.meet_level);
+                              return (
+                                <div key={r.id} className="flex items-center gap-3 flex-wrap" style={{ fontSize: '13px' }}>
+                                  <span style={{ color: 'var(--text-muted)' }}>{r.meet_name || 'Unnamed meet'}</span>
+                                  {level && (
+                                    <span
+                                      className="rounded-pill"
+                                      style={{ ...meetLevelStyle(level.id), fontSize: '11px', fontWeight: 600, padding: '3px 10px' }}
+                                    >
+                                      {level.name}
+                                    </span>
+                                  )}
+                                  {r.dive_count && (
+                                    <span style={{ color: 'var(--text-soft)', fontSize: '12px' }}>{r.dive_count} dives</span>
+                                  )}
+                                  {r.average_dd && (
+                                    <span style={{ color: 'var(--text-soft)', fontSize: '12px' }}>avg DD {Number(r.average_dd).toFixed(2)}</span>
+                                  )}
+                                  {r.is_personal_best && (
+                                    <span className="rounded-pill" style={{ background: 'var(--accent-soft)', color: 'var(--accent-ink)', fontSize: '11px', fontWeight: 600, padding: '3px 10px' }}>
+                                      PB
+                                    </span>
+                                  )}
+                                  <span className="ml-auto" style={{ color: 'var(--text-soft)' }}>
+                                    {Number(r.total_score).toFixed(2)}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    });
+                })()}
+              </div>
+            ) : (
+              <EmptyState
+                icon={BarChart3}
+                title="No scores yet"
+                description={isOwn ? 'No scores yet. Add your first competition — even a district meet is a starting point.' : "This athlete hasn't added scores yet."}
+              />
+            )
+          ) : athleteProfile?.sport === 'waterpolo' ? (
             wpStats.length > 0 ? (
               <div className="space-y-3 pb-8">
                 {wpStats.map((w) => (
@@ -660,13 +742,7 @@ export default function ProfilePage() {
                                 {level && (
                                   <span
                                     className="rounded-pill"
-                                    style={{
-                                      background: `${MEET_LEVEL_COLORS[level.id] || '#999'}22`,
-                                      color: MEET_LEVEL_COLORS[level.id] || 'var(--text-muted)',
-                                      fontSize: '11px',
-                                      fontWeight: 500,
-                                      padding: '3px 10px',
-                                    }}
+                                    style={{ ...meetLevelStyle(level.id), fontSize: '11px', fontWeight: 600, padding: '3px 10px' }}
                                   >
                                     {level.name}
                                   </span>
