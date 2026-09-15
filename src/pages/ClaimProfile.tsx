@@ -12,7 +12,7 @@ interface Target {
   full_name: string;
   sfi_id: string | null;
   is_claimed: boolean;
-  dob: string | null;
+  hasDob: boolean;
 }
 
 const field =
@@ -38,7 +38,7 @@ export default function ClaimProfile() {
       setLoading(true);
       const { data } = await supabase
         .from('profiles')
-        .select('id, username, full_name, sfi_id, is_claimed, athlete_profiles(date_of_birth)')
+        .select('id, username, full_name, sfi_id, is_claimed, athlete_profiles(birth_year)')
         .eq('username', username!)
         .maybeSingle();
       if (data) {
@@ -46,7 +46,10 @@ export default function ClaimProfile() {
         setTarget({
           id: d.id, username: d.username, full_name: d.full_name,
           sfi_id: d.sfi_id, is_claimed: d.is_claimed ?? true,
-          dob: d.athlete_profiles?.date_of_birth ?? null,
+          // Only whether a date is on file — never the date itself. Comparing it
+          // in the browser would hand an attacker the answer needed to claim a
+          // child's profile.
+          hasDob: d.athlete_profiles?.birth_year != null,
         });
       }
       setLoading(false);
@@ -60,12 +63,19 @@ export default function ClaimProfile() {
 
     try {
       const enteredDob = parseDob(dob);
-      const dobHit = !!(enteredDob && target.dob && enteredDob === target.dob);
+      let dobHit = false;
+      if (enteredDob && target.hasDob) {
+        const { data: matches } = await supabase.rpc('claim_dob_matches', {
+          target_profile: target.id,
+          candidate: enteredDob,
+        });
+        dobHit = matches === true;
+      }
       const sfiHit = !!(sfi.trim() && target.sfi_id && sfi.trim().toLowerCase() === target.sfi_id.toLowerCase());
 
       // Nothing on file to check against — route to manual review instead of
       // handing over the profile on an unverifiable claim.
-      if (!target.dob && !target.sfi_id) {
+      if (!target.hasDob && !target.sfi_id) {
         await supabase.from('verification_requests').insert({
           profile_id: target.id,
           requested_tier: 4,

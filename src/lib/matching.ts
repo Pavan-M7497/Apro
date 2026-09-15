@@ -10,7 +10,12 @@ export interface MatchCandidate {
   profileId: string;
   fullName: string;
   clubName: string | null;
-  dateOfBirth: string | null;
+  /**
+   * Birth year, not the exact date: importers are ordinary authenticated users
+   * and exact dates of birth are no longer readable (migration 015). A year is
+   * a weaker signal, so it corroborates a name match rather than replacing one.
+   */
+  birthYear: number | null;
 }
 
 export interface MatchResult {
@@ -128,14 +133,15 @@ export function scoreCandidate(
   if (nameScore === 0) return { confidence: 0, reason: 'No name overlap' };
 
   const rowDob = parseDob(row.dob);
-  const dobHit = !!(rowDob && candidate.dateOfBirth && rowDob === candidate.dateOfBirth);
+  const rowYear = rowDob ? Number(rowDob.slice(0, 4)) : null;
+  const dobHit = !!(rowYear && candidate.birthYear && rowYear === candidate.birthYear);
   const clubHit = clubMatches(row.club, candidate.clubName);
 
   const confidence = Math.min(1, nameScore * 0.8 + (dobHit ? 0.15 : 0) + (clubHit ? 0.1 : 0));
 
   const bits = [`name ${(nameScore * 100).toFixed(0)}%`];
-  if (dobHit) bits.push('DOB matches');
-  else if (rowDob && candidate.dateOfBirth) bits.push('DOB differs');
+  if (dobHit) bits.push('birth year matches');
+  else if (rowYear && candidate.birthYear) bits.push('birth year differs');
   if (clubHit) bits.push('club matches');
 
   return { confidence: Math.round(confidence * 1000) / 1000, reason: bits.join(' · ') };

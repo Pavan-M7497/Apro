@@ -110,7 +110,7 @@ export default function AdminImport() {
           // Candidate pool: every athlete profile with its club and DOB.
           const { data: profs } = await supabase
             .from('profiles')
-            .select('id, full_name, club_id, athlete_profiles(date_of_birth)')
+            .select('id, full_name, club_id, athlete_profiles(birth_year)')
             .eq('role', 'athlete');
 
           const clubIds = Array.from(new Set(((profs as any[]) || []).map((p) => p.club_id).filter(Boolean)));
@@ -124,7 +124,7 @@ export default function AdminImport() {
             profileId: p.id,
             fullName: p.full_name,
             clubName: p.club_id ? clubNames.get(p.club_id) ?? null : null,
-            dateOfBirth: p.athlete_profiles?.date_of_birth ?? null,
+            birthYear: p.athlete_profiles?.birth_year ?? null,
           }));
           const byId = new Map(candidates.map((c) => [c.profileId, c]));
 

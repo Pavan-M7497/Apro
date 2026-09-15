@@ -5,7 +5,9 @@ import { useAppStore } from '../lib/store';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { initials, formatDate, timeAgo, getActivityColor, getRoleTheme, accentTextColor, calculateProfileCompleteness } from '../lib/utils';
 import type { Profile as ProfileType, AthleteProfile, Highlight, Achievement, TrainingSession, PerformanceRecord, WaterpoloStat, DivingResult } from '../lib/types';
-import { ACTIVITY_TYPES, eventsFor, MEET_LEVELS, meetLevelStyle, disciplineName, formatSwimTime } from '../lib/types';
+import { ACTIVITY_TYPES, ATHLETE_PUBLIC_COLUMNS, eventsFor, MEET_LEVELS, meetLevelStyle, disciplineName, formatSwimTime } from '../lib/types';
+import { canMessage, publicFieldsFor, MESSAGE_GATE_NOTICE, MESSAGE_CLOSED_NOTICE } from '../lib/minors';
+import SafetyMenu from '../components/SafetyMenu';
 import { Play, Trophy, BarChart3, UserPlus, UserCheck, Share2, X, Calendar, Activity, Camera } from 'lucide-react';
 import VerificationBadge from '../components/VerificationBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -59,9 +61,14 @@ export default function ProfilePage() {
   const [trainingSessions, setTrainingSessions] = useState<TrainingSession[]>([]);
   const [trainingLoaded, setTrainingLoaded] = useState(false);
   const [followers, setFollowers] = useState(0);
+  const [blocked, setBlocked] = useState(false);
+  const [gateNotice, setGateNotice] = useState('');
+  const [stateName, setStateName] = useState<string | null>(null);
 
   const isOwn = user && myProfile && myProfile.username === username;
-  const canConnect = user && !isOwn && (myProfile?.role === 'brand' || myProfile?.role === 'coach' || myProfile?.role === 'agent');
+  const isScout = myProfile?.role === 'brand' || myProfile?.role === 'coach' || myProfile?.role === 'agent';
+  const messagingAllowed = canMessage(myProfile, profile, blocked);
+  const canConnect = !!user && !isOwn && isScout;
 
   useEffect(() => {
     if (!username) return;
@@ -111,12 +118,13 @@ export default function ProfilePage() {
     const promises: Promise<void>[] = [];
 
     promises.push((async () => {
+      // date_of_birth is not readable by other users — see migration 015.
       const { data } = await supabase
         .from('athlete_profiles')
-        .select('*')
+        .select(ATHLETE_PUBLIC_COLUMNS)
         .eq('profile_id', prof.id)
         .maybeSingle();
-      if (data) setAthleteProfile(data);
+      if (data) setAthleteProfile(data as unknown as AthleteProfile);
     })());
 
     promises.push((async () => {
@@ -217,8 +225,42 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (!profile?.state_code) { setStateName(null); return; }
+    (async () => {
+      const { data } = await supabase
+        .from('indian_states')
+        .select('name')
+        .eq('code', profile.state_code)
+        .maybeSingle();
+      setStateName((data as { name: string } | null)?.name ?? null);
+    })();
+  }, [profile?.state_code]);
+
+  // Have I blocked them? A block they placed on me is deliberately invisible
+  // here — the server refuses the conversation either way.
+  useEffect(() => {
+    if (!myProfile || !profile || myProfile.id === profile.id) { setBlocked(false); return; }
+    (async () => {
+      const { data } = await supabase
+        .from('blocks')
+        .select('id')
+        .eq('blocker_id', myProfile.id)
+        .eq('blocked_id', profile.id)
+        .maybeSingle();
+      setBlocked(!!data);
+    })();
+  }, [myProfile, profile]);
+
   const handleConnect = async () => {
     if (!myProfile || !profile) return;
+
+    if (!messagingAllowed) {
+      setGateNotice(
+        profile.allow_messages_from === 'nobody' ? MESSAGE_CLOSED_NOTICE : MESSAGE_GATE_NOTICE,
+      );
+      return;
+    }
 
     // Following is part of "connecting" — keep the follow relationship.
     if (!isFollowing) {
@@ -235,11 +277,13 @@ export default function ProfilePage() {
 
     let convId = existing?.id as string | undefined;
     if (!convId) {
-      const { data: created } = await supabase
+      const { data: created, error } = await supabase
         .from('conversations')
         .insert({ participant_a: myProfile.id, participant_b: profile.id })
         .select('id')
         .single();
+      // The RLS gate is the real authority; if it refuses, say why.
+      if (error) { setGateNotice(MESSAGE_GATE_NOTICE); return; }
       convId = created?.id;
     }
 
@@ -294,6 +338,14 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  // What this visitor is allowed to see. Exact city is withheld on a limited
+  // profile (always, for under-18s); the date of birth is withheld from everyone
+  // but the owner, and is not even readable from the database (migration 015).
+  const visible = publicFieldsFor(profile, !!isOwn);
+  const locationLabel = [visible.showCity ? profile.city : null, stateName]
+    .filter(Boolean)
+    .join(', ') || null;
 
   // ── Viewed athlete's implied theme (athlete profiles = lime) ──
   const theme = getRoleTheme(profile.role);
@@ -401,6 +453,7 @@ export default function ProfilePage() {
               {isFollowing ? 'Following' : 'Connect'}
             </button>
           )}
+          {!isOwn && <SafetyMenu targetProfileId={profile.id} targetName={profile.full_name} />}
           {!user && !isOwn && (
             <Link
               to="/register"
@@ -422,6 +475,9 @@ export default function ProfilePage() {
               {athleteProfile.sport && <span style={badgeStyle}>{disciplineName(athleteProfile.sport)}</span>}
               {athleteProfile.position && (
                 <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>{athleteProfile.position}</span>
+              )}
+              {locationLabel && (
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>{locationLabel}</span>
               )}
               <div className="flex items-center" style={{ gap: '5px' }}>
                 <span style={{ width: '5px', height: '5px', borderRadius: '999px', background: availabilityDotColor }} />
@@ -473,6 +529,18 @@ export default function ProfilePage() {
           </>
         )}
       </div>
+
+      {/* ── Messaging gate notice ── */}
+      {gateNotice && (
+        <div
+          className="flex items-start gap-3"
+          style={{ maxWidth: '1100px', margin: '20px auto 0', background: 'var(--info-soft)', border: '1px solid var(--info)', borderRadius: '16px', padding: '14px 18px' }}
+          role="status"
+        >
+          <p className="flex-1" style={{ fontSize: '13px', color: 'var(--info)', lineHeight: 1.5 }}>{gateNotice}</p>
+          <button onClick={() => setGateNotice('')} aria-label="Dismiss" style={{ color: 'var(--info)', fontSize: '13px' }}>✕</button>
+        </div>
+      )}
 
       {/* ── Claim banner ── */}
       {profile.is_claimed === false && (

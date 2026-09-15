@@ -7,6 +7,7 @@ import type { UserRole, Gender } from '../lib/types';
 import { GENDERS } from '../lib/types';
 import { StateSelect } from '../components/StateSelect';
 import { DisciplineSelect, WaterpoloPositionSelect, PrimaryEventsSelect } from '../components/DisciplineSelect';
+import { isMinor } from '../lib/minors';
 
 const ROLES: { value: UserRole; label: string; desc: string; icon: typeof Dumbbell }[] = [
   { value: 'athlete', label: 'Athlete', desc: 'Log your times and get discovered', icon: Dumbbell },
@@ -28,6 +29,8 @@ export default function Register() {
   const [events, setEvents] = useState<string[]>([]);
   const [gender, setGender] = useState<Gender | ''>('');
   const [dob, setDob] = useState('');
+  const [parentName, setParentName] = useState('');
+  const [parentEmail, setParentEmail] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -55,9 +58,18 @@ export default function Register() {
     }
   };
 
+  const underage = isMinor(dob);
+
   const validateStep3 = () => {
     if (!sport) return 'Please select a discipline';
     if (!gender) return 'Please select a gender — leaderboards are split by it';
+    if (underage) {
+      if (!parentName.trim()) return "Please enter a parent or guardian's name";
+      if (!parentEmail.trim() || !parentEmail.includes('@')) return "Please enter a parent or guardian's email";
+      if (parentEmail.trim().toLowerCase() === email.trim().toLowerCase()) {
+        return 'The guardian email must be different from the athlete’s own email';
+      }
+    }
     return null;
   };
 
@@ -82,6 +94,10 @@ export default function Register() {
           sport: role === 'athlete' ? sport : undefined,
           position: role === 'athlete' ? (sport === 'waterpolo' ? position : events.join(', ')) : undefined,
           date_of_birth: role === 'athlete' && dob ? dob : undefined,
+          // The server re-derives age from date_of_birth and ignores these
+          // unless the account really is under 18 (migration 015).
+          parent_name: underage ? parentName.trim() : undefined,
+          parent_email: underage ? parentEmail.trim() : undefined,
         },
       },
     });
@@ -272,9 +288,50 @@ export default function Register() {
                   type="date"
                   value={dob}
                   onChange={(e) => setDob(e.target.value)}
+                  max={new Date().toISOString().slice(0, 10)}
                   className="w-full bg-surface border border-line rounded-lg px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
                 />
+                <p className="text-xs text-text-muted mt-1.5">
+                  Used for age-group rankings. Only your age group is ever shown — never your date of birth.
+                </p>
               </div>
+
+              {/* Guardian consent — under 18 */}
+              {underage && (
+                <div style={{ background: 'var(--accent-soft)', border: '1px solid var(--accent)', borderRadius: '16px', padding: '18px' }}>
+                  <h3 className="font-display font-black uppercase" style={{ fontSize: '16px', color: 'var(--accent-ink)', marginBottom: '6px' }}>
+                    Parent or guardian consent
+                  </h3>
+                  <p style={{ fontSize: '13px', color: 'var(--accent-ink)', lineHeight: 1.6, marginBottom: '14px' }}>
+                    You’re under 18, so we need a parent or guardian to know about this account.
+                    We’ll email them a copy of your privacy settings and how to contact us.
+                    Your profile starts private: your city and date of birth are never shown,
+                    and only verified coaches and clubs can message you. You can change this later.
+                  </p>
+
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--accent-ink)' }}>
+                    Parent or guardian’s name
+                  </label>
+                  <input
+                    type="text"
+                    value={parentName}
+                    onChange={(e) => setParentName(e.target.value)}
+                    placeholder="Their full name"
+                    className="w-full bg-white border border-line rounded-lg px-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent-ink transition-colors mb-3"
+                  />
+
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--accent-ink)' }}>
+                    Parent or guardian’s email
+                  </label>
+                  <input
+                    type="email"
+                    value={parentEmail}
+                    onChange={(e) => setParentEmail(e.target.value)}
+                    placeholder="their@email.com"
+                    className="w-full bg-white border border-line rounded-lg px-4 py-2.5 text-sm text-text placeholder:text-text-muted/50 focus:border-accent-ink transition-colors"
+                  />
+                </div>
+              )}
             </div>
           )}
 

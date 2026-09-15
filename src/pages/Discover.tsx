@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Profile, AthleteProfile } from '../lib/types';
-import { DISCIPLINES, eventsFor, MEET_LEVELS } from '../lib/types';
+import { ATHLETE_PUBLIC_COLUMNS, DISCIPLINES, eventsFor, MEET_LEVELS } from '../lib/types';
 import { StateSelect } from '../components/StateSelect';
 import AthleteCard from '../components/AthleteCard';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -36,7 +36,7 @@ export default function Discover() {
     setLoading(true);
     let query = supabase
       .from('profiles')
-      .select('*, athlete_profiles(*)')
+      .select(`*, athlete_profiles(${ATHLETE_PUBLIC_COLUMNS})`)
       .eq('role', 'athlete')
       .order('created_at', { ascending: false })
       .limit(50);

@@ -26,6 +26,13 @@ export interface Profile {
   claim_token?: string | null;
   verification_tier?: number;
   verified_at?: string | null;
+  /** Guardian consent — set at signup for under-18 accounts (migration 015). */
+  parent_name?: string | null;
+  parent_email?: string | null;
+  consent_given_at?: string | null;
+  /** Forced to 'limited' for under-18s by a database trigger. */
+  profile_visibility?: 'public' | 'limited';
+  allow_messages_from?: 'anyone' | 'verified' | 'nobody';
   created_at: string;
   updated_at: string;
 }
@@ -41,9 +48,19 @@ export interface AthleteProfile {
    * Reuses the legacy `position` column.
    */
   position: string;
-  date_of_birth: string | null;
+  /**
+   * Readable only by the owner, via the `my_athlete_dob()` RPC. SELECT on this
+   * column is revoked from anon and authenticated (migration 015), so a plain
+   * `select('*')` on athlete_profiles will fail — list columns explicitly.
+   */
+  date_of_birth?: string | null;
+  /** Public stand-in for the exact date. All age-group logic uses this. */
+  birth_year: number | null;
   availability: 'available' | 'unavailable' | 'open_to_offers';
 }
+
+/** Columns of athlete_profiles that anon and authenticated may actually read. */
+export const ATHLETE_PUBLIC_COLUMNS = 'id, profile_id, sport, position, birth_year, availability';
 
 export interface Highlight {
   id: string;

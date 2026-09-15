@@ -7,8 +7,9 @@ import { useImageUpload } from '../hooks/useImageUpload';
 import { DisciplineSelect, WaterpoloPositionSelect, PrimaryEventsSelect } from '../components/DisciplineSelect';
 import { StateSelect } from '../components/StateSelect';
 import type { AthleteProfile, Achievement, PerformanceRecord, WaterpoloStat, DivingResult } from '../lib/types';
-import { MEET_LEVELS, TIMED_DISCIPLINES, SCORED_DISCIPLINES, formatSwimTime, parsePrimaryEvents, eventsFor, GENDERS, VERIFICATION_TIERS } from '../lib/types';
+import { ATHLETE_PUBLIC_COLUMNS, MEET_LEVELS, TIMED_DISCIPLINES, SCORED_DISCIPLINES, formatSwimTime, parsePrimaryEvents, eventsFor, GENDERS, VERIFICATION_TIERS } from '../lib/types';
 import VerificationBadge, { TIER_META } from '../components/VerificationBadge';
+import { isMinor, type Visibility, type MessagePolicy } from '../lib/minors';
 import { Camera, Save, User, Globe, Dumbbell, FileText, BarChart3, Trophy, Plus, Trash2 } from 'lucide-react';
 
 export default function ProfileEdit() {
@@ -30,6 +31,11 @@ export default function ProfileEdit() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+
+  // Privacy
+  const [visibility, setVisibility] = useState<Visibility>('public');
+  const [messagePolicy, setMessagePolicy] = useState<MessagePolicy>('anyone');
+  const [blockedList, setBlockedList] = useState<{ id: string; name: string; username: string }[]>([]);
 
   // Verification
   const [sfiId, setSfiId] = useState(profile?.sfi_id || '');
@@ -70,15 +76,47 @@ export default function ProfileEdit() {
     loadAthleteData();
   }, [user, profile]);
 
+  useEffect(() => {
+    if (!profile) return;
+    setVisibility((profile.profile_visibility as Visibility) ?? 'public');
+    setMessagePolicy((profile.allow_messages_from as MessagePolicy) ?? 'anyone');
+  }, [profile]);
+
+  // Who I have blocked, so I can undo it.
+  useEffect(() => {
+    if (!profile) return;
+    (async () => {
+      const { data } = await supabase
+        .from('blocks')
+        .select('blocked_id, profiles!blocks_blocked_id_fkey(id, full_name, username)')
+        .eq('blocker_id', profile.id);
+      setBlockedList(
+        ((data as any[]) || [])
+          .map((b) => b.profiles)
+          .filter(Boolean)
+          .map((p: any) => ({ id: p.id, name: p.full_name, username: p.username })),
+      );
+    })();
+  }, [profile]);
+
+  const unblock = async (blockedId: string) => {
+    if (!profile) return;
+    await supabase.from('blocks').delete().eq('blocker_id', profile.id).eq('blocked_id', blockedId);
+    setBlockedList((prev) => prev.filter((b) => b.id !== blockedId));
+  };
+
   const loadAthleteData = async () => {
     if (profile?.role !== 'athlete') { setLoading(false); return; }
     const { data: ap } = await supabase
       .from('athlete_profiles')
-      .select('*')
+      .select(ATHLETE_PUBLIC_COLUMNS)
       .eq('profile_id', profile!.id)
       .maybeSingle();
     if (ap) {
-      setAthleteProfile(ap);
+      // SELECT on date_of_birth is revoked for everyone (migration 015); owners
+      // read their own back through a SECURITY DEFINER function.
+      const { data: ownDob } = await supabase.rpc('my_athlete_dob');
+      setAthleteProfile({ ...(ap as any), date_of_birth: (ownDob as string | null) ?? null });
       setSport(ap.sport);
       setPosition(ap.position);
       setAvailability(ap.availability);
@@ -211,6 +249,9 @@ export default function ProfileEdit() {
     }
   };
 
+  /** Under 18 today, from the athlete's own date of birth. */
+  const under18 = isMinor(athleteProfile?.date_of_birth);
+
   const handleSave = async () => {
     if (!profile) return;
     setError('');
@@ -228,6 +269,8 @@ export default function ProfileEdit() {
           state_code: stateCode || null,
           city: city || null,
           gender: gender || null,
+          profile_visibility: visibility,
+          allow_messages_from: messagePolicy,
         })
         .eq('id', profile.id);
 
@@ -1112,6 +1155,129 @@ export default function ProfileEdit() {
             <p style={{ fontSize: '13px', color: 'var(--accent-ink)', marginTop: '12px' }}>
               Submitted. We'll be in touch if we need anything else.
             </p>
+          )}
+        </div>
+
+        {/* Privacy */}
+        <div className="mt-8 pt-6 border-t border-line">
+          <h3 className="font-display mb-1" style={{ fontWeight: 800, fontSize: '17px' }}>Privacy</h3>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+            Your date of birth is never shown to anyone — only your age group appears on rankings.
+            Apro does not display phone numbers on any profile.
+          </p>
+
+          {under18 && (
+            <div style={{ background: 'var(--accent-soft)', border: '1px solid var(--accent)', borderRadius: '12px', padding: '14px 16px', marginBottom: '18px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--accent-ink)', lineHeight: 1.6 }}>
+                You’re under 18, so your profile stays on the private settings. You can make your
+                account more private at any time, but not less. When you turn 18 the other options unlock.
+              </p>
+            </div>
+          )}
+
+          {/* Who can see my profile */}
+          <label className="block text-sm font-medium text-text-muted mb-2">Who can see your full profile</label>
+          <div className="space-y-2 mb-6">
+            {([
+              { id: 'limited', label: 'Limited', desc: 'Name, discipline, state, club, results and achievements. City and date of birth stay hidden.' },
+              { id: 'public',  label: 'Public',  desc: 'Also shows your city.' },
+            ] as { id: Visibility; label: string; desc: string }[]).map((opt) => {
+              const locked = under18 && opt.id === 'public';
+              const on = visibility === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  disabled={locked}
+                  onClick={() => !locked && setVisibility(opt.id)}
+                  className="w-full text-left rounded-xl transition-colors disabled:cursor-not-allowed"
+                  style={{
+                    padding: '12px 16px',
+                    opacity: locked ? 0.55 : 1,
+                    background: on ? 'var(--accent-soft)' : 'var(--surface)',
+                    border: on ? '1px solid var(--accent)' : '1px solid var(--border)',
+                  }}
+                >
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: on ? 'var(--accent-ink)' : 'var(--text)' }}>
+                    {opt.label}
+                    {locked && <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)' }}> — not available under 18</span>}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px', lineHeight: 1.5 }}>{opt.desc}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Who can message me */}
+          <label className="block text-sm font-medium text-text-muted mb-2">Who can message you</label>
+          <div className="space-y-2 mb-6">
+            {([
+              { id: 'nobody',   label: 'Nobody',                   desc: 'No new conversations. Existing threads keep working.' },
+              { id: 'verified', label: 'Verified coaches and clubs', desc: 'Only result-verified accounts, or people at your own club.' },
+              { id: 'anyone',   label: 'Anyone',                   desc: 'Any signed-in member can start a conversation.' },
+            ] as { id: MessagePolicy; label: string; desc: string }[]).map((opt) => {
+              const locked = under18 && opt.id === 'anyone';
+              const on = messagePolicy === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  disabled={locked}
+                  onClick={() => !locked && setMessagePolicy(opt.id)}
+                  className="w-full text-left rounded-xl transition-colors disabled:cursor-not-allowed"
+                  style={{
+                    padding: '12px 16px',
+                    opacity: locked ? 0.55 : 1,
+                    background: on ? 'var(--accent-soft)' : 'var(--surface)',
+                    border: on ? '1px solid var(--accent)' : '1px solid var(--border)',
+                  }}
+                >
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: on ? 'var(--accent-ink)' : 'var(--text)' }}>
+                    {opt.label}
+                    {locked && <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)' }}> — not available under 18</span>}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px', lineHeight: 1.5 }}>{opt.desc}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Guardian on file */}
+          {under18 && profile?.parent_email && (
+            <div style={{ marginBottom: '24px' }}>
+              <label className="block text-sm font-medium text-text-muted mb-1.5">Parent or guardian on file</label>
+              <p style={{ fontSize: '13px', color: 'var(--text)' }}>
+                {profile.parent_name || 'Guardian'} · {profile.parent_email}
+              </p>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                Contact us to change this.
+              </p>
+            </div>
+          )}
+
+          {/* Blocked accounts */}
+          <label className="block text-sm font-medium text-text-muted mb-2">Blocked accounts</label>
+          {blockedList.length === 0 ? (
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>You haven’t blocked anyone.</p>
+          ) : (
+            <div className="space-y-2">
+              {blockedList.map((b) => (
+                <div
+                  key={b.id}
+                  className="flex items-center justify-between gap-3"
+                  style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '10px 14px' }}
+                >
+                  <span style={{ fontSize: '13px', color: 'var(--text)' }}>{b.name}</span>
+                  <button
+                    onClick={() => unblock(b.id)}
+                    className="rounded-pill"
+                    style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', fontWeight: 600, padding: '6px 14px' }}
+                  >
+                    Unblock
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
