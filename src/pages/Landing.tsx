@@ -231,6 +231,10 @@ export default function Landing() {
       >
         <AproLockup size={20} color="var(--text-muted)" />
         <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Indian aquatics, one profile.</p>
+        <nav className="flex items-center" style={{ gap: '20px' }}>
+          <Link to="/terms" style={{ fontSize: '13px', color: 'var(--text-muted)' }} className="hover:underline">Terms</Link>
+          <Link to="/privacy" style={{ fontSize: '13px', color: 'var(--text-muted)' }} className="hover:underline">Privacy</Link>
+        </nav>
       </footer>
     </div>
   );

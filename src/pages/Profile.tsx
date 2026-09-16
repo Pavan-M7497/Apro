@@ -5,7 +5,7 @@ import { useAppStore } from '../lib/store';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { initials, formatDate, timeAgo, getActivityColor, getRoleTheme, accentTextColor, calculateProfileCompleteness } from '../lib/utils';
 import type { Profile as ProfileType, AthleteProfile, Highlight, Achievement, TrainingSession, PerformanceRecord, WaterpoloStat, DivingResult } from '../lib/types';
-import { ACTIVITY_TYPES, ATHLETE_PUBLIC_COLUMNS, eventsFor, MEET_LEVELS, meetLevelStyle, disciplineName, formatSwimTime } from '../lib/types';
+import { ACTIVITY_TYPES, ATHLETE_PUBLIC_COLUMNS, PROFILE_PUBLIC_COLUMNS, eventsFor, MEET_LEVELS, meetLevelStyle, disciplineName, formatSwimTime } from '../lib/types';
 import { canMessage, publicFieldsFor, MESSAGE_GATE_NOTICE, MESSAGE_CLOSED_NOTICE } from '../lib/minors';
 import SafetyMenu from '../components/SafetyMenu';
 import { Play, Trophy, BarChart3, UserPlus, UserCheck, Share2, X, Calendar, Activity, Camera } from 'lucide-react';
@@ -108,7 +108,7 @@ export default function ProfilePage() {
     setLoading(true);
     const { data: prof } = await supabase
       .from('profiles')
-      .select('*')
+      .select(PROFILE_PUBLIC_COLUMNS)
       .eq('username', username!)
       .maybeSingle();
 

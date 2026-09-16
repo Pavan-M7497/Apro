@@ -20,12 +20,23 @@ export interface Profile {
   club_id: string | null;
   gender: Gender | null;
   role: UserRole;
-  sfi_id: string | null;
+  /**
+   * Owner-only, like `phone`: withheld from the public column grant because it
+   * is half of the claim check (migration 016). Read it with `my_contact()`;
+   * off a profile row fetched normally it is always undefined.
+   */
+  sfi_id?: string | null;
   state_assoc_id: string | null;
   is_claimed?: boolean;
+  /** Owner/admin only — not in the public column grant. */
   claim_token?: string | null;
   verification_tier?: number;
   verified_at?: string | null;
+  /**
+   * Account recovery only. Not readable by other users and never rendered on a
+   * profile; present here only so the owner's editor can round-trip it.
+   */
+  phone?: string | null;
   /** Guardian consent — set at signup for under-18 accounts (migration 015). */
   parent_name?: string | null;
   parent_email?: string | null;
@@ -61,6 +72,19 @@ export interface AthleteProfile {
 
 /** Columns of athlete_profiles that anon and authenticated may actually read. */
 export const ATHLETE_PUBLIC_COLUMNS = 'id, profile_id, sport, position, birth_year, availability';
+
+/**
+ * Columns of `profiles` that anon and authenticated may read (migration 016).
+ * `select('*')` fails against profiles now, because the table also holds a
+ * phone number, a guardian's name and email, the claim token and the SFI id —
+ * none of which are anyone else's business. Owners read their own back through
+ * the `my_contact()` RPC.
+ */
+export const PROFILE_PUBLIC_COLUMNS =
+  'id, user_id, username, full_name, avatar_url, cover_url, bio, ' +
+  'country, state_code, city, club_id, gender, role, ' +
+  'state_assoc_id, verification_tier, verified_at, is_claimed, ' +
+  'profile_visibility, allow_messages_from, created_at, updated_at';
 
 export interface Highlight {
   id: string;

@@ -359,6 +359,12 @@ export default function Register() {
             </button>
           </div>
 
+          <p className="text-center text-text-muted mt-4" style={{ fontSize: '12px', lineHeight: 1.6 }}>
+            By creating an account you agree to our{' '}
+            <Link to="/terms" className="text-accent-ink hover:underline">Terms</Link> and{' '}
+            <Link to="/privacy" className="text-accent-ink hover:underline">Privacy Policy</Link>.
+          </p>
+
           <p className="text-center text-sm text-text-muted mt-4">
             Already have an account?{' '}
             <Link to="/login" className="text-accent-ink font-medium hover:underline">

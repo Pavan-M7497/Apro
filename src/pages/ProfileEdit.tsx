@@ -32,13 +32,21 @@ export default function ProfileEdit() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
+  // Private contact details — not part of the public profile row, loaded via RPC.
+  const [phone, setPhone] = useState('');
+
   // Privacy
   const [visibility, setVisibility] = useState<Visibility>('public');
   const [messagePolicy, setMessagePolicy] = useState<MessagePolicy>('anyone');
   const [blockedList, setBlockedList] = useState<{ id: string; name: string; username: string }[]>([]);
 
+  // Delete account
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
   // Verification
-  const [sfiId, setSfiId] = useState(profile?.sfi_id || '');
+  const [sfiId, setSfiId] = useState('');
   const [verifNote, setVerifNote] = useState('');
   const [submittingVerif, setSubmittingVerif] = useState(false);
   const [verifSubmitted, setVerifSubmitted] = useState(false);
@@ -76,6 +84,20 @@ export default function ProfileEdit() {
     loadAthleteData();
   }, [user, profile]);
 
+  // phone and sfi_id are withheld from the public column grant (migration 016),
+  // so they do not arrive with the profile row — the owner reads them back here.
+  useEffect(() => {
+    if (!profile) return;
+    (async () => {
+      const { data } = await supabase.rpc('my_contact');
+      const row = Array.isArray(data) ? data[0] : data;
+      if (row) {
+        setPhone(row.phone ?? '');
+        setSfiId(row.sfi_id ?? '');
+      }
+    })();
+  }, [profile?.id]);
+
   useEffect(() => {
     if (!profile) return;
     setVisibility((profile.profile_visibility as Visibility) ?? 'public');
@@ -98,6 +120,27 @@ export default function ProfileEdit() {
       );
     })();
   }, [profile]);
+
+  /**
+   * Deleting the auth user cascades through the profile to results, film,
+   * messages and everything else; uploaded files are cleared inside the same
+   * function. See migration 016. There is no undo, which is why this needs the
+   * word typed out.
+   */
+  const deleteAccount = async () => {
+    if (deleteConfirm !== 'DELETE') return;
+    setDeleting(true);
+    setError('');
+    const { error: delErr } = await supabase.rpc('delete_my_account');
+    if (delErr) {
+      setDeleting(false);
+      setError(delErr.message || 'Could not delete the account. Please contact privacy@apro.in.');
+      return;
+    }
+    await supabase.auth.signOut();
+    // Full reload so no cached profile survives in memory.
+    window.location.href = '/';
+  };
 
   const unblock = async (blockedId: string) => {
     if (!profile) return;
@@ -232,7 +275,9 @@ export default function ProfileEdit() {
       const { error: reqErr } = await supabase.from('verification_requests').insert({
         profile_id: profile.id,
         requested_tier: 4,
-        sfi_id: profile.sfi_id,
+        // From the RPC-loaded value, not the profile row — sfi_id is not in the
+        // public column grant, so profile.sfi_id is always undefined now.
+        sfi_id: sfiId.trim() || null,
         document_url: documentUrl,
         note: verifNote.trim() || null,
       });
@@ -269,6 +314,7 @@ export default function ProfileEdit() {
           state_code: stateCode || null,
           city: city || null,
           gender: gender || null,
+          phone: phone.trim() || null,
           profile_visibility: visibility,
           allow_messages_from: messagePolicy,
         })
@@ -680,6 +726,21 @@ export default function ProfileEdit() {
                 className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
               />
             </div>
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-text-muted mb-1.5">Phone number (optional)</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              autoComplete="tel"
+              placeholder="e.g. +91 98765 43210"
+              className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
+            />
+            <p className="text-xs text-text-muted mt-1.5">
+              Used only for account recovery. Never shown on your profile.
+            </p>
           </div>
 
           {/* Athlete-specific fields */}
@@ -1278,6 +1339,67 @@ export default function ProfileEdit() {
                 </div>
               ))}
             </div>
+          )}
+        </div>
+
+        {/* Danger zone */}
+        <div
+          style={{ marginTop: '48px', border: '1px solid var(--error)', borderRadius: '16px', padding: '24px' }}
+        >
+          <h3 className="font-display font-black uppercase mb-1" style={{ fontSize: '17px', color: 'var(--error)' }}>
+            Delete my account
+          </h3>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '16px' }}>
+            This permanently removes your profile, your results, your film, your messages and your
+            uploaded files. It cannot be undone, and your username becomes available to someone else.
+            Official meet results already published as part of the competition record may remain.
+          </p>
+
+          {!deleteOpen ? (
+            <button
+              type="button"
+              onClick={() => setDeleteOpen(true)}
+              className="rounded-pill"
+              style={{ background: 'transparent', border: '1px solid var(--error)', color: 'var(--error)', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}
+            >
+              Delete my account
+            </button>
+          ) : (
+            <>
+              <label htmlFor="delete-confirm" className="block text-sm font-medium text-text-muted mb-1.5">
+                Type <strong style={{ color: 'var(--text)' }}>DELETE</strong> to confirm
+              </label>
+              <input
+                id="delete-confirm"
+                type="text"
+                value={deleteConfirm}
+                onChange={(e) => setDeleteConfirm(e.target.value)}
+                autoComplete="off"
+                placeholder="DELETE"
+                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
+                style={{ maxWidth: '260px' }}
+              />
+              <div className="flex flex-wrap gap-3" style={{ marginTop: '16px' }}>
+                <button
+                  type="button"
+                  onClick={() => { setDeleteOpen(false); setDeleteConfirm(''); }}
+                  disabled={deleting}
+                  className="rounded-pill"
+                  style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={deleteAccount}
+                  disabled={deleting || deleteConfirm !== 'DELETE'}
+                  className="rounded-pill disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: 'var(--error)', color: '#fff', fontSize: '13px', fontWeight: 700, padding: '10px 20px' }}
+                >
+                  {deleting ? 'Deleting…' : 'Permanently delete'}
+                </button>
+              </div>
+            </>
           )}
         </div>
 

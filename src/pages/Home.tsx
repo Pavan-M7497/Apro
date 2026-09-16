@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
 import { getCountryFlag, initials, timeAgo } from '../lib/utils';
 import { StateSelect } from '../components/StateSelect';
-import { formatSwimTime } from '../lib/types';
+import { formatSwimTime, PROFILE_PUBLIC_COLUMNS } from '../lib/types';
 import type { Profile } from '../lib/types';
 import { Eye, Play, Users, Upload, Search, UserPlus, UserCheck, Trophy, Plus } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -65,7 +65,7 @@ function AthleteHome() {
     const viewerIds = viewers.filter((v) => v.viewer_id).map((v) => v.viewer_id!);
     if (viewerIds.length > 0) {
       const { data: viewerProfiles } = await supabase
-        .from('profiles').select('*').in('id', viewerIds);
+        .from('profiles').select(PROFILE_PUBLIC_COLUMNS).in('id', viewerIds);
       const pMap = new Map((viewerProfiles || []).map((p: Profile) => [p.id, p]));
       setRecentViewers(viewers.map((v) => ({ ...v, viewer: v.viewer_id ? pMap.get(v.viewer_id) || null : null })));
     } else {
@@ -240,7 +240,7 @@ function BrandHome() {
   useEffect(() => {
     supabase
       .from('profiles')
-      .select('*')
+      .select(PROFILE_PUBLIC_COLUMNS)
       .eq('role', 'athlete')
       .order('created_at', { ascending: false })
       .limit(4)
@@ -352,7 +352,7 @@ function CoachHome() {
     if (ids.length > 0) {
       const { data } = await supabase
         .from('profiles')
-        .select('*')
+        .select(PROFILE_PUBLIC_COLUMNS)
         .in('id', ids)
         .eq('role', 'athlete')
         .order('updated_at', { ascending: false });

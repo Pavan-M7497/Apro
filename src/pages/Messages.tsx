@@ -5,6 +5,7 @@ import { useAppStore } from '../lib/store';
 import { useTheme } from '../contexts/ThemeContext';
 import { initials, timeAgo } from '../lib/utils';
 import type { Profile } from '../lib/types';
+import { PROFILE_PUBLIC_COLUMNS } from '../lib/types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SafetyMenu from '../components/SafetyMenu';
 import { Send, ArrowLeft, MessageCircle } from 'lucide-react';
@@ -79,7 +80,7 @@ export default function Messages() {
     const convIds = rows.map((c) => c.id);
 
     const [{ data: profiles }, { data: msgs }] = await Promise.all([
-      supabase.from('profiles').select('*').in('id', otherIds),
+      supabase.from('profiles').select(PROFILE_PUBLIC_COLUMNS).in('id', otherIds),
       supabase.from('messages').select('*').in('conversation_id', convIds).order('created_at', { ascending: true }),
     ]);
 

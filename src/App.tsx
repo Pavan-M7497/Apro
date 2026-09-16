@@ -22,6 +22,9 @@ import Messages from './pages/Messages';
 import Meets from './pages/Meets';
 import AdminImport from './pages/AdminImport';
 import ClaimProfile from './pages/ClaimProfile';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import SplashScreen from './components/SplashScreen';
 
 export default function App() {
   const { initialize, loading, user, profile } = useAppStore();
@@ -30,16 +33,13 @@ export default function App() {
     initialize();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
+  // The splash stays mounted through its own fade, so the app renders behind it
+  // rather than after it — that is what removes the white gap on a slow session
+  // resolve. While `loading` is true there is no user yet, so the routes below
+  // render their signed-out state and the splash covers the swap.
   return (
     <ThemeProvider role={profile?.role}>
+      <SplashScreen ready={!loading} />
       <BrowserRouter>
         <Sidebar />
         <div className={user ? 'md:ml-[220px] pt-[56px] md:pt-0 pb-[64px] md:pb-0' : ''}>
@@ -62,6 +62,8 @@ export default function App() {
             <Route path="/admin/import" element={<ProtectedRoute><AdminImport /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/calendar" element={<Calendar />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
           </Routes>
         </div>
       </BrowserRouter>
