@@ -77,7 +77,7 @@ export default function AdminImport() {
             Import is restricted
           </h1>
           <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-            This tool is limited to Apro operators. Add your profile id to{' '}
+            This tool is limited to Aevon operators. Add your profile id to{' '}
             <code style={{ background: 'var(--surface-2)', padding: '2px 6px', borderRadius: '6px' }}>ADMIN_PROFILE_IDS</code>{' '}
             in <code style={{ background: 'var(--surface-2)', padding: '2px 6px', borderRadius: '6px' }}>src/pages/AdminImport.tsx</code> to enable it.
           </p>

@@ -4,37 +4,48 @@ interface LogoProps {
   className?: string;
 }
 
-/** The Apro apex mark. Single path, inherits colour, scales cleanly to 16px. */
-export function AproMark({ size = 32, color = 'var(--text)', className }: LogoProps) {
+/**
+ * The Aevon mark: two stacked chevrons pointing up — ascent and progression.
+ * Inherits colour and scales cleanly to 16px.
+ */
+export function AevonMark({ size = 32, color = 'var(--text)', className }: LogoProps) {
   return (
     <svg
-      viewBox="8 2 60 82"
+      viewBox="0 0 64 64"
       height={size}
       className={className}
       role="img"
-      aria-label="Apro"
+      aria-label="Aevon"
       style={{ display: 'block' }}
     >
       <path
-        d="M 15 50 L 34 10 L 61 80"
+        d="M 12 30 L 32 10 L 52 30"
         fill="none"
         stroke={color}
-        strokeWidth="15"
-        strokeLinejoin="bevel"
+        strokeWidth="9"
+        strokeLinejoin="miter"
+        strokeLinecap="butt"
+      />
+      <path
+        d="M 12 52 L 32 32 L 52 52"
+        fill="none"
+        stroke={color}
+        strokeWidth="9"
+        strokeLinejoin="miter"
         strokeLinecap="butt"
       />
     </svg>
   );
 }
 
-/** Mark + "Apro" wordmark, horizontally locked. */
-export function AproLockup({ size = 28, color = 'var(--text)', className }: LogoProps) {
+/** Mark + "Aevon" wordmark, horizontally locked. */
+export function AevonLockup({ size = 28, color = 'var(--text)', className }: LogoProps) {
   return (
     <span
       className={className}
       style={{ display: 'inline-flex', alignItems: 'center', gap: size * 0.42 }}
     >
-      <AproMark size={size * 1.18} color={color} />
+      <AevonMark size={size * 1.18} color={color} />
       <span
         style={{
           fontFamily: "'Barlow Condensed', sans-serif",
@@ -45,7 +56,7 @@ export function AproLockup({ size = 28, color = 'var(--text)', className }: Logo
           color,
         }}
       >
-        Apro
+        Aevon
       </span>
     </span>
   );

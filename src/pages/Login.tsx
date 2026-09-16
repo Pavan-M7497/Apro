@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { AproLockup } from '../components/Logo';
+import { AevonLockup } from '../components/Logo';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <AproLockup size={30} />
+            <AevonLockup size={30} />
           </Link>
           <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
           <p className="text-text-muted text-sm">Sign in to your account</p>

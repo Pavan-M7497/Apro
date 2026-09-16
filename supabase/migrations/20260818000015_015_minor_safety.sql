@@ -1,7 +1,7 @@
 /*
 # 015 — Minor safety
 
-Most Apro athletes are 10–17. This migration makes the platform safe-by-default
+Most Aevon athletes are 10–17. This migration makes the platform safe-by-default
 for them and moves the enforcement OUT of the UI and into the database, because
 anyone holding the anon key can call PostgREST directly — a client-side check is
 a suggestion, not a protection.

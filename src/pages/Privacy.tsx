@@ -11,7 +11,7 @@ export default function Privacy() {
   return (
     <LegalPage title="Privacy Policy" updated={LAST_UPDATED}>
       <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--text-muted)', marginBottom: '32px' }}>
-        Apro is a record of your aquatics career. Most of the people on it are under 18, so we have
+        Aevon is a record of your aquatics career. Most of the people on it are under 18, so we have
         written this in plain language rather than legal language, and we have kept what we collect
         to what the platform actually needs. This policy explains what we hold, why, and what you can
         ask us to do about it.

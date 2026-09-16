@@ -11,15 +11,15 @@ export default function Terms() {
   return (
     <LegalPage title="Terms of Use" updated={LAST_UPDATED}>
       <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--text-muted)', marginBottom: '32px' }}>
-        These are the rules for using Apro. We have written them in plain language so that a
-        fourteen-year-old swimmer and their parent can both read them without a lawyer. Using Apro
+        These are the rules for using Aevon. We have written them in plain language so that a
+        fourteen-year-old swimmer and their parent can both read them without a lawyer. Using Aevon
         means you agree to them.
       </p>
 
-      <LegalSection heading="Who can use Apro">
+      <LegalSection heading="Who can use Aevon">
         <ul style={ul}>
           <li style={li}>
-            Apro is for athletes, coaches, clubs and brands in Indian aquatics — swimming, water polo
+            Aevon is for athletes, coaches, clubs and brands in Indian aquatics — swimming, water polo
             and diving.
           </li>
           <li style={li}>
@@ -42,7 +42,7 @@ export default function Terms() {
       <LegalSection heading="What you post">
         <p>
           Your photos, video, results and bio stay yours. By posting them you give us permission to
-          display them on Apro, according to the privacy setting you have chosen. Nothing more — we
+          display them on Aevon, according to the privacy setting you have chosen. Nothing more — we
           do not sell your content or license it to anyone else.
         </p>
         <p style={{ marginTop: '10px' }}>Do not post:</p>
@@ -51,7 +51,7 @@ export default function Terms() {
           <li style={li}>Results you did not swim, dive or play. Faking results gets an account removed.</li>
           <li style={li}>Photos or video of other people's children without their parent's agreement.</li>
           <li style={li}>Anything sexual, violent, hateful, or intended to harass or humiliate someone.</li>
-          <li style={li}>Anyone's contact details, including your own. Apro does not display phone numbers.</li>
+          <li style={li}>Anyone's contact details, including your own. Aevon does not display phone numbers.</li>
         </ul>
         <p style={{ marginTop: '10px' }}>
           We can remove content that breaks these rules, and we can suspend or remove an account that
@@ -127,7 +127,7 @@ export default function Terms() {
 
       <LegalSection heading="What we do not promise">
         <p>
-          Apro is provided as it is. We work to keep it accurate and available, but we cannot promise
+          Aevon is provided as it is. We work to keep it accurate and available, but we cannot promise
           it will never be wrong or never go down. We are not responsible for what other users do,
           for selection decisions a coach or selector makes, or for any opportunity you did or did
           not get. Nothing here limits any right you have under Indian law that cannot be limited.

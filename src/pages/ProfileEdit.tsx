@@ -9,6 +9,7 @@ import { StateSelect } from '../components/StateSelect';
 import type { AthleteProfile, Achievement, PerformanceRecord, WaterpoloStat, DivingResult } from '../lib/types';
 import { ATHLETE_PUBLIC_COLUMNS, MEET_LEVELS, TIMED_DISCIPLINES, SCORED_DISCIPLINES, formatSwimTime, parsePrimaryEvents, eventsFor, GENDERS, VERIFICATION_TIERS } from '../lib/types';
 import VerificationBadge, { TIER_META } from '../components/VerificationBadge';
+import { CONTACT_EMAIL } from '../components/LegalPage';
 import { isMinor, type Visibility, type MessagePolicy } from '../lib/minors';
 import { Camera, Save, User, Globe, Dumbbell, FileText, BarChart3, Trophy, Plus, Trash2 } from 'lucide-react';
 
@@ -134,7 +135,7 @@ export default function ProfileEdit() {
     const { error: delErr } = await supabase.rpc('delete_my_account');
     if (delErr) {
       setDeleting(false);
-      setError(delErr.message || 'Could not delete the account. Please contact privacy@apro.in.');
+      setError(delErr.message || `Could not delete the account. Please contact ${CONTACT_EMAIL}.`);
       return;
     }
     await supabase.auth.signOut();
@@ -1224,7 +1225,7 @@ export default function ProfileEdit() {
           <h3 className="font-display mb-1" style={{ fontWeight: 800, fontSize: '17px' }}>Privacy</h3>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
             Your date of birth is never shown to anyone — only your age group appears on rankings.
-            Apro does not display phone numbers on any profile.
+            Aevon does not display phone numbers on any profile.
           </p>
 
           {under18 && (

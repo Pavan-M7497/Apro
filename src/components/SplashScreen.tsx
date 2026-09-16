@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AproMark } from './Logo';
+import { AevonMark } from './Logo';
 
 const FADE_MS = 250;
 const MIN_VISIBLE_MS = 600;
@@ -36,7 +36,7 @@ export default function SplashScreen({ ready }: { ready: boolean }) {
     <div
       aria-hidden={fading}
       role="status"
-      aria-label="Loading Apro"
+      aria-label="Loading Aevon"
       style={{
         position: 'fixed',
         inset: 0,
@@ -54,7 +54,7 @@ export default function SplashScreen({ ready }: { ready: boolean }) {
         pointerEvents: fading ? 'none' : 'auto',
       }}
     >
-      <AproMark size={72} color="#B8E62E" />
+      <AevonMark size={72} color="#B8E62E" />
       <span
         style={{
           fontFamily: "'Barlow Condensed', sans-serif",
@@ -65,7 +65,7 @@ export default function SplashScreen({ ready }: { ready: boolean }) {
           color: '#FFFFFF',
         }}
       >
-        Apro
+        Aevon
       </span>
     </div>
   );

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Mail, Lock, Eye, EyeOff, User, Globe, ChevronRight, ChevronLeft, Dumbbell, Briefcase, ClipboardList, Handshake } from 'lucide-react';
-import { AproLockup } from '../components/Logo';
+import { AevonLockup } from '../components/Logo';
 import type { UserRole, Gender } from '../lib/types';
 import { GENDERS } from '../lib/types';
 import { StateSelect } from '../components/StateSelect';
@@ -119,7 +119,7 @@ export default function Register() {
       <div className="w-full max-w-lg">
         <div className="text-center mb-6">
           <Link to="/" className="inline-flex items-center gap-2 mb-4">
-            <AproLockup size={30} />
+            <AevonLockup size={30} />
           </Link>
           <h1 className="text-2xl font-bold mb-1">Create your account</h1>
           <p className="text-text-muted text-sm">Step {step} of {role === 'athlete' ? 3 : 2}</p>

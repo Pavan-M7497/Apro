@@ -134,7 +134,7 @@ export default function ClaimProfile() {
             Already claimed
           </h1>
           <p style={{ fontSize: '15px', color: 'var(--text-muted)', marginBottom: '20px' }}>
-            {target.full_name}'s profile belongs to an Apro account. If you believe this is a mistake, get in touch.
+            {target.full_name}'s profile belongs to an Aevon account. If you believe this is a mistake, get in touch.
           </p>
           <Link to={`/profile/${target.username}`} className="inline-block rounded-pill"
             style={{ background: 'var(--text)', color: '#fff', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}>

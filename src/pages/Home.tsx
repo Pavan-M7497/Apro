@@ -284,9 +284,9 @@ function BrandHome() {
         </div>
       </div>
 
-      {/* New on Apro */}
+      {/* New on Aevon */}
       <div>
-        <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>New on Apro</h2>
+        <h2 className="font-display font-black uppercase" style={{ fontSize: '18px', letterSpacing: '0.02em', marginBottom: '12px' }}>New on Aevon</h2>
         {loading ? <LoadingSpinner /> : (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {newAthletes.map((a) => (

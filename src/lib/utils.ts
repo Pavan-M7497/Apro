@@ -2,7 +2,7 @@ export function cn(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-/** Apro is India-only — every athlete carries the Indian flag. */
+/** Aevon is India-only — every athlete carries the Indian flag. */
 export function getCountryFlag(_country?: string): string {
   return '🇮🇳';
 }
@@ -74,7 +74,7 @@ export interface RoleTheme {
   textMuted: string;   // secondary text
   textSoft: string;    // tertiary text
   onAccent: string;    // text on a solid accent fill
-  logoColor: string;   // Apro wordmark colour
+  logoColor: string;   // Aevon wordmark colour
 }
 
 const LIGHT_THEME: RoleTheme = {

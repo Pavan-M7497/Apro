@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../lib/store';
 import { useTheme } from '../contexts/ThemeContext';
 import { initials } from '../lib/utils';
-import { AproLockup } from './Logo';
+import { AevonLockup } from './Logo';
 import { FEATURES, type FeatureKey } from '../lib/features';
 import {
   Home, Rss, Search, Activity, Trophy, User,
@@ -99,7 +99,7 @@ export default function Sidebar() {
         {/* Logo */}
         <div style={{ padding: '24px 20px' }}>
           <Link to="/home">
-            <AproLockup size={26} />
+            <AevonLockup size={26} />
           </Link>
         </div>
 
@@ -161,7 +161,7 @@ export default function Sidebar() {
         style={{ height: '56px', padding: '0 20px', background: theme.bgSoft, borderBottom: `1px solid ${theme.border}` }}
       >
         <Link to="/home">
-          <AproLockup size={22} />
+          <AevonLockup size={22} />
         </Link>
       </header>
 

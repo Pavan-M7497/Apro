@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { AproLockup } from './Logo';
+import { AevonLockup } from './Logo';
 import { ArrowLeft } from 'lucide-react';
 
 /** Contact address used across the legal pages and the in-app copy. */
-export const CONTACT_EMAIL = 'privacy@apro.in';
+export const CONTACT_EMAIL = 'privacy@aevon.in';
 
 /**
  * Shared shell for /terms and /privacy. Both are public routes, so this cannot
@@ -24,7 +24,7 @@ export default function LegalPage({
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '32px 20px 96px' }}>
         <div className="flex items-center justify-between gap-4 mb-10">
           <Link to="/" className="inline-flex items-center">
-            <AproLockup size={24} />
+            <AevonLockup size={24} />
           </Link>
           <Link
             to="/"

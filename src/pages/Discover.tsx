@@ -249,7 +249,7 @@ export default function Discover() {
           <EmptyState
             icon={Search}
             title="No athletes found"
-            description={hasFilters ? 'No athletes match those filters yet. Apro is new — try widening your search.' : 'Apro is new — be the first athlete to build a profile.'}
+            description={hasFilters ? 'No athletes match those filters yet. Aevon is new — try widening your search.' : 'Aevon is new — be the first athlete to build a profile.'}
           />
         )}
       </div>
