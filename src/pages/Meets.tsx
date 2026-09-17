@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { StateSelect } from '../components/StateSelect';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
+import AddToCalendarButton from '../components/AddToCalendarButton';
 import { MEET_LEVELS, meetLevelStyle, formatSwimTime } from '../lib/types';
 import { formatDate } from '../lib/utils';
 import { CalendarDays, ChevronDown } from 'lucide-react';
@@ -128,8 +129,8 @@ export default function Meets() {
               const rows = results[m.id] || [];
               return (
                 <div key={m.id} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
-                  <button onClick={() => toggle(m)} className="w-full flex items-center gap-4 text-left" style={{ padding: '20px 24px' }}>
-                    <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3" style={{ padding: '20px 24px' }}>
+                    <button onClick={() => toggle(m)} className="flex-1 min-w-0 text-left" aria-expanded={open}>
                       <div className="flex items-center flex-wrap" style={{ gap: '10px' }}>
                         <h3 className="font-display" style={{ fontWeight: 800, fontSize: '18px' }}>{m.name}</h3>
                         {lvl && (
@@ -147,9 +148,29 @@ export default function Meets() {
                         {[m.city, m.state_code].filter(Boolean).join(', ') || 'Venue not recorded'}
                         {m.start_date ? ` · ${formatDate(m.start_date)}` : ''}
                       </p>
-                    </div>
-                    <ChevronDown className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--text-muted)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }} />
-                  </button>
+                    </button>
+                    <AddToCalendarButton
+                      event={{
+                        id: m.id,
+                        title: m.name,
+                        startDate: m.start_date || '',
+                        endDate: m.end_date,
+                        city: m.city,
+                        region: m.state_code,
+                        // Imported meets carry no registration link, so the
+                        // listing on Aevon is the useful thing to point at.
+                        url: `${window.location.origin}/meets`,
+                        notes: m.source_note,
+                      }}
+                    />
+                    <button
+                      onClick={() => toggle(m)}
+                      className="flex-shrink-0"
+                      aria-label={open ? `Hide results for ${m.name}` : `Show results for ${m.name}`}
+                    >
+                      <ChevronDown className="w-5 h-5" style={{ color: 'var(--text-muted)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }} />
+                    </button>
+                  </div>
 
                   {open && (
                     <div style={{ borderTop: '1px solid var(--border)', padding: '16px 24px 24px' }}>

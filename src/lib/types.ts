@@ -44,6 +44,9 @@ export interface Profile {
   /** Forced to 'limited' for under-18s by a database trigger. */
   profile_visibility?: 'public' | 'limited';
   allow_messages_from?: 'anyone' | 'verified' | 'nobody';
+  /** Email digest switches (migration 017). */
+  digest_weekly?: boolean;
+  digest_meets?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -84,7 +87,8 @@ export const PROFILE_PUBLIC_COLUMNS =
   'id, user_id, username, full_name, avatar_url, cover_url, bio, ' +
   'country, state_code, city, club_id, gender, role, ' +
   'state_assoc_id, verification_tier, verified_at, is_claimed, ' +
-  'profile_visibility, allow_messages_from, created_at, updated_at';
+  'profile_visibility, allow_messages_from, digest_weekly, digest_meets, ' +
+  'created_at, updated_at';
 
 export interface Highlight {
   id: string;

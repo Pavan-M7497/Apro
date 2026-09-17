@@ -4,6 +4,7 @@ import { useAppStore } from '../lib/store';
 
 import { CalendarDays, Plus, X, ExternalLink, Users } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import AddToCalendarButton from '../components/AddToCalendarButton';
 import EmptyState from '../components/EmptyState';
 import { DisciplineSelect } from '../components/DisciplineSelect';
 
@@ -336,6 +337,18 @@ export default function Calendar() {
                         )}
                       </div>
                       <div className="flex flex-col gap-2 flex-shrink-0">
+                        <AddToCalendarButton
+                          event={{
+                            id: comp.id,
+                            title: comp.title,
+                            startDate: comp.start_date,
+                            endDate: comp.end_date,
+                            city: comp.city,
+                            region: comp.country,
+                            url: comp.registration_url,
+                            notes: comp.description,
+                          }}
+                        />
                         {isLive && comp.stream_url && (
                           <a
                             href={comp.stream_url}

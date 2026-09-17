@@ -36,6 +36,10 @@ export default function ProfileEdit() {
   // Private contact details — not part of the public profile row, loaded via RPC.
   const [phone, setPhone] = useState('');
 
+  // Notifications
+  const [digestWeekly, setDigestWeekly] = useState(true);
+  const [digestMeets, setDigestMeets] = useState(true);
+
   // Privacy
   const [visibility, setVisibility] = useState<Visibility>('public');
   const [messagePolicy, setMessagePolicy] = useState<MessagePolicy>('anyone');
@@ -103,6 +107,8 @@ export default function ProfileEdit() {
     if (!profile) return;
     setVisibility((profile.profile_visibility as Visibility) ?? 'public');
     setMessagePolicy((profile.allow_messages_from as MessagePolicy) ?? 'anyone');
+    setDigestWeekly(profile.digest_weekly ?? true);
+    setDigestMeets(profile.digest_meets ?? true);
   }, [profile]);
 
   // Who I have blocked, so I can undo it.
@@ -318,6 +324,8 @@ export default function ProfileEdit() {
           phone: phone.trim() || null,
           profile_visibility: visibility,
           allow_messages_from: messagePolicy,
+          digest_weekly: digestWeekly,
+          digest_meets: digestMeets,
         })
         .eq('id', profile.id);
 
@@ -1218,6 +1226,85 @@ export default function ProfileEdit() {
               Submitted. We'll be in touch if we need anything else.
             </p>
           )}
+        </div>
+
+        {/* Notifications */}
+        <div className="mt-8 pt-6 border-t border-line">
+          <h3 className="font-display mb-1" style={{ fontWeight: 800, fontSize: '17px' }}>Notifications</h3>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+            We email at most once a week. There are no push notifications — use
+            <strong style={{ color: 'var(--text)' }}> Add to calendar</strong> on a meet and your phone
+            will remind you the day before.
+          </p>
+
+          <div className="space-y-2">
+            {([
+              {
+                id: 'weekly',
+                label: 'Weekly summary of who viewed your profile',
+                desc: 'Roles only — coach, club, brand. We never tell you who.',
+                on: digestWeekly,
+                set: setDigestWeekly,
+              },
+              {
+                id: 'meets',
+                label: 'Upcoming meets in my state',
+                desc: 'Meets starting in the next 30 days, in the same email.',
+                on: digestMeets,
+                set: setDigestMeets,
+              },
+            ] as const).map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                role="switch"
+                aria-checked={opt.on}
+                onClick={() => opt.set(!opt.on)}
+                className="w-full flex items-center gap-4 text-left rounded-xl transition-colors"
+                style={{
+                  padding: '14px 16px',
+                  background: opt.on ? 'var(--accent-soft)' : 'var(--surface)',
+                  border: opt.on ? '1px solid var(--accent)' : '1px solid var(--border)',
+                }}
+              >
+                <div className="flex-1 min-w-0">
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: opt.on ? 'var(--accent-ink)' : 'var(--text)' }}>
+                    {opt.label}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px', lineHeight: 1.5 }}>
+                    {opt.desc}
+                  </div>
+                </div>
+                <span
+                  aria-hidden="true"
+                  className="flex-shrink-0"
+                  style={{
+                    width: '40px',
+                    height: '24px',
+                    borderRadius: '999px',
+                    background: opt.on ? 'var(--accent)' : 'var(--surface-2)',
+                    border: '1px solid var(--border)',
+                    position: 'relative',
+                    transition: 'background 150ms',
+                  }}
+                >
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '2px',
+                      left: opt.on ? '18px' : '2px',
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '999px',
+                      background: '#fff',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                      transition: 'left 150ms',
+                    }}
+                  />
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Privacy */}
