@@ -2,60 +2,48 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../lib/store';
 import { useTheme } from '../contexts/ThemeContext';
 import { initials } from '../lib/utils';
+import { AevonLockup } from './Logo';
+import { FEATURES, type FeatureKey } from '../lib/features';
 import {
-  Home, Rss, Search, Upload, Activity, Calendar, Trophy,
-  BookMarked, Users, Briefcase, LogOut, MessageCircle, type LucideIcon,
+  Home, Rss, Search, Activity, Trophy, User,
+  LogOut, MessageCircle, CalendarDays, type LucideIcon,
 } from 'lucide-react';
 
 interface NavLink {
   to: string;
   label: string;
   icon: LucideIcon;
+  /** Hidden unless the matching flag in FEATURES is true. */
+  feature?: FeatureKey;
 }
 
 function linksForRole(role: string | undefined, username: string | undefined): NavLink[] {
   const profilePath = username ? `/profile/${username}` : '/profile';
-  void profilePath; // profile reachable via mini-card
-  switch (role) {
-    case 'brand':
-      return [
-        { to: '/home', label: 'Home', icon: Home },
-        { to: '/feed', label: 'Feed', icon: Rss },
-        { to: '/discover', label: 'Search', icon: Search },
-        { to: '/saved', label: 'Saved', icon: BookMarked },
-        { to: '/calendar', label: 'Calendar', icon: Calendar },
-        { to: '/leaderboard', label: 'Rankings', icon: Trophy },
-      ];
-    case 'coach':
-      return [
-        { to: '/home', label: 'Home', icon: Home },
-        { to: '/feed', label: 'Feed', icon: Rss },
-        { to: '/discover', label: 'Scout', icon: Search },
-        { to: '/watchlist', label: 'Watchlist', icon: Users },
-        { to: '/calendar', label: 'Calendar', icon: Calendar },
-        { to: '/leaderboard', label: 'Rankings', icon: Trophy },
-      ];
-    case 'agent':
-      return [
-        { to: '/home', label: 'Home', icon: Home },
-        { to: '/feed', label: 'Feed', icon: Rss },
-        { to: '/discover', label: 'Scout', icon: Search },
-        { to: '/roster', label: 'Roster', icon: Briefcase },
-        { to: '/calendar', label: 'Calendar', icon: Calendar },
-        { to: '/leaderboard', label: 'Rankings', icon: Trophy },
-      ];
-    case 'athlete':
-    default:
-      return [
-        { to: '/home', label: 'Home', icon: Home },
-        { to: '/feed', label: 'Feed', icon: Rss },
-        { to: '/discover', label: 'Discover', icon: Search },
-        { to: '/upload', label: 'Upload', icon: Upload },
-        { to: '/training', label: 'Training', icon: Activity },
-        { to: '/calendar', label: 'Calendar', icon: Calendar },
-        { to: '/leaderboard', label: 'Rankings', icon: Trophy },
-      ];
+
+  // Feature-gated entries stay in the list so flipping a flag brings them back.
+  const scoutLabel = role === 'brand' ? 'Search' : 'Scout';
+
+  if (role === 'brand' || role === 'coach' || role === 'agent') {
+    return [
+      { to: '/home', label: 'Home', icon: Home },
+      { to: '/feed', label: 'Feed', icon: Rss, feature: 'feed' },
+      { to: '/discover', label: scoutLabel, icon: Search },
+      { to: '/messages', label: 'Messages', icon: MessageCircle, feature: 'messages' },
+      { to: '/leaderboard', label: 'Rankings', icon: Trophy },
+      { to: '/meets', label: 'Meets', icon: CalendarDays },
+    ];
   }
+
+  return [
+    { to: '/home', label: 'Home', icon: Home },
+    { to: '/feed', label: 'Feed', icon: Rss, feature: 'feed' },
+    { to: '/discover', label: 'Discover', icon: Search },
+    { to: '/messages', label: 'Messages', icon: MessageCircle, feature: 'messages' },
+    { to: '/training', label: 'Training', icon: Activity, feature: 'training' },
+    { to: '/leaderboard', label: 'Rankings', icon: Trophy },
+    { to: profilePath, label: 'Profile', icon: User },
+    { to: '/meets', label: 'Meets', icon: CalendarDays },
+  ];
 }
 
 export default function Sidebar() {
@@ -66,9 +54,8 @@ export default function Sidebar() {
 
   if (!user) return null;
 
-  const base = linksForRole(profile?.role, profile?.username);
-  // Messages available to all roles — insert after Home + Feed.
-  const links = [...base.slice(0, 2), { to: '/messages', label: 'Messages', icon: MessageCircle }, { to: '/meets', label: 'Meets', icon: Calendar }, ...base.slice(2)];
+  const links = linksForRole(profile?.role, profile?.username)
+    .filter((l) => !l.feature || FEATURES[l.feature]);
   const mobileLinks = links.slice(0, 5);
   const inactiveColor = theme.textMuted;
 
@@ -111,29 +98,8 @@ export default function Sidebar() {
       >
         {/* Logo */}
         <div style={{ padding: '24px 20px' }}>
-          <Link to="/home" className="flex items-center" style={{ gap: '10px' }}>
-            <span
-              className="flex items-center justify-center flex-shrink-0 font-display"
-              style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: '10px',
-                background: theme.accent,
-                color: theme.onAccent,
-                fontWeight: 800,
-                fontSize: '18px',
-                lineHeight: 1,
-              }}
-              aria-hidden="true"
-            >
-              A
-            </span>
-            <span
-              className="font-display"
-              style={{ fontWeight: 800, fontSize: '22px', letterSpacing: '-0.01em', color: theme.text }}
-            >
-              Apro
-            </span>
+          <Link to="/home">
+            <AevonLockup size={26} />
           </Link>
         </div>
 
@@ -188,6 +154,16 @@ export default function Sidebar() {
           </div>
         </div>
       </aside>
+
+      {/* ── Mobile top bar ── */}
+      <header
+        className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center"
+        style={{ height: '56px', padding: '0 20px', background: theme.bgSoft, borderBottom: `1px solid ${theme.border}` }}
+      >
+        <Link to="/home">
+          <AevonLockup size={22} />
+        </Link>
+      </header>
 
       {/* ── Mobile bottom tab bar ── */}
       <nav

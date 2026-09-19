@@ -4,6 +4,7 @@ import { useAppStore } from '../lib/store';
 
 import { CalendarDays, Plus, X, ExternalLink, Users } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import AddToCalendarButton from '../components/AddToCalendarButton';
 import EmptyState from '../components/EmptyState';
 import { DisciplineSelect } from '../components/DisciplineSelect';
 
@@ -29,7 +30,7 @@ const LEVEL_STYLES: Record<string, { background: string; color: string }> = {
   regional:    { background: 'rgba(96,165,250,0.15)',   color: 'rgba(96,165,250,0.9)' },
   national:    { background: 'rgba(251,191,36,0.15)',   color: 'rgba(251,191,36,0.9)' },
   continental: { background: 'rgba(167,139,250,0.15)',  color: 'rgba(167,139,250,0.9)' },
-  world:       { background: 'rgb(var(--accent-rgb) / 0.15)',   color: 'rgb(var(--accent-rgb))' },
+  world:       { background: 'var(--accent-soft)',   color: 'var(--accent-ink)' },
 };
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -254,7 +255,7 @@ export default function Calendar() {
                   onClick={() => handleDayClick(dateStr)}
                   className={`relative aspect-square flex flex-col items-center justify-center text-sm transition-colors ${
                     isSelected ? 'bg-accent text-primary font-bold' :
-                    isToday ? 'border border-accent text-accent-ink' :
+                    isToday ? 'border border-accent-ink text-accent-ink' :
                     hasComp ? 'text-text hover:bg-surface' :
                     'text-text-muted hover:bg-surface'
                   }`}
@@ -298,7 +299,7 @@ export default function Calendar() {
                 const isLive = today >= new Date(comp.start_date) && today <= new Date(comp.end_date);
                 const isParticipating = participatingIds.includes(comp.id);
                 return (
-                  <div key={comp.id} className="bg-card border border-line p-4 hover:border-accent/20 transition-colors" style={{ borderRadius: '12px' }}>
+                  <div key={comp.id} className="bg-card border border-line p-4 hover:border-line-strong transition-colors" style={{ borderRadius: '12px' }}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -336,6 +337,18 @@ export default function Calendar() {
                         )}
                       </div>
                       <div className="flex flex-col gap-2 flex-shrink-0">
+                        <AddToCalendarButton
+                          event={{
+                            id: comp.id,
+                            title: comp.title,
+                            startDate: comp.start_date,
+                            endDate: comp.end_date,
+                            city: comp.city,
+                            region: comp.country,
+                            url: comp.registration_url,
+                            notes: comp.description,
+                          }}
+                        />
                         {isLive && comp.stream_url && (
                           <a
                             href={comp.stream_url}
@@ -352,7 +365,7 @@ export default function Calendar() {
                             onClick={() => handleParticipate(comp.id)}
                             className={`px-3 py-1.5 text-xs font-bold transition-colors ${
                               isParticipating
-                                ? 'bg-accent-soft text-accent-ink border border-accent/30 hover:bg-error/10 hover:text-error hover:border-error/30'
+                                ? 'bg-accent-soft text-accent-ink border border-accent-ink hover:bg-error/10 hover:text-error hover:border-error/30'
                                 : 'bg-surface border border-line text-text-muted hover:text-text hover:border-line'
                             }`}
                             style={{ borderRadius: '12px' }}
@@ -418,7 +431,7 @@ export default function Calendar() {
                     placeholder={placeholder}
                     value={(form as any)[key]}
                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    className="w-full bg-surface border border-line px-3 py-2 text-sm text-text placeholder:text-text-muted/40 focus:border-accent/50 transition-colors"
+                    className="w-full bg-surface border border-line px-3 py-2 text-sm text-text placeholder:text-text-muted/40 focus:border-accent-ink transition-colors"
                     style={{ borderRadius: '12px' }}
                   />
                 </div>
@@ -434,7 +447,7 @@ export default function Calendar() {
                 <select
                   value={form.level}
                   onChange={(e) => setForm({ ...form, level: e.target.value as Competition['level'] })}
-                  className="w-full bg-surface border border-line px-3 py-2 text-sm text-text appearance-none focus:border-accent/50"
+                  className="w-full bg-surface border border-line px-3 py-2 text-sm text-text appearance-none focus:border-accent-ink"
                   style={{ borderRadius: '12px' }}
                 >
                   {['local','regional','national','continental','world'].map((l) => (
@@ -449,7 +462,7 @@ export default function Calendar() {
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={2}
-                  className="w-full bg-surface border border-line px-3 py-2 text-sm text-text placeholder:text-text-muted/40 focus:border-accent/50 resize-none"
+                  className="w-full bg-surface border border-line px-3 py-2 text-sm text-text placeholder:text-text-muted/40 focus:border-accent-ink resize-none"
                   style={{ borderRadius: '12px' }}
                 />
               </div>

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Profile, AthleteProfile } from '../lib/types';
-import { DISCIPLINES, eventsFor, MEET_LEVELS } from '../lib/types';
+import { ATHLETE_PUBLIC_COLUMNS, PROFILE_PUBLIC_COLUMNS, DISCIPLINES, eventsFor, MEET_LEVELS } from '../lib/types';
 import { StateSelect } from '../components/StateSelect';
 import AthleteCard from '../components/AthleteCard';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -16,7 +16,7 @@ const AVAILABILITY = [
 ];
 
 const fieldClass =
-  'w-full bg-white border border-line px-4 py-2.5 text-sm text-text focus:border-accent transition-colors appearance-none rounded-pill';
+  'w-full bg-card border border-line px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors appearance-none rounded-xl';
 const labelClass = 'block text-xs font-medium text-text-muted mb-1.5';
 
 export default function Discover() {
@@ -36,7 +36,7 @@ export default function Discover() {
     setLoading(true);
     let query = supabase
       .from('profiles')
-      .select('*, athlete_profiles(*)')
+      .select(`${PROFILE_PUBLIC_COLUMNS}, athlete_profiles(${ATHLETE_PUBLIC_COLUMNS})`)
       .eq('role', 'athlete')
       .order('created_at', { ascending: false })
       .limit(50);
@@ -126,7 +126,7 @@ export default function Discover() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name…"
-              className="w-full bg-white border border-line rounded-pill pl-11 pr-4 py-3 text-sm text-text focus:border-accent transition-colors"
+              className="w-full bg-white border border-line rounded-pill pl-11 pr-4 py-3 text-sm text-text focus:border-accent-ink transition-colors"
             />
           </div>
           <button
@@ -249,7 +249,7 @@ export default function Discover() {
           <EmptyState
             icon={Search}
             title="No athletes found"
-            description={hasFilters ? 'No athletes match those filters yet. Apro is new — try widening your search.' : 'Apro is new — be the first athlete to build a profile.'}
+            description={hasFilters ? 'No athletes match those filters yet. Aevon is new — try widening your search.' : 'Aevon is new — be the first athlete to build a profile.'}
           />
         )}
       </div>

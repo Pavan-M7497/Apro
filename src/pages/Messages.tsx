@@ -5,7 +5,9 @@ import { useAppStore } from '../lib/store';
 import { useTheme } from '../contexts/ThemeContext';
 import { initials, timeAgo } from '../lib/utils';
 import type { Profile } from '../lib/types';
+import { PROFILE_PUBLIC_COLUMNS } from '../lib/types';
 import LoadingSpinner from '../components/LoadingSpinner';
+import SafetyMenu from '../components/SafetyMenu';
 import { Send, ArrowLeft, MessageCircle } from 'lucide-react';
 
 interface Message {
@@ -43,12 +45,24 @@ export default function Messages() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
+  const [sendError, setSendError] = useState('');
   const threadEndRef = useRef<HTMLDivElement>(null);
 
   // ── Load conversation list ──
   useEffect(() => {
     if (!me) return;
     loadConversations();
+  }, [me]);
+
+  // People I have blocked. A block placed on me stays invisible; the server
+  // refuses the send either way.
+  useEffect(() => {
+    if (!me) return;
+    (async () => {
+      const { data } = await supabase.from('blocks').select('blocked_id').eq('blocker_id', me.id);
+      setBlockedIds(new Set(((data as { blocked_id: string }[]) || []).map((b) => b.blocked_id)));
+    })();
   }, [me]);
 
   const loadConversations = async () => {
@@ -66,7 +80,7 @@ export default function Messages() {
     const convIds = rows.map((c) => c.id);
 
     const [{ data: profiles }, { data: msgs }] = await Promise.all([
-      supabase.from('profiles').select('*').in('id', otherIds),
+      supabase.from('profiles').select(PROFILE_PUBLIC_COLUMNS).in('id', otherIds),
       supabase.from('messages').select('*').in('conversation_id', convIds).order('created_at', { ascending: true }),
     ]);
 
@@ -145,7 +159,10 @@ export default function Messages() {
       sender_id: me.id,
       content: text,
     });
-    if (error) setInput(text); // restore on failure
+    if (error) {
+      setInput(text); // restore on failure
+      setSendError('This message could not be sent.');
+    }
     setSending(false);
   };
 
@@ -232,6 +249,17 @@ export default function Messages() {
                   <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', color: theme.text }}>{activeConv.other.full_name}</span>
                 </Link>
               )}
+              {activeConv?.other && (
+                <div className="ml-auto">
+                  <SafetyMenu
+                    tone="light"
+                    targetProfileId={activeConv.other.id}
+                    targetName={activeConv.other.full_name}
+                    conversationId={activeConv.id}
+                    onBlocked={() => setBlockedIds((prev) => new Set(prev).add(activeConv.other!.id))}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Messages */}
@@ -259,14 +287,25 @@ export default function Messages() {
             </div>
 
             {/* Input */}
-            <div className="flex items-center gap-2" style={{ padding: '12px 16px', borderTop: `1px solid ${theme.border}` }}>
+            {activeConv?.other && blockedIds.has(activeConv.other.id) ? (
+              <div style={{ padding: '16px', borderTop: `1px solid ${theme.border}`, textAlign: 'center' }}>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', color: theme.textMuted }}>
+                  You blocked {activeConv.other.full_name}. Unblock them in your privacy settings to message again.
+                </p>
+              </div>
+            ) : (
+            <div className="flex flex-col" style={{ padding: '12px 16px', borderTop: `1px solid ${theme.border}` }}>
+              {sendError && (
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', color: 'var(--error)', marginBottom: '8px' }}>{sendError}</p>
+              )}
+              <div className="flex items-center gap-2">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                 maxLength={2000}
                 placeholder="Type a message…"
-                className="flex-1 bg-surface border border-line px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors"
+                className="flex-1 bg-surface border border-line px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
                 style={{ borderRadius: '12px', background: theme.surface, borderColor: theme.border, color: theme.text }}
               />
               <button
@@ -278,7 +317,9 @@ export default function Messages() {
               >
                 <Send className="w-4 h-4" />
               </button>
+              </div>
             </div>
+            )}
           </>
         )}
       </div>

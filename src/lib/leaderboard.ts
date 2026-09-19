@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import type { AgeGroup, BaseTime, Gender } from './types';
-import { getAgeGroup } from './ageGroups';
+import { ageGroupFromBirthYear } from './ageGroups';
 
 /** Everything a leaderboard row needs about an athlete, keyed by profile id. */
 export interface AthleteMeta {
@@ -11,7 +11,8 @@ export interface AthleteMeta {
   stateCode: string | null;
   gender: Gender | null;
   clubName: string | null;
-  dateOfBirth: string | null;
+  /** Birth year only — exact dates are not readable by other users. */
+  birthYear: number | null;
   verificationTier: number;
   isClaimed: boolean;
 }
@@ -83,13 +84,13 @@ export async function fetchAthleteMeta(profileIds: string[]): Promise<Map<string
       .in('id', unique),
     supabase
       .from('athlete_profiles')
-      .select('profile_id, date_of_birth')
+      .select('profile_id, birth_year')
       .in('profile_id', unique),
   ]);
 
   const rows = (profiles as any[]) || [];
-  const dobByProfile = new Map<string, string | null>(
-    ((athletes as any[]) || []).map((a) => [a.profile_id, a.date_of_birth ?? null]),
+  const birthYearByProfile = new Map<string, number | null>(
+    ((athletes as any[]) || []).map((a) => [a.profile_id, a.birth_year ?? null]),
   );
 
   // Resolve club names in one extra round trip.
@@ -109,7 +110,7 @@ export async function fetchAthleteMeta(profileIds: string[]): Promise<Map<string
       stateCode: r.state_code ?? null,
       gender: (r.gender as Gender) ?? null,
       clubName: r.club_id ? clubNames.get(r.club_id) ?? null : null,
-      dateOfBirth: dobByProfile.get(r.id) ?? null,
+      birthYear: birthYearByProfile.get(r.id) ?? null,
       verificationTier: r.verification_tier ?? 0,
       isClaimed: r.is_claimed ?? true,
     });
@@ -129,8 +130,8 @@ export function passesAthleteFilters(
   if (filters.gender && meta.gender !== filters.gender) return false;
   if (filters.stateCode && meta.stateCode !== filters.stateCode) return false;
   if (filters.ageGroup) {
-    if (!meta.dateOfBirth) return false;
-    const label = getAgeGroup(meta.dateOfBirth, refDate, filters.discipline, ageGroups);
+    if (meta.birthYear == null) return false;
+    const label = ageGroupFromBirthYear(meta.birthYear, refDate, filters.discipline, ageGroups);
     if (label !== filters.ageGroup) return false;
   }
   return true;

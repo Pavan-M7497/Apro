@@ -20,12 +20,33 @@ export interface Profile {
   club_id: string | null;
   gender: Gender | null;
   role: UserRole;
-  sfi_id: string | null;
+  /**
+   * Owner-only, like `phone`: withheld from the public column grant because it
+   * is half of the claim check (migration 016). Read it with `my_contact()`;
+   * off a profile row fetched normally it is always undefined.
+   */
+  sfi_id?: string | null;
   state_assoc_id: string | null;
   is_claimed?: boolean;
+  /** Owner/admin only — not in the public column grant. */
   claim_token?: string | null;
   verification_tier?: number;
   verified_at?: string | null;
+  /**
+   * Account recovery only. Not readable by other users and never rendered on a
+   * profile; present here only so the owner's editor can round-trip it.
+   */
+  phone?: string | null;
+  /** Guardian consent — set at signup for under-18 accounts (migration 015). */
+  parent_name?: string | null;
+  parent_email?: string | null;
+  consent_given_at?: string | null;
+  /** Forced to 'limited' for under-18s by a database trigger. */
+  profile_visibility?: 'public' | 'limited';
+  allow_messages_from?: 'anyone' | 'verified' | 'nobody';
+  /** Email digest switches (migration 017). */
+  digest_weekly?: boolean;
+  digest_meets?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -41,9 +62,33 @@ export interface AthleteProfile {
    * Reuses the legacy `position` column.
    */
   position: string;
-  date_of_birth: string | null;
+  /**
+   * Readable only by the owner, via the `my_athlete_dob()` RPC. SELECT on this
+   * column is revoked from anon and authenticated (migration 015), so a plain
+   * `select('*')` on athlete_profiles will fail — list columns explicitly.
+   */
+  date_of_birth?: string | null;
+  /** Public stand-in for the exact date. All age-group logic uses this. */
+  birth_year: number | null;
   availability: 'available' | 'unavailable' | 'open_to_offers';
 }
+
+/** Columns of athlete_profiles that anon and authenticated may actually read. */
+export const ATHLETE_PUBLIC_COLUMNS = 'id, profile_id, sport, position, birth_year, availability';
+
+/**
+ * Columns of `profiles` that anon and authenticated may read (migration 016).
+ * `select('*')` fails against profiles now, because the table also holds a
+ * phone number, a guardian's name and email, the claim token and the SFI id —
+ * none of which are anyone else's business. Owners read their own back through
+ * the `my_contact()` RPC.
+ */
+export const PROFILE_PUBLIC_COLUMNS =
+  'id, user_id, username, full_name, avatar_url, cover_url, bio, ' +
+  'country, state_code, city, club_id, gender, role, ' +
+  'state_assoc_id, verification_tier, verified_at, is_claimed, ' +
+  'profile_visibility, allow_messages_from, digest_weekly, digest_meets, ' +
+  'created_at, updated_at';
 
 export interface Highlight {
   id: string;
@@ -299,16 +344,22 @@ export function meetLevel(id: string | null | undefined) {
   return MEET_LEVELS.find((m) => m.id === id);
 }
 
-/** Colour per meet level — low tiers muted, national and above hot. */
-export const MEET_LEVEL_COLORS: Record<string, string> = {
-  school:        '#8888A0',
-  district:      '#60A5FA',
-  state:         '#34D399',
-  zonal:         '#2DD4BF',
-  national:      '#EF9F27',
-  khelo_india:   '#D4537E',
-  international: '#A78BFA',
+/**
+ * Meet level badges. Always a soft background with readable text — never
+ * saturated colour as text on white.
+ */
+export const MEET_LEVEL_STYLES: Record<string, { background: string; color: string }> = {
+  school:        { background: 'var(--surface-2)',  color: 'var(--text-muted)' },
+  district:      { background: 'var(--surface-2)',  color: 'var(--text-muted)' },
+  state:         { background: 'var(--info-soft)',  color: 'var(--info)' },
+  zonal:         { background: 'var(--info-soft)',  color: 'var(--info)' },
+  national:      { background: 'var(--warning-soft)', color: 'var(--warning)' },
+  khelo_india:   { background: 'var(--accent-soft)', color: 'var(--accent-ink)' },
+  international: { background: 'var(--accent-soft)', color: 'var(--accent-ink)' },
 };
+
+export const meetLevelStyle = (id: string | null | undefined) =>
+  MEET_LEVEL_STYLES[id ?? ''] ?? { background: 'var(--surface-2)', color: 'var(--text-muted)' };
 
 /** Seconds -> mm:ss.SS (or ss.SS when under a minute). */
 export function formatSwimTime(seconds: number | null | undefined): string {

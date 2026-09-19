@@ -10,13 +10,13 @@ interface Target {
   id: string;
   username: string;
   full_name: string;
-  sfi_id: string | null;
+  /** Is there a date of birth or SFI id on file to check a claim against? */
+  checkable: boolean;
   is_claimed: boolean;
-  dob: string | null;
 }
 
 const field =
-  'w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent transition-colors';
+  'w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors';
 const card = { background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px' };
 
 export default function ClaimProfile() {
@@ -38,15 +38,22 @@ export default function ClaimProfile() {
       setLoading(true);
       const { data } = await supabase
         .from('profiles')
-        .select('id, username, full_name, sfi_id, is_claimed, athlete_profiles(date_of_birth)')
+        .select('id, username, full_name, is_claimed')
         .eq('username', username!)
         .maybeSingle();
       if (data) {
         const d = data as any;
+        // Neither the date of birth nor the SFI id comes to the browser — both
+        // are what the claim is checked against, and shipping either would hand
+        // an attacker the answer needed to claim a child's profile. All we ask
+        // is whether there is anything on file to check at all.
+        const { data: checkable } = await supabase.rpc('claim_is_checkable', {
+          target_profile: d.id,
+        });
         setTarget({
           id: d.id, username: d.username, full_name: d.full_name,
-          sfi_id: d.sfi_id, is_claimed: d.is_claimed ?? true,
-          dob: d.athlete_profiles?.date_of_birth ?? null,
+          is_claimed: d.is_claimed ?? true,
+          checkable: checkable === true,
         });
       }
       setLoading(false);
@@ -59,13 +66,9 @@ export default function ClaimProfile() {
     setError('');
 
     try {
-      const enteredDob = parseDob(dob);
-      const dobHit = !!(enteredDob && target.dob && enteredDob === target.dob);
-      const sfiHit = !!(sfi.trim() && target.sfi_id && sfi.trim().toLowerCase() === target.sfi_id.toLowerCase());
-
       // Nothing on file to check against — route to manual review instead of
       // handing over the profile on an unverifiable claim.
-      if (!target.dob && !target.sfi_id) {
+      if (!target.checkable) {
         await supabase.from('verification_requests').insert({
           profile_id: target.id,
           requested_tier: 4,
@@ -76,7 +79,13 @@ export default function ClaimProfile() {
         return;
       }
 
-      if (!dobHit && !sfiHit) {
+      const { data: matched } = await supabase.rpc('claim_matches', {
+        target_profile: target.id,
+        candidate_dob: parseDob(dob),
+        candidate_sfi: sfi.trim() || null,
+      });
+
+      if (matched !== true) {
         setError("That doesn't match our record for this athlete. Check the date of birth or SFI number and try again.");
         return;
       }
@@ -90,7 +99,7 @@ export default function ClaimProfile() {
           claim_token: null,
           verification_tier: 3,
           verified_at: new Date().toISOString(),
-          sfi_id: sfi.trim() || target.sfi_id,
+          ...(sfi.trim() ? { sfi_id: sfi.trim() } : {}),
         })
         .eq('id', target.id);
       if (upErr) throw upErr;
@@ -125,7 +134,7 @@ export default function ClaimProfile() {
             Already claimed
           </h1>
           <p style={{ fontSize: '15px', color: 'var(--text-muted)', marginBottom: '20px' }}>
-            {target.full_name}'s profile belongs to an Apro account. If you believe this is a mistake, get in touch.
+            {target.full_name}'s profile belongs to an Aevon account. If you believe this is a mistake, get in touch.
           </p>
           <Link to={`/profile/${target.username}`} className="inline-block rounded-pill"
             style={{ background: 'var(--text)', color: '#fff', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}>

@@ -3,9 +3,11 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
 import { useImageUpload } from '../hooks/useImageUpload';
-import { initials, formatDate, timeAgo, getRoleAccent, getActivityColor, getRoleTheme, accentTextColor, calculateProfileCompleteness } from '../lib/utils';
-import type { Profile as ProfileType, AthleteProfile, Highlight, Achievement, TrainingSession, PerformanceRecord, WaterpoloStat } from '../lib/types';
-import { ACTIVITY_TYPES, eventsFor, MEET_LEVELS, MEET_LEVEL_COLORS, disciplineName, formatSwimTime } from '../lib/types';
+import { initials, formatDate, timeAgo, getActivityColor, getRoleTheme, accentTextColor, calculateProfileCompleteness } from '../lib/utils';
+import type { Profile as ProfileType, AthleteProfile, Highlight, Achievement, TrainingSession, PerformanceRecord, WaterpoloStat, DivingResult } from '../lib/types';
+import { ACTIVITY_TYPES, ATHLETE_PUBLIC_COLUMNS, PROFILE_PUBLIC_COLUMNS, eventsFor, MEET_LEVELS, meetLevelStyle, disciplineName, formatSwimTime } from '../lib/types';
+import { canMessage, publicFieldsFor, MESSAGE_GATE_NOTICE, MESSAGE_CLOSED_NOTICE } from '../lib/minors';
+import SafetyMenu from '../components/SafetyMenu';
 import { Play, Trophy, BarChart3, UserPlus, UserCheck, Share2, X, Calendar, Activity, Camera } from 'lucide-react';
 import VerificationBadge from '../components/VerificationBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -48,6 +50,7 @@ export default function ProfilePage() {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [perfRecords, setPerfRecords] = useState<PerformanceRecord[]>([]);
   const [wpStats, setWpStats] = useState<WaterpoloStat[]>([]);
+  const [divingResults, setDivingResults] = useState<DivingResult[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('highlights');
   const [viewCount, setViewCount] = useState(0);
@@ -58,9 +61,14 @@ export default function ProfilePage() {
   const [trainingSessions, setTrainingSessions] = useState<TrainingSession[]>([]);
   const [trainingLoaded, setTrainingLoaded] = useState(false);
   const [followers, setFollowers] = useState(0);
+  const [blocked, setBlocked] = useState(false);
+  const [gateNotice, setGateNotice] = useState('');
+  const [stateName, setStateName] = useState<string | null>(null);
 
   const isOwn = user && myProfile && myProfile.username === username;
-  const canConnect = user && !isOwn && (myProfile?.role === 'brand' || myProfile?.role === 'coach' || myProfile?.role === 'agent');
+  const isScout = myProfile?.role === 'brand' || myProfile?.role === 'coach' || myProfile?.role === 'agent';
+  const messagingAllowed = canMessage(myProfile, profile, blocked);
+  const canConnect = !!user && !isOwn && isScout;
 
   useEffect(() => {
     if (!username) return;
@@ -100,7 +108,7 @@ export default function ProfilePage() {
     setLoading(true);
     const { data: prof } = await supabase
       .from('profiles')
-      .select('*')
+      .select(PROFILE_PUBLIC_COLUMNS)
       .eq('username', username!)
       .maybeSingle();
 
@@ -110,12 +118,13 @@ export default function ProfilePage() {
     const promises: Promise<void>[] = [];
 
     promises.push((async () => {
+      // date_of_birth is not readable by other users — see migration 015.
       const { data } = await supabase
         .from('athlete_profiles')
-        .select('*')
+        .select(ATHLETE_PUBLIC_COLUMNS)
         .eq('profile_id', prof.id)
         .maybeSingle();
-      if (data) setAthleteProfile(data);
+      if (data) setAthleteProfile(data as unknown as AthleteProfile);
     })());
 
     promises.push((async () => {
@@ -144,6 +153,15 @@ export default function ProfilePage() {
           .eq('profile_id', prof.id)
           .order('season', { ascending: false });
         setWpStats((data as WaterpoloStat[]) || []);
+      })());
+
+      promises.push((async () => {
+        const { data } = await supabase
+          .from('diving_results')
+          .select('*')
+          .eq('profile_id', prof.id)
+          .order('meet_date', { ascending: false });
+        setDivingResults((data as DivingResult[]) || []);
       })());
     }
 
@@ -207,8 +225,42 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (!profile?.state_code) { setStateName(null); return; }
+    (async () => {
+      const { data } = await supabase
+        .from('indian_states')
+        .select('name')
+        .eq('code', profile.state_code)
+        .maybeSingle();
+      setStateName((data as { name: string } | null)?.name ?? null);
+    })();
+  }, [profile?.state_code]);
+
+  // Have I blocked them? A block they placed on me is deliberately invisible
+  // here — the server refuses the conversation either way.
+  useEffect(() => {
+    if (!myProfile || !profile || myProfile.id === profile.id) { setBlocked(false); return; }
+    (async () => {
+      const { data } = await supabase
+        .from('blocks')
+        .select('id')
+        .eq('blocker_id', myProfile.id)
+        .eq('blocked_id', profile.id)
+        .maybeSingle();
+      setBlocked(!!data);
+    })();
+  }, [myProfile, profile]);
+
   const handleConnect = async () => {
     if (!myProfile || !profile) return;
+
+    if (!messagingAllowed) {
+      setGateNotice(
+        profile.allow_messages_from === 'nobody' ? MESSAGE_CLOSED_NOTICE : MESSAGE_GATE_NOTICE,
+      );
+      return;
+    }
 
     // Following is part of "connecting" — keep the follow relationship.
     if (!isFollowing) {
@@ -225,11 +277,13 @@ export default function ProfilePage() {
 
     let convId = existing?.id as string | undefined;
     if (!convId) {
-      const { data: created } = await supabase
+      const { data: created, error } = await supabase
         .from('conversations')
         .insert({ participant_a: myProfile.id, participant_b: profile.id })
         .select('id')
         .single();
+      // The RLS gate is the real authority; if it refuses, say why.
+      if (error) { setGateNotice(MESSAGE_GATE_NOTICE); return; }
       convId = created?.id;
     }
 
@@ -284,6 +338,14 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  // What this visitor is allowed to see. Exact city is withheld on a limited
+  // profile (always, for under-18s); the date of birth is withheld from everyone
+  // but the owner, and is not even readable from the database (migration 015).
+  const visible = publicFieldsFor(profile, !!isOwn);
+  const locationLabel = [visible.showCity ? profile.city : null, stateName]
+    .filter(Boolean)
+    .join(', ') || null;
 
   // ── Viewed athlete's implied theme (athlete profiles = lime) ──
   const theme = getRoleTheme(profile.role);
@@ -384,13 +446,14 @@ export default function ProfilePage() {
               style={
                 isFollowing
                   ? { gap: '4px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border)', color: '#fff', borderRadius: '12px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
-                  : { gap: '4px', background: getRoleAccent(myProfile?.role), color: accentTextColor(myProfile?.role), borderRadius: '12px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
+                  : { gap: '4px', background: 'var(--accent)', color: 'var(--on-accent)', borderRadius: '12px', padding: '6px 14px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }
               }
             >
               {isFollowing ? <UserCheck className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
               {isFollowing ? 'Following' : 'Connect'}
             </button>
           )}
+          {!isOwn && <SafetyMenu targetProfileId={profile.id} targetName={profile.full_name} />}
           {!user && !isOwn && (
             <Link
               to="/register"
@@ -412,6 +475,9 @@ export default function ProfilePage() {
               {athleteProfile.sport && <span style={badgeStyle}>{disciplineName(athleteProfile.sport)}</span>}
               {athleteProfile.position && (
                 <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>{athleteProfile.position}</span>
+              )}
+              {locationLabel && (
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>{locationLabel}</span>
               )}
               <div className="flex items-center" style={{ gap: '5px' }}>
                 <span style={{ width: '5px', height: '5px', borderRadius: '999px', background: availabilityDotColor }} />
@@ -463,6 +529,18 @@ export default function ProfilePage() {
           </>
         )}
       </div>
+
+      {/* ── Messaging gate notice ── */}
+      {gateNotice && (
+        <div
+          className="flex items-start gap-3"
+          style={{ maxWidth: '1100px', margin: '20px auto 0', background: 'var(--info-soft)', border: '1px solid var(--info)', borderRadius: '16px', padding: '14px 18px' }}
+          role="status"
+        >
+          <p className="flex-1" style={{ fontSize: '13px', color: 'var(--info)', lineHeight: 1.5 }}>{gateNotice}</p>
+          <button onClick={() => setGateNotice('')} aria-label="Dismiss" style={{ color: 'var(--info)', fontSize: '13px' }}>✕</button>
+        </div>
+      )}
 
       {/* ── Claim banner ── */}
       {profile.is_claimed === false && (
@@ -592,7 +670,79 @@ export default function ProfilePage() {
 
         {/* ── Stats ── */}
         {activeTab === 'stats' && (
-          athleteProfile?.sport === 'waterpolo' ? (
+          athleteProfile?.sport === 'diving' ? (
+            divingResults.length > 0 ? (
+              <div className="space-y-6 pb-8">
+                {(() => {
+                  // Group by event, ordered as the discipline lists them.
+                  const order = eventsFor('diving');
+                  const byEvent = new Map<string, DivingResult[]>();
+                  divingResults.forEach((r) => {
+                    if (!byEvent.has(r.event)) byEvent.set(r.event, []);
+                    byEvent.get(r.event)!.push(r);
+                  });
+                  const rank = (ev: string) => {
+                    const i = order.indexOf(ev);
+                    return i === -1 ? order.length + 1 : i;
+                  };
+                  return Array.from(byEvent.entries())
+                    .sort((a, b) => rank(a[0]) - rank(b[0]))
+                    .map(([event, rows]) => {
+                      const best = rows.reduce((acc, r) =>
+                        Number(r.total_score) > Number(acc.total_score) ? r : acc, rows[0]);
+                      return (
+                        <div key={event} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
+                          <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
+                            <h3 className="font-display" style={{ fontWeight: 800, fontSize: '18px' }}>{event}</h3>
+                            <span className="font-display" style={{ fontWeight: 800, fontSize: '30px', lineHeight: 1, color: 'var(--text)' }}>
+                              {Number(best.total_score).toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="space-y-2">
+                            {rows.map((r) => {
+                              const level = MEET_LEVELS.find((m) => m.id === r.meet_level);
+                              return (
+                                <div key={r.id} className="flex items-center gap-3 flex-wrap" style={{ fontSize: '13px' }}>
+                                  <span style={{ color: 'var(--text-muted)' }}>{r.meet_name || 'Unnamed meet'}</span>
+                                  {level && (
+                                    <span
+                                      className="rounded-pill"
+                                      style={{ ...meetLevelStyle(level.id), fontSize: '11px', fontWeight: 600, padding: '3px 10px' }}
+                                    >
+                                      {level.name}
+                                    </span>
+                                  )}
+                                  {r.dive_count && (
+                                    <span style={{ color: 'var(--text-soft)', fontSize: '12px' }}>{r.dive_count} dives</span>
+                                  )}
+                                  {r.average_dd && (
+                                    <span style={{ color: 'var(--text-soft)', fontSize: '12px' }}>avg DD {Number(r.average_dd).toFixed(2)}</span>
+                                  )}
+                                  {r.is_personal_best && (
+                                    <span className="rounded-pill" style={{ background: 'var(--accent-soft)', color: 'var(--accent-ink)', fontSize: '11px', fontWeight: 600, padding: '3px 10px' }}>
+                                      PB
+                                    </span>
+                                  )}
+                                  <span className="ml-auto" style={{ color: 'var(--text-soft)' }}>
+                                    {Number(r.total_score).toFixed(2)}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    });
+                })()}
+              </div>
+            ) : (
+              <EmptyState
+                icon={BarChart3}
+                title="No scores yet"
+                description={isOwn ? 'No scores yet. Add your first competition — even a district meet is a starting point.' : "This athlete hasn't added scores yet."}
+              />
+            )
+          ) : athleteProfile?.sport === 'waterpolo' ? (
             wpStats.length > 0 ? (
               <div className="space-y-3 pb-8">
                 {wpStats.map((w) => (
@@ -660,13 +810,7 @@ export default function ProfilePage() {
                                 {level && (
                                   <span
                                     className="rounded-pill"
-                                    style={{
-                                      background: `${MEET_LEVEL_COLORS[level.id] || '#999'}22`,
-                                      color: MEET_LEVEL_COLORS[level.id] || 'var(--text-muted)',
-                                      fontSize: '11px',
-                                      fontWeight: 500,
-                                      padding: '3px 10px',
-                                    }}
+                                    style={{ ...meetLevelStyle(level.id), fontSize: '11px', fontWeight: 600, padding: '3px 10px' }}
                                   >
                                     {level.name}
                                   </span>

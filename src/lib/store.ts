@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from './supabase';
+import { PROFILE_PUBLIC_COLUMNS } from './types';
 import type { Profile } from './types';
 import type { User } from '@supabase/supabase-js';
 
@@ -27,7 +28,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   fetchProfile: async (userId: string) => {
     const { data } = await supabase
       .from('profiles')
-      .select('*')
+      .select(PROFILE_PUBLIC_COLUMNS)
       .eq('user_id', userId)
       .single();
     if (data) set({ profile: data });

@@ -2,7 +2,7 @@ export function cn(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-/** Apro is India-only — every athlete carries the Indian flag. */
+/** Aevon is India-only — every athlete carries the Indian flag. */
 export function getCountryFlag(_country?: string): string {
   return '🇮🇳';
 }
@@ -62,11 +62,6 @@ export function generateUsername(name: string): string {
   return `${base}${num}`;
 }
 
-/** Single light accent. Per-role colour worlds were removed. */
-export function getRoleAccent(_role?: string): string {
-  return '#B8E62E';
-}
-
 export interface RoleTheme {
   bg: string;          // page background
   bgSoft: string;      // card / panel background
@@ -79,7 +74,7 @@ export interface RoleTheme {
   textMuted: string;   // secondary text
   textSoft: string;    // tertiary text
   onAccent: string;    // text on a solid accent fill
-  logoColor: string;   // Apro wordmark colour
+  logoColor: string;   // Aevon wordmark colour
 }
 
 const LIGHT_THEME: RoleTheme = {
@@ -126,8 +121,4 @@ export function formatPace(secondsPerKm: number | null | undefined): string {
   return `${m}:${s.toString().padStart(2, '0')}/km`;
 }
 
-/** Accent-soft fill. Per-role colour worlds were removed. */
-export function getRoleAccentMuted(_role?: string): string {
-  return '#EFFAC8';
-}
 

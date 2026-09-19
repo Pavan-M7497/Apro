@@ -14,12 +14,14 @@ import {
 import { Upload, ArrowRight, ArrowLeft, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 /**
- * Admin gate. This is a UI-level gate only — it hides the screen, it does not
- * secure the tables. Replace with a server-side role check before launch.
+ * Admin gate, read from VITE_ADMIN_PROFILE_IDS so ids stay out of the repo.
+ * This is a UI-level gate only — it hides the screen, it does not secure the
+ * tables. Replace with a server-side role check before launch.
  */
-const ADMIN_PROFILE_IDS: string[] = [
-  // e.g. '00000000-0000-0000-0000-000000000000'
-];
+const ADMIN_PROFILE_IDS: string[] = (import.meta.env.VITE_ADMIN_PROFILE_IDS ?? '')
+  .split(',')
+  .map((s: string) => s.trim())
+  .filter(Boolean);
 
 interface ParsedRow {
   key: string;
@@ -40,7 +42,7 @@ interface ParsedRow {
 }
 
 const field =
-  'w-full bg-white border border-line px-4 py-2.5 text-sm text-text focus:border-accent transition-colors appearance-none rounded-pill';
+  'w-full bg-card border border-line px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors appearance-none rounded-xl';
 const labelCls = 'block text-xs font-medium text-text-muted mb-1.5';
 const card = { background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px' };
 
@@ -75,7 +77,7 @@ export default function AdminImport() {
             Import is restricted
           </h1>
           <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-            This tool is limited to Apro operators. Add your profile id to{' '}
+            This tool is limited to Aevon operators. Add your profile id to{' '}
             <code style={{ background: 'var(--surface-2)', padding: '2px 6px', borderRadius: '6px' }}>ADMIN_PROFILE_IDS</code>{' '}
             in <code style={{ background: 'var(--surface-2)', padding: '2px 6px', borderRadius: '6px' }}>src/pages/AdminImport.tsx</code> to enable it.
           </p>
@@ -108,7 +110,7 @@ export default function AdminImport() {
           // Candidate pool: every athlete profile with its club and DOB.
           const { data: profs } = await supabase
             .from('profiles')
-            .select('id, full_name, club_id, athlete_profiles(date_of_birth)')
+            .select('id, full_name, club_id, athlete_profiles(birth_year)')
             .eq('role', 'athlete');
 
           const clubIds = Array.from(new Set(((profs as any[]) || []).map((p) => p.club_id).filter(Boolean)));
@@ -122,7 +124,7 @@ export default function AdminImport() {
             profileId: p.id,
             fullName: p.full_name,
             clubName: p.club_id ? clubNames.get(p.club_id) ?? null : null,
-            dateOfBirth: p.athlete_profiles?.date_of_birth ?? null,
+            birthYear: p.athlete_profiles?.birth_year ?? null,
           }));
           const byId = new Map(candidates.map((c) => [c.profileId, c]));
 

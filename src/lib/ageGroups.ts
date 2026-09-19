@@ -22,6 +22,41 @@ export function ageAt(dob: string, refDate: string): number | null {
 }
 
 /**
+ * Age as of the end of the reference year, from a birth year alone.
+ *
+ * This is how SFI bands are defined ("age as on 31 December"), and it is all we
+ * can compute publicly: exact dates of birth are not readable by other users
+ * (migration 015). Null when the birth year is missing.
+ */
+export function ageInSeason(birthYear: number | null | undefined, refDate: string): number | null {
+  if (birthYear == null) return null;
+  const ref = new Date(refDate);
+  if (Number.isNaN(ref.getTime())) return null;
+  const age = ref.getFullYear() - birthYear;
+  return age < 0 ? null : age;
+}
+
+/** Resolve the band an age falls into. Groups are matched in `sort_order`. */
+export function groupForAge(age: number | null, discipline: string, groups: AgeGroup[]): string {
+  if (age == null) return OPEN_GROUP;
+  const match = groups
+    .filter((g) => g.discipline === discipline)
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .find((g) => age >= g.min_age && (g.max_age == null || age <= g.max_age));
+  return match?.label ?? OPEN_GROUP;
+}
+
+/** Age group from a birth year — the public path, used by leaderboards. */
+export function ageGroupFromBirthYear(
+  birthYear: number | null | undefined,
+  refDate: string,
+  discipline: string,
+  groups: AgeGroup[],
+): string {
+  return groupForAge(ageInSeason(birthYear, refDate), discipline, groups);
+}
+
+/**
  * Resolve an athlete's age group label for a discipline at a reference date.
  * Groups are matched in `sort_order`, so narrower bands should sort first.
  * Returns 'Open' when nothing matches.
@@ -32,15 +67,7 @@ export function getAgeGroup(
   discipline: string,
   groups: AgeGroup[],
 ): string {
-  const age = ageAt(dob, refDate);
-  if (age == null) return OPEN_GROUP;
-
-  const match = groups
-    .filter((g) => g.discipline === discipline)
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .find((g) => age >= g.min_age && (g.max_age == null || age <= g.max_age));
-
-  return match?.label ?? OPEN_GROUP;
+  return groupForAge(ageAt(dob, refDate), discipline, groups);
 }
 
 // ── Cache ────────────────────────────────────────────────────────────────

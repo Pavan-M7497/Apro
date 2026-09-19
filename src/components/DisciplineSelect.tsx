@@ -1,7 +1,7 @@
 import { DISCIPLINES, eventsFor, WATERPOLO_POSITIONS, MAX_PRIMARY_EVENTS } from '../lib/types';
 
 const selectClass =
-  'w-full bg-surface border border-line px-4 py-2.5 text-sm text-text focus:border-accent/50 transition-colors appearance-none';
+  'w-full bg-surface border border-line px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors appearance-none';
 
 interface DisciplineProps {
   value: string;
@@ -97,9 +97,9 @@ export function PrimaryEventsSelect({ discipline, value, onChange, max = MAX_PRI
                 letterSpacing: '0.04em',
                 padding: '5px 10px',
                 borderRadius: '999px',
-                background: on ? 'rgb(var(--accent-rgb) / 0.15)' : 'rgba(255,255,255,0.04)',
-                border: on ? '1px solid rgb(var(--accent-rgb))' : '1px solid var(--border)',
-                color: on ? 'rgb(var(--accent-rgb))' : 'var(--text-muted)',
+                background: on ? 'var(--accent-soft)' : 'var(--bg-soft)',
+                border: on ? '1px solid var(--accent-ink)' : '1px solid var(--border)',
+                color: on ? 'var(--accent-ink)' : 'var(--text-muted)',
                 cursor: full ? 'not-allowed' : 'pointer',
               }}
             >

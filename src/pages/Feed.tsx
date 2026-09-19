@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../lib/store';
 import type { Profile as ProfileType, Highlight, Achievement } from '../lib/types';
+import { PROFILE_PUBLIC_COLUMNS } from '../lib/types';
 import { getCountryFlag, initials, timeAgo } from '../lib/utils';
 import { Play, Trophy, UserPlus, UserCheck, Rss, X } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -56,7 +57,7 @@ export default function Feed() {
 
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('*')
+      .select(PROFILE_PUBLIC_COLUMNS)
       .in('id', followingIds);
 
     const profileMap = new Map((profiles || []).map((p: ProfileType) => [p.id, p]));

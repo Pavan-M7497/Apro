@@ -3,6 +3,7 @@ import AthleteCard from '../components/AthleteCard';
 import type { Profile, AthleteProfile } from '../lib/types';
 import { DISCIPLINES } from '../lib/types';
 import { Waves, Target, ArrowDown, type LucideIcon } from 'lucide-react';
+import { AevonLockup } from '../components/Logo';
 
 const DISCIPLINE_ICONS: Record<string, LucideIcon> = {
   swimming: Waves,
@@ -66,8 +67,8 @@ export default function Landing() {
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       {/* ── Top bar ── */}
       <nav className="flex items-center justify-between" style={{ padding: '20px 32px' }}>
-        <Link to="/" className="font-display" style={{ fontWeight: 800, fontSize: '24px', letterSpacing: '-0.01em', color: 'var(--text)' }}>
-          Apro
+        <Link to="/">
+          <AevonLockup size={26} />
         </Link>
         <div className="flex items-center" style={{ gap: '12px' }}>
           <Link
@@ -152,7 +153,7 @@ export default function Landing() {
       {/* ── Athletes ── */}
       <section style={{ padding: '0 24px 72px', maxWidth: '900px', margin: '0 auto' }}>
         <h2 className="font-display" style={{ fontWeight: 800, fontSize: '32px', letterSpacing: '-0.01em', marginBottom: '8px' }}>
-          Athletes on Apro
+          Athletes on Aevon
         </h2>
         <p style={{ fontSize: '15px', color: 'var(--text-muted)', marginBottom: '28px' }}>
           A snapshot of the profiles being built right now.
@@ -228,8 +229,12 @@ export default function Landing() {
         className="flex flex-wrap items-center justify-between"
         style={{ borderTop: '1px solid var(--border)', padding: '24px 32px', gap: '12px' }}
       >
-        <span className="font-display" style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text)' }}>Apro</span>
-        <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Indian aquatics, one profile.</p>
+        <AevonLockup size={20} color="var(--text-muted)" />
+        <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>The record of your aquatics career.</p>
+        <nav className="flex items-center" style={{ gap: '20px' }}>
+          <Link to="/terms" style={{ fontSize: '13px', color: 'var(--text-muted)' }} className="hover:underline">Terms</Link>
+          <Link to="/privacy" style={{ fontSize: '13px', color: 'var(--text-muted)' }} className="hover:underline">Privacy</Link>
+        </nav>
       </footer>
     </div>
   );
