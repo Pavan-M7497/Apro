@@ -4,6 +4,7 @@ import type { Profile, AthleteProfile } from '../lib/types';
 import { DISCIPLINES } from '../lib/types';
 import { Waves, Target, ArrowDown, type LucideIcon } from 'lucide-react';
 import { AevonLockup } from '../components/Logo';
+import ThemeToggle from '../components/ThemeToggle';
 
 const DISCIPLINE_ICONS: Record<string, LucideIcon> = {
   swimming: Waves,
@@ -77,10 +78,11 @@ export default function Landing() {
           >
             Log in
           </Link>
+          <ThemeToggle />
           <Link
             to="/register"
             className="rounded-pill"
-            style={{ background: 'var(--text)', color: '#fff', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}
+            style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}
           >
             Join free
           </Link>
@@ -125,7 +127,7 @@ export default function Landing() {
           <Link
             to="/discover"
             className="rounded-pill"
-            style={{ background: '#fff', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '15px', fontWeight: 600, padding: '14px 28px' }}
+            style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '15px', fontWeight: 600, padding: '14px 28px' }}
           >
             Browse athletes
           </Link>
@@ -217,7 +219,7 @@ export default function Landing() {
           <Link
             to="/register"
             className="inline-block rounded-pill"
-            style={{ background: 'var(--text)', color: '#fff', fontSize: '15px', fontWeight: 600, padding: '14px 32px', marginTop: '28px' }}
+            style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '15px', fontWeight: 600, padding: '14px 32px', marginTop: '28px' }}
           >
             Get started
           </Link>

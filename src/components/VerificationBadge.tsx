@@ -23,10 +23,12 @@ function UnverifiedOutlineMark({ size }: { size: number }) {
   return (
     <svg viewBox="0 0 64 64" width={size} height={size} role="img" aria-hidden="true">
       <circle cx="32" cy="32" r="29" fill="none" stroke="#B8E62E" strokeWidth="5" />
+      {/* The circle is unfilled, so this check sits on the page background — it
+          must follow the theme or it vanishes on dark. */}
       <path
         d="M 19 33 L 28 42 L 46 22"
         fill="none"
-        stroke="#0E0E10"
+        stroke="var(--text)"
         strokeWidth="7"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -63,7 +65,7 @@ export default function VerificationBadge({ tier, size = 'sm' }: Props) {
       className="inline-flex items-center justify-center flex-shrink-0 align-middle"
       style={
         t >= 4
-          ? { borderRadius: '999px', border: '1.5px solid #0E0E10', padding: '1.5px' }
+          ? { borderRadius: '999px', border: '1.5px solid var(--text)', padding: '1.5px' }
           : undefined
       }
     >

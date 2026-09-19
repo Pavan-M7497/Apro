@@ -89,7 +89,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-6 bg-accent text-primary py-2.5 rounded-lg text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
+            className="w-full mt-6 bg-accent text-on-accent py-2.5 rounded-lg text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
           >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>

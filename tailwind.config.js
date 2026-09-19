@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
@@ -7,10 +8,15 @@ export default {
         // Light design system — tokens live in src/index.css.
         // `primary` is the ink colour: `text-primary` sits on accent fills.
         primary: 'rgb(var(--text-rgb) / <alpha-value>)',
+        // Ink that sits on a lime fill. Stays dark in BOTH modes — unlike
+        // `primary`, which inverts to near-white and would vanish on lime.
+        'on-accent': 'rgb(var(--on-accent-rgb) / <alpha-value>)',
         accent: 'rgb(var(--accent-rgb) / <alpha-value>)',
         'accent-hover': 'rgb(var(--accent-hover-rgb) / <alpha-value>)',
         'accent-soft': 'rgb(var(--accent-soft-rgb) / <alpha-value>)',
         'accent-ink': 'rgb(var(--accent-ink-rgb) / <alpha-value>)',
+        // Raised surface: white on light, near-ink on dark. Replaces bg-white.
+        'surface-1': 'rgb(var(--surface-rgb) / <alpha-value>)',
         card: 'rgb(var(--bg-soft-rgb) / <alpha-value>)',
         'card-hover': 'rgb(var(--surface-2-rgb) / <alpha-value>)',
         surface: 'rgb(var(--surface-2-rgb) / <alpha-value>)',

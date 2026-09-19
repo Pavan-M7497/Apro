@@ -190,7 +190,7 @@ function AthleteHome() {
       <button
         onClick={() => navigate('/upload')}
         className="w-full flex items-center justify-center gap-2 rounded-pill transition-colors"
-        style={{ background: '#fff', border: '1px solid var(--border)', color: 'var(--text)', padding: '16px', fontSize: '15px', fontWeight: 600 }}
+        style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', padding: '16px', fontSize: '15px', fontWeight: 600 }}
       >
         <Upload className="w-5 h-5" />
         Upload a highlight

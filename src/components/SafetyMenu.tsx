@@ -204,7 +204,7 @@ export default function SafetyMenu({
                     onClick={submitBlock}
                     disabled={working}
                     className="flex-1 rounded-pill disabled:opacity-50"
-                    style={{ background: 'var(--error)', color: '#fff', fontSize: '14px', fontWeight: 700, padding: '12px' }}
+                    style={{ background: 'var(--error)', color: 'var(--on-error)', fontSize: '14px', fontWeight: 700, padding: '12px' }}
                   >
                     {working ? 'Blocking…' : 'Block'}
                   </button>
@@ -218,7 +218,7 @@ export default function SafetyMenu({
       {done && (
         <div
           className="fixed left-1/2 -translate-x-1/2 z-[70]"
-          style={{ bottom: '96px', background: 'var(--text)', color: '#fff', borderRadius: '12px', padding: '10px 18px', fontSize: '13px' }}
+          style={{ bottom: '96px', background: 'var(--text)', color: 'var(--bg)', borderRadius: '12px', padding: '10px 18px', fontSize: '13px' }}
           onAnimationEnd={() => setDone('')}
         >
           {done}

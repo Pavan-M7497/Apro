@@ -126,7 +126,7 @@ export default function Discover() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name…"
-              className="w-full bg-white border border-line rounded-pill pl-11 pr-4 py-3 text-sm text-text focus:border-accent-ink transition-colors"
+              className="w-full bg-surface-1 border border-line rounded-pill pl-11 pr-4 py-3 text-sm text-text focus:border-accent-ink transition-colors"
             />
           </div>
           <button
@@ -135,7 +135,7 @@ export default function Discover() {
             style={
               hasFilters
                 ? { background: 'var(--accent-soft)', color: 'var(--accent-ink)', borderColor: 'var(--accent)', padding: '12px 24px' }
-                : { background: '#fff', color: 'var(--text-muted)', borderColor: 'var(--border)', padding: '12px 24px' }
+                : { background: 'var(--surface)', color: 'var(--text-muted)', borderColor: 'var(--border)', padding: '12px 24px' }
             }
           >
             <SlidersHorizontal className="w-4 h-4" />
@@ -188,7 +188,7 @@ export default function Discover() {
                   value={stateCode}
                   onChange={setStateCode}
                   placeholder="All states"
-                  className="bg-white border border-line px-4 py-2.5 text-sm rounded-pill"
+                  className="bg-surface-1 border border-line px-4 py-2.5 text-sm rounded-pill"
                 />
               </div>
               <div>
@@ -207,7 +207,7 @@ export default function Discover() {
                   style={
                     verifiedOnly
                       ? { background: 'var(--accent-soft)', color: 'var(--accent-ink)', border: '1px solid var(--accent)', fontWeight: 600, padding: '10px 16px' }
-                      : { background: '#fff', color: 'var(--text-muted)', border: '1px solid var(--border)', fontWeight: 500, padding: '10px 16px' }
+                      : { background: 'var(--surface)', color: 'var(--text-muted)', border: '1px solid var(--border)', fontWeight: 500, padding: '10px 16px' }
                   }
                 >
                   {verifiedOnly ? 'Result-verified only' : 'All athletes'}

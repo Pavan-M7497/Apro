@@ -254,7 +254,7 @@ export default function Calendar() {
                   key={day}
                   onClick={() => handleDayClick(dateStr)}
                   className={`relative aspect-square flex flex-col items-center justify-center text-sm transition-colors ${
-                    isSelected ? 'bg-accent text-primary font-bold' :
+                    isSelected ? 'bg-accent text-on-accent font-bold' :
                     isToday ? 'border border-accent-ink text-accent-ink' :
                     hasComp ? 'text-text hover:bg-surface' :
                     'text-text-muted hover:bg-surface'
@@ -354,7 +354,7 @@ export default function Calendar() {
                             href={comp.stream_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 bg-accent text-primary px-3 py-1.5 text-xs font-bold hover:bg-accent-hover transition-colors"
+                            className="flex items-center gap-1 bg-accent text-on-accent px-3 py-1.5 text-xs font-bold hover:bg-accent-hover transition-colors"
                             style={{ borderRadius: '12px' }}
                           >
                             <ExternalLink className="w-3 h-3" /> Watch Live
@@ -387,7 +387,7 @@ export default function Calendar() {
       {user && (
         <button
           onClick={() => setShowForm(true)}
-          className="fixed bottom-24 md:bottom-8 right-6 w-12 h-12 bg-accent text-primary flex items-center justify-center shadow-lg hover:bg-accent-hover transition-colors z-30"
+          className="fixed bottom-24 md:bottom-8 right-6 w-12 h-12 bg-accent text-on-accent flex items-center justify-center shadow-lg hover:bg-accent-hover transition-colors z-30"
           style={{ borderRadius: '12px' }}
           title="Submit a competition"
         >
@@ -401,7 +401,7 @@ export default function Calendar() {
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
           onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}
         >
-          <div className="w-full max-w-lg bg-white border border-line p-6 overflow-y-auto max-h-[90vh]" style={{ borderRadius: '12px' }}>
+          <div className="w-full max-w-lg bg-surface-1 border border-line p-6 overflow-y-auto max-h-[90vh]" style={{ borderRadius: '12px' }}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display font-black uppercase text-xl tracking-wide">Submit competition</h2>
               <button onClick={() => setShowForm(false)} className="text-text-muted hover:text-text">
@@ -471,7 +471,7 @@ export default function Calendar() {
             <button
               onClick={handleSubmitForm}
               disabled={submitting}
-              className="w-full mt-5 bg-accent text-primary py-3 font-display font-black uppercase text-base tracking-wide hover:bg-accent-hover transition-colors disabled:opacity-50"
+              className="w-full mt-5 bg-accent text-on-accent py-3 font-display font-black uppercase text-base tracking-wide hover:bg-accent-hover transition-colors disabled:opacity-50"
               style={{ borderRadius: '12px' }}
             >
               {submitting ? 'Submitting...' : 'Submit competition'}

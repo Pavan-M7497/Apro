@@ -154,7 +154,7 @@ export default function Feed() {
                         className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold transition-colors ${
                           isFollowingItem
                             ? 'bg-surface border border-line text-text-muted hover:text-error'
-                            : 'bg-accent text-primary hover:bg-accent-hover'
+                            : 'bg-accent text-on-accent hover:bg-accent-hover'
                         }`}
                         style={{ borderRadius: '999px' }}
                       >
@@ -182,7 +182,7 @@ export default function Feed() {
                           )}
                           <div className="absolute inset-0 bg-black/30 group-hover:bg-black/15 transition-colors flex items-center justify-center">
                             <div className="w-12 h-12 bg-accent/90 group-hover:bg-accent flex items-center justify-center transition-colors" style={{ borderRadius: '999px' }}>
-                              <Play className="w-6 h-6 text-primary fill-current" />
+                              <Play className="w-6 h-6 text-on-accent fill-current" />
                             </div>
                           </div>
                         </div>

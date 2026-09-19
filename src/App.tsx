@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAppStore } from './lib/store';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeModeProvider } from './contexts/ThemeMode';
 import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
@@ -38,6 +39,7 @@ export default function App() {
   // resolve. While `loading` is true there is no user yet, so the routes below
   // render their signed-out state and the splash covers the swap.
   return (
+    <ThemeModeProvider>
     <ThemeProvider role={profile?.role}>
       <SplashScreen ready={!loading} />
       <BrowserRouter>
@@ -68,5 +70,6 @@ export default function App() {
         </div>
       </BrowserRouter>
     </ThemeProvider>
+    </ThemeModeProvider>
   );
 }
