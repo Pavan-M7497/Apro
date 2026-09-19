@@ -113,7 +113,7 @@ export default function Upload() {
             </button>
             <button
               onClick={() => navigate(`/profile/${profile?.username}`)}
-              className="bg-accent text-primary px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-accent-hover transition-colors"
+              className="bg-accent text-on-accent px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-accent-hover transition-colors"
             >
               View profile
             </button>
@@ -226,7 +226,7 @@ export default function Upload() {
         <button
           onClick={handleUpload}
           disabled={!videoFile || uploading || !title.trim() || !sport}
-          className="w-full mt-6 bg-accent text-primary py-3 rounded-xl text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+          className="w-full mt-6 bg-accent text-on-accent py-3 rounded-xl text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
         >
           <UploadIcon className="w-4 h-4" />
           {uploading ? 'Uploading...' : 'Upload highlight'}

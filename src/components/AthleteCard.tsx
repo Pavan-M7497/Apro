@@ -37,8 +37,8 @@ export default function AthleteCard({ profile, athleteProfile, compact, bestLine
       onMouseLeave={() => setHover(false)}
       className="block transition-all duration-150"
       style={{
-        background: '#FFFFFF',
-        border: `1px solid ${hover ? '#D8D8CF' : 'var(--border)'}`,
+        background: 'var(--surface)',
+        border: `1px solid ${hover ? 'var(--border-strong)' : 'var(--border)'}`,
         borderRadius: '16px',
         padding: '20px',
         transform: hover ? 'translateY(-2px)' : 'none',

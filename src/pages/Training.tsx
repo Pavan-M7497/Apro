@@ -259,7 +259,7 @@ export default function Training() {
       {/* Toast */}
       {toast && (
         <div
-          className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 bg-accent text-primary px-5 py-2.5 text-sm font-bold animate-slide-up whitespace-nowrap"
+          className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 bg-accent text-on-accent px-5 py-2.5 text-sm font-bold animate-slide-up whitespace-nowrap"
           style={{ borderRadius: '12px' }}
         >
           {toast}

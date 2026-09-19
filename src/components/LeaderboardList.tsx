@@ -80,7 +80,7 @@ export default function LeaderboardList({ entries, secondaryLabel, emptyMessage 
               to={`/profile/${e.username}`}
               className="flex items-center gap-4 transition-colors hover:border-line-strong"
               style={{
-                background: '#fff',
+                background: 'var(--surface)',
                 border: '1px solid var(--border)',
                 borderRadius: '16px',
                 padding: '16px 20px',

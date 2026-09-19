@@ -77,29 +77,37 @@ export interface RoleTheme {
   logoColor: string;   // Aevon wordmark colour
 }
 
-const LIGHT_THEME: RoleTheme = {
-  bg: '#FFFFFF',
-  bgSoft: '#FAFAF7',
-  surface: '#F4F4EF',
-  border: '#ECECE6',
-  accent: '#B8E62E',
-  accentMuted: '#EFFAC8',
-  accentInk: '#4A6B00',
-  text: '#0E0E10',
-  textMuted: '#7A7A75',
-  textSoft: '#A8A8A2',
-  onAccent: '#0E0E10',
-  logoColor: '#0E0E10',
+/**
+ * Every value is a CSS variable reference, not a literal.
+ *
+ * These are consumed as inline styles (`style={{ color: theme.text }}`), which
+ * are baked at render time — literals here would pin those components to light
+ * mode no matter what class is on <html>. Going through var() means the browser
+ * resolves them live, so they follow the theme like everything else.
+ */
+const APP_THEME: RoleTheme = {
+  bg: 'var(--bg)',
+  bgSoft: 'var(--bg-soft)',
+  surface: 'var(--surface-2)',
+  border: 'var(--border)',
+  accent: 'var(--accent)',
+  accentMuted: 'var(--accent-soft)',
+  accentInk: 'var(--accent-ink)',
+  text: 'var(--text)',
+  textMuted: 'var(--text-muted)',
+  textSoft: 'var(--text-soft)',
+  onAccent: 'var(--on-accent)',
+  logoColor: 'var(--text)',
 };
 
 /** One light theme for everyone — `role` is ignored. */
 export function getRoleTheme(_role?: string): RoleTheme {
-  return LIGHT_THEME;
+  return APP_THEME;
 }
 
 // Contrasting text colour to sit on top of an accent fill.
 export function accentTextColor(_role?: string): string {
-  return '#0E0E10';
+  return 'var(--on-accent)';
 }
 
 export function getActivityColor(activityType: string): string {

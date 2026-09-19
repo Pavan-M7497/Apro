@@ -45,10 +45,75 @@
   --accent-soft-rgb: 239 250 200;
   --accent-ink-rgb: 74 107 0;
   --accent-hover-rgb: 168 212 40;
+  --on-accent-rgb: 14 14 16;
+  --surface-rgb: 255 255 255;
+  --on-error: #FFFFFF;   /* white reads on the dark light-mode red */
   --success-rgb: 46 125 62;
   --warning-rgb: 138 90 12;
   --error-rgb: 184 52 44;
   --info-rgb: 29 95 168;
+}
+
+
+/* ── Dark theme ──────────────────────────────────────────────────────────
+   Applied by adding `.dark` to <html>. Only the tokens below change; every
+   component reads tokens, so nothing else needs to know which mode it is in.
+   ------------------------------------------------------------------------ */
+.dark {
+  --bg:           #0E0E10;
+  --bg-soft:      #16161A;
+  --surface:      #16161A;
+  --surface-2:    #1F1F25;
+  --border:       #2A2A31;
+  --border-strong:#3A3A43;
+
+  --text:         #F4F4F2;
+  --text-muted:   #9A9A95;
+  --text-soft:    #7E7E79;
+
+  /* On ink, lime is readable as text (13.2:1), so --accent-ink becomes the
+     lime itself. That single token is what inverts the light-mode
+     "lime is fill-only" rule automatically. */
+  --accent:       #B8E62E;
+  --accent-hover: #C8F03E;
+  --accent-soft:  #252D0C;
+  --accent-ink:   #B8E62E;
+  --on-accent:    #0E0E10;
+
+  --success:      #4ED18B;
+  --warning:      #F0B44A;
+  --error:        #FF6B62;
+  --info:         #6BA9F0;
+
+  --success-soft: #12261A;
+  --warning-soft: #2A1F08;
+  --error-soft:   #2A1210;
+  --info-soft:    #10202F;
+
+  --bg-rgb: 14 14 16;
+  --bg-soft-rgb: 22 22 26;
+  --surface-2-rgb: 31 31 37;
+  --border-rgb: 42 42 49;
+  --text-rgb: 244 244 242;
+  --text-muted-rgb: 154 154 149;
+  --accent-rgb: 184 230 46;
+  --accent-soft-rgb: 37 45 12;
+  --accent-ink-rgb: 184 230 46;
+  --accent-hover-rgb: 200 240 62;
+  --on-accent-rgb: 14 14 16;   /* ink on lime, in both modes */
+  --surface-rgb: 22 22 26;
+  --on-error: #0E0E10;   /* the dark-mode red is light; white on it is 2.7:1 */
+
+  /* Not in the original spec, but required: Tailwind's border-line-strong and
+     the semantic utilities (bg-error/10, text-success, ...) read these -rgb
+     channels. Unset, they would inherit the LIGHT values, so a dark error
+     message would render in the light red (#B8342C, ~3.2:1 on ink) while the
+     hex token said #FF6B62. These keep the two in step. */
+  --border-strong-rgb: 58 58 67;
+  --success-rgb: 78 209 139;
+  --warning-rgb: 240 180 74;
+  --error-rgb: 255 107 98;
+  --info-rgb: 107 169 240;
 }
 
 * {
@@ -64,6 +129,7 @@ html {
 body {
   background-color: var(--bg);
   color: var(--text);
+  transition: background-color 0.2s ease, color 0.2s ease;
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -82,12 +148,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #DEDED6;
+  background: var(--border-strong);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #C9C9C0;
+  background: var(--text-soft);
 }
 
 input, textarea, select {

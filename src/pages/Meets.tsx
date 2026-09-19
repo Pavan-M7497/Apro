@@ -104,7 +104,7 @@ export default function Meets() {
             <div>
               <label className={labelCls}>State</label>
               <StateSelect value={stateCode} onChange={setStateCode} placeholder="All states"
-                className="bg-white border border-line px-4 py-2.5 text-sm rounded-pill" />
+                className="bg-surface-1 border border-line px-4 py-2.5 text-sm rounded-pill" />
             </div>
             <div>
               <label className={labelCls}>From date</label>
@@ -128,7 +128,7 @@ export default function Meets() {
               const open = expanded === m.id;
               const rows = results[m.id] || [];
               return (
-                <div key={m.id} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
+                <div key={m.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
                   <div className="flex items-center gap-3" style={{ padding: '20px 24px' }}>
                     <button onClick={() => toggle(m)} className="flex-1 min-w-0 text-left" aria-expanded={open}>
                       <div className="flex items-center flex-wrap" style={{ gap: '10px' }}>

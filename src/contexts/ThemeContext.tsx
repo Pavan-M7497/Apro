@@ -12,9 +12,8 @@ export const useTheme = () => React.useContext(ThemeContext);
 export function ThemeProvider({ children }: { role?: string | undefined; children: React.ReactNode }) {
   const theme = React.useMemo(() => getRoleTheme(), []);
 
-  React.useEffect(() => {
-    document.body.style.backgroundColor = theme.bg;
-  }, [theme.bg]);
+  // The body background is owned by CSS (`body { background-color: var(--bg) }`)
+  // so it transitions with the theme. Setting it inline here would pin it.
 
   return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
 }

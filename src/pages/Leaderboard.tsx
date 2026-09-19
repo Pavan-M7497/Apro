@@ -492,7 +492,7 @@ export default function Leaderboard() {
                     value={stateCode}
                     onChange={setStateCode}
                     placeholder="All states"
-                    className="bg-white border border-line px-4 py-2.5 text-sm rounded-pill"
+                    className="bg-surface-1 border border-line px-4 py-2.5 text-sm rounded-pill"
                   />
                 </div>
               </>
@@ -527,7 +527,7 @@ export default function Leaderboard() {
                   onClick={() => setShowUnqualified((v) => !v)}
                   className="flex items-center gap-2 rounded-pill"
                   style={{
-                    background: '#fff', border: '1px solid var(--border)',
+                    background: 'var(--surface)', border: '1px solid var(--border)',
                     color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500, padding: '12px 24px',
                   }}
                 >

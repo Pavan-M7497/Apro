@@ -16,7 +16,7 @@ interface Target {
 }
 
 const field =
-  'w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors';
+  'w-full bg-surface-1 border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors';
 const card = { background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px' };
 
 export default function ClaimProfile() {
@@ -137,7 +137,7 @@ export default function ClaimProfile() {
             {target.full_name}'s profile belongs to an Aevon account. If you believe this is a mistake, get in touch.
           </p>
           <Link to={`/profile/${target.username}`} className="inline-block rounded-pill"
-            style={{ background: 'var(--text)', color: '#fff', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}>
+            style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}>
             View profile
           </Link>
         </div>
@@ -187,7 +187,7 @@ export default function ClaimProfile() {
                 Create account
               </Link>
               <Link to="/login" className="rounded-pill"
-                style={{ background: '#fff', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}>
+                style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}>
                 Log in
               </Link>
             </div>

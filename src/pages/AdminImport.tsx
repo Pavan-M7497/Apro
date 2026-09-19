@@ -369,7 +369,7 @@ export default function AdminImport() {
               <div>
                 <label className={labelCls}>State</label>
                 <StateSelect value={meet.state_code} onChange={(v) => setMeet({ ...meet, state_code: v })}
-                  placeholder="Select state" className="bg-white border border-line px-4 py-2.5 text-sm rounded-pill" />
+                  placeholder="Select state" className="bg-surface-1 border border-line px-4 py-2.5 text-sm rounded-pill" />
               </div>
               <div>
                 <label className={labelCls}>City</label>
@@ -395,7 +395,7 @@ export default function AdminImport() {
               onClick={() => setStep(2)}
               disabled={!stepValid1}
               className="inline-flex items-center gap-2 rounded-pill disabled:opacity-50"
-              style={{ background: 'var(--text)', color: '#fff', fontSize: '14px', fontWeight: 600, padding: '12px 24px', marginTop: '20px' }}
+              style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '14px', fontWeight: 600, padding: '12px 24px', marginTop: '20px' }}
             >
               Next <ArrowRight className="w-4 h-4" />
             </button>
@@ -428,7 +428,7 @@ export default function AdminImport() {
 
             <button onClick={() => setStep(1)}
               className="inline-flex items-center gap-2 rounded-pill"
-              style={{ background: '#fff', border: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500, padding: '12px 24px', marginTop: '20px' }}>
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500, padding: '12px 24px', marginTop: '20px' }}>
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
           </div>
@@ -462,7 +462,7 @@ export default function AdminImport() {
               </div>
             )}
 
-            <div style={{ overflowX: 'auto', background: '#fff', border: '1px solid var(--border)', borderRadius: '16px' }}>
+            <div style={{ overflowX: 'auto', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px' }}>
               <table className="w-full" style={{ fontSize: '13px', minWidth: '860px' }}>
                 <thead>
                   <tr style={{ background: 'var(--bg-soft)' }}>
@@ -506,7 +506,7 @@ export default function AdminImport() {
                         <select
                           value={r.action}
                           onChange={(e) => setRowAction(r.key, e.target.value as RowAction)}
-                          className="bg-white border border-line rounded-pill px-3 py-1.5"
+                          className="bg-surface-1 border border-line rounded-pill px-3 py-1.5"
                           style={{ fontSize: '12px' }}
                         >
                           <option value="pending">Undecided</option>
@@ -526,7 +526,7 @@ export default function AdminImport() {
             <div className="flex flex-wrap items-center" style={{ gap: '12px', marginTop: '20px' }}>
               <button onClick={() => setStep(2)}
                 className="inline-flex items-center gap-2 rounded-pill"
-                style={{ background: '#fff', border: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500, padding: '12px 24px' }}>
+                style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500, padding: '12px 24px' }}>
                 <ArrowLeft className="w-4 h-4" /> Back
               </button>
               <button onClick={commit} disabled={working}
@@ -551,7 +551,7 @@ export default function AdminImport() {
             <button
               onClick={() => { setStep(1); setRows([]); setCommitted(null); setMeet({ ...meet, name: '' }); }}
               className="inline-flex items-center gap-2 rounded-pill"
-              style={{ background: 'var(--text)', color: '#fff', fontSize: '14px', fontWeight: 600, padding: '12px 24px', marginTop: '20px' }}
+              style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '14px', fontWeight: 600, padding: '12px 24px', marginTop: '20px' }}
             >
               Import another meet
             </button>

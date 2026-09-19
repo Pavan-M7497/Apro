@@ -605,7 +605,7 @@ export default function ProfileEdit() {
         <h1 className="text-2xl font-bold mb-6">Edit Profile</h1>
 
         {notice && (
-          <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 bg-accent text-primary px-5 py-2.5 text-sm font-bold animate-slide-up whitespace-nowrap" style={{ borderRadius: '12px' }}>
+          <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 bg-accent text-on-accent px-5 py-2.5 text-sm font-bold animate-slide-up whitespace-nowrap" style={{ borderRadius: '12px' }}>
             {notice}
           </div>
         )}
@@ -721,7 +721,7 @@ export default function ProfileEdit() {
                 <StateSelect
                   value={stateCode}
                   onChange={setStateCode}
-                  className="bg-white border border-line rounded-pill pl-10 pr-4 py-2.5 text-sm focus:border-accent-ink transition-colors"
+                  className="bg-surface-1 border border-line rounded-pill pl-10 pr-4 py-2.5 text-sm focus:border-accent-ink transition-colors"
                 />
               </div>
             </div>
@@ -732,7 +732,7 @@ export default function ProfileEdit() {
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="e.g. Bengaluru"
-                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
+                className="w-full bg-surface-1 border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
               />
             </div>
           </div>
@@ -745,7 +745,7 @@ export default function ProfileEdit() {
               onChange={(e) => setPhone(e.target.value)}
               autoComplete="tel"
               placeholder="e.g. +91 98765 43210"
-              className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
+              className="w-full bg-surface-1 border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
             />
             <p className="text-xs text-text-muted mt-1.5">
               Used only for account recovery. Never shown on your profile.
@@ -813,7 +813,7 @@ export default function ProfileEdit() {
                       style={
                         gender === g.id
                           ? { background: 'var(--accent-soft)', color: 'var(--accent-ink)', border: '1px solid var(--accent)', fontWeight: 600, padding: '10px 16px' }
-                          : { background: '#fff', color: 'var(--text-muted)', border: '1px solid var(--border)', fontWeight: 500, padding: '10px 16px' }
+                          : { background: 'var(--surface)', color: 'var(--text-muted)', border: '1px solid var(--border)', fontWeight: 500, padding: '10px 16px' }
                       }
                     >
                       {g.label}
@@ -835,7 +835,7 @@ export default function ProfileEdit() {
                     {divingResults.length > 0 && (
                       <div className="space-y-2 mb-4">
                         {divingResults.map((r) => (
-                          <div key={r.id} className="flex items-center gap-3 p-4" style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px' }}>
+                          <div key={r.id} className="flex items-center gap-3 p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px' }}>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <p className="font-display" style={{ fontWeight: 800, fontSize: '15px' }}>{r.event}</p>
@@ -868,14 +868,14 @@ export default function ProfileEdit() {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                         <select value={newDive.event} onChange={(e) => setNewDive({ ...newDive, event: e.target.value })}
-                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm appearance-none">
+                          className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm appearance-none">
                           <option value="">Select event</option>
                           {eventsFor('diving').map((ev) => <option key={ev} value={ev}>{ev}</option>)}
                         </select>
                         <div>
                           <input type="number" step="0.01" min={0} placeholder="Total score" value={newDive.total_score}
                             onChange={(e) => setNewDive({ ...newDive, total_score: e.target.value })}
-                            className="w-full bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                            className="w-full bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm" />
                         </div>
                       </div>
 
@@ -884,32 +884,32 @@ export default function ProfileEdit() {
                           <label className="block text-text-muted mb-1" style={{ fontSize: '10px' }}>Dive count (optional)</label>
                           <input type="number" min={0} placeholder="e.g. 6" value={newDive.dive_count}
                             onChange={(e) => setNewDive({ ...newDive, dive_count: e.target.value })}
-                            className="w-full bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                            className="w-full bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm" />
                         </div>
                         <div>
                           <label className="block text-text-muted mb-1" style={{ fontSize: '10px' }}>Average DD (optional)</label>
                           <input type="number" step="0.01" min={0} placeholder="e.g. 2.60" value={newDive.average_dd}
                             onChange={(e) => setNewDive({ ...newDive, average_dd: e.target.value })}
-                            className="w-full bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                            className="w-full bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm" />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <input type="text" placeholder="Meet name" value={newDive.meet_name}
                           onChange={(e) => setNewDive({ ...newDive, meet_name: e.target.value })}
-                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                          className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm" />
                         <select value={newDive.meet_level} onChange={(e) => setNewDive({ ...newDive, meet_level: e.target.value })}
-                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm appearance-none">
+                          className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm appearance-none">
                           {MEET_LEVELS.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
                         </select>
                         <input type="date" value={newDive.meet_date}
                           onChange={(e) => setNewDive({ ...newDive, meet_date: e.target.value })}
-                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                          className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm" />
                       </div>
 
                       <button onClick={handleAddDiving} disabled={savingRow}
                         className="mt-4 inline-flex items-center gap-1.5 rounded-pill disabled:opacity-50"
-                        style={{ background: 'var(--text)', color: '#fff', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}>
+                        style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}>
                         <Plus className="w-4 h-4" /> {savingRow ? 'Adding…' : 'Add result'}
                       </button>
                     </div>
@@ -919,7 +919,7 @@ export default function ProfileEdit() {
                     {wpStats.length > 0 && (
                       <div className="space-y-2 mb-4">
                         {wpStats.map((w) => (
-                          <div key={w.id} className="flex items-center gap-3 p-4" style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px' }}>
+                          <div key={w.id} className="flex items-center gap-3 p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px' }}>
                             <div className="flex-1 min-w-0">
                               <p className="font-display" style={{ fontWeight: 800, fontSize: '15px' }}>{w.season}</p>
                               <p className="text-xs text-text-muted">{w.competition || 'Season total'}</p>
@@ -945,10 +945,10 @@ export default function ProfileEdit() {
                       <div className="grid grid-cols-2 gap-3 mb-3">
                         <input type="text" placeholder="Season (e.g. 2025-26)" value={newWp.season}
                           onChange={(e) => setNewWp({ ...newWp, season: e.target.value })}
-                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                          className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm" />
                         <input type="text" placeholder="Competition" value={newWp.competition}
                           onChange={(e) => setNewWp({ ...newWp, competition: e.target.value })}
-                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                          className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm" />
                       </div>
                       <div className="grid grid-cols-5 gap-2">
                         {([['matches', 'MP'], ['goals', 'G'], ['assists', 'A'], ['saves', 'S'], ['exclusions_drawn', 'EX']] as const).map(([key, label]) => (
@@ -956,13 +956,13 @@ export default function ProfileEdit() {
                             <label className="block text-text-muted mb-1" style={{ fontSize: '10px' }}>{label}</label>
                             <input type="number" min={0} value={(newWp as any)[key]}
                               onChange={(e) => setNewWp({ ...newWp, [key]: e.target.value })}
-                              className="w-full bg-white border border-line rounded-pill px-3 py-2 text-sm" />
+                              className="w-full bg-surface-1 border border-line rounded-pill px-3 py-2 text-sm" />
                           </div>
                         ))}
                       </div>
                       <button onClick={handleAddWpStat} disabled={savingRow}
                         className="mt-4 inline-flex items-center gap-1.5 rounded-pill disabled:opacity-50"
-                        style={{ background: 'var(--text)', color: '#fff', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}>
+                        style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}>
                         <Plus className="w-4 h-4" /> {savingRow ? 'Adding…' : 'Add season'}
                       </button>
                     </div>
@@ -972,7 +972,7 @@ export default function ProfileEdit() {
                     {perfRecords.length > 0 && (
                       <div className="space-y-2 mb-4">
                         {perfRecords.map((r) => (
-                          <div key={r.id} className="flex items-center gap-3 p-4" style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px' }}>
+                          <div key={r.id} className="flex items-center gap-3 p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px' }}>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <p className="font-display" style={{ fontWeight: 800, fontSize: '15px' }}>{r.event}</p>
@@ -1003,13 +1003,13 @@ export default function ProfileEdit() {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                         <select value={newPerf.event} onChange={(e) => setNewPerf({ ...newPerf, event: e.target.value })}
-                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm appearance-none">
+                          className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm appearance-none">
                           <option value="">Select event</option>
                           {eventsFor(sport).map((ev) => <option key={ev} value={ev}>{ev}</option>)}
                         </select>
                         {isTimed && (
                           <select value={newPerf.course} onChange={(e) => setNewPerf({ ...newPerf, course: e.target.value })}
-                            className="bg-white border border-line rounded-pill px-4 py-2 text-sm appearance-none">
+                            className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm appearance-none">
                             <option value="LCM">Long course (50m)</option>
                             <option value="SCM">Short course (25m)</option>
                           </select>
@@ -1022,15 +1022,15 @@ export default function ProfileEdit() {
                           <div className="flex items-center gap-2">
                             <input type="number" min={0} placeholder="min" value={newPerf.min}
                               onChange={(e) => setNewPerf({ ...newPerf, min: e.target.value })}
-                              className="w-20 bg-white border border-line rounded-pill px-3 py-2 text-sm text-center" />
+                              className="w-20 bg-surface-1 border border-line rounded-pill px-3 py-2 text-sm text-center" />
                             <span className="text-text-muted">:</span>
                             <input type="number" min={0} max={59} placeholder="sec" value={newPerf.sec}
                               onChange={(e) => setNewPerf({ ...newPerf, sec: e.target.value })}
-                              className="w-20 bg-white border border-line rounded-pill px-3 py-2 text-sm text-center" />
+                              className="w-20 bg-surface-1 border border-line rounded-pill px-3 py-2 text-sm text-center" />
                             <span className="text-text-muted">.</span>
                             <input type="number" min={0} max={99} placeholder="hs" value={newPerf.hun}
                               onChange={(e) => setNewPerf({ ...newPerf, hun: e.target.value })}
-                              className="w-20 bg-white border border-line rounded-pill px-3 py-2 text-sm text-center" />
+                              className="w-20 bg-surface-1 border border-line rounded-pill px-3 py-2 text-sm text-center" />
                           </div>
                         </div>
                       ) : (
@@ -1038,26 +1038,26 @@ export default function ProfileEdit() {
                           <label className="block text-text-muted mb-1" style={{ fontSize: '10px' }}>Points</label>
                           <input type="number" step="0.01" min={0} placeholder="e.g. 284.65" value={newPerf.points}
                             onChange={(e) => setNewPerf({ ...newPerf, points: e.target.value })}
-                            className="w-40 bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                            className="w-40 bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm" />
                         </div>
                       )}
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <input type="text" placeholder="Meet name" value={newPerf.meet_name}
                           onChange={(e) => setNewPerf({ ...newPerf, meet_name: e.target.value })}
-                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                          className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm" />
                         <select value={newPerf.meet_level} onChange={(e) => setNewPerf({ ...newPerf, meet_level: e.target.value })}
-                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm appearance-none">
+                          className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm appearance-none">
                           {MEET_LEVELS.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
                         </select>
                         <input type="date" value={newPerf.meet_date}
                           onChange={(e) => setNewPerf({ ...newPerf, meet_date: e.target.value })}
-                          className="bg-white border border-line rounded-pill px-4 py-2 text-sm" />
+                          className="bg-surface-1 border border-line rounded-pill px-4 py-2 text-sm" />
                       </div>
 
                       <button onClick={handleAddPerformance} disabled={savingRow}
                         className="mt-4 inline-flex items-center gap-1.5 rounded-pill disabled:opacity-50"
-                        style={{ background: 'var(--text)', color: '#fff', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}>
+                        style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}>
                         <Plus className="w-4 h-4" /> {savingRow ? 'Adding…' : 'Add result'}
                       </button>
                     </div>
@@ -1166,14 +1166,14 @@ export default function ProfileEdit() {
                 value={sfiId}
                 onChange={(e) => setSfiId(e.target.value)}
                 placeholder="e.g. SFI-2024-01234"
-                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors mb-3"
+                className="w-full bg-surface-1 border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors mb-3"
               />
               <input
                 type="text"
                 value={verifNote}
                 onChange={(e) => setVerifNote(e.target.value)}
                 placeholder="Anything we should know (optional)"
-                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors mb-3"
+                className="w-full bg-surface-1 border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors mb-3"
               />
               <p style={{ fontSize: '12px', color: 'var(--text-soft)', marginBottom: '12px' }}>
                 Self-declared. It marks your ID as on file — it does not verify your results.
@@ -1182,7 +1182,7 @@ export default function ProfileEdit() {
                 onClick={submitIdVerification}
                 disabled={submittingVerif}
                 className="inline-flex items-center gap-2 rounded-pill disabled:opacity-60"
-                style={{ background: 'var(--text)', color: '#fff', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}
+                style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}
               >
                 {submittingVerif ? 'Submitting…' : 'Submit ID'}
               </button>
@@ -1208,13 +1208,13 @@ export default function ProfileEdit() {
                 value={verifNote}
                 onChange={(e) => setVerifNote(e.target.value)}
                 placeholder="Club or association name (optional)"
-                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors mb-3"
+                className="w-full bg-surface-1 border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors mb-3"
               />
               <button
                 onClick={submitAssociationRequest}
                 disabled={submittingVerif}
                 className="inline-flex items-center gap-2 rounded-pill disabled:opacity-60"
-                style={{ background: 'var(--text)', color: '#fff', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}
+                style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '13px', fontWeight: 600, padding: '10px 20px' }}
               >
                 {submittingVerif ? 'Sending…' : 'Request association review'}
               </button>
@@ -1296,7 +1296,7 @@ export default function ProfileEdit() {
                       width: '18px',
                       height: '18px',
                       borderRadius: '999px',
-                      background: '#fff',
+                      background: 'var(--surface)',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                       transition: 'left 150ms',
                     }}
@@ -1464,7 +1464,7 @@ export default function ProfileEdit() {
                 onChange={(e) => setDeleteConfirm(e.target.value)}
                 autoComplete="off"
                 placeholder="DELETE"
-                className="w-full bg-white border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
+                className="w-full bg-surface-1 border border-line rounded-pill px-4 py-2.5 text-sm text-text focus:border-accent-ink transition-colors"
                 style={{ maxWidth: '260px' }}
               />
               <div className="flex flex-wrap gap-3" style={{ marginTop: '16px' }}>
@@ -1482,7 +1482,7 @@ export default function ProfileEdit() {
                   onClick={deleteAccount}
                   disabled={deleting || deleteConfirm !== 'DELETE'}
                   className="rounded-pill disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ background: 'var(--error)', color: '#fff', fontSize: '13px', fontWeight: 700, padding: '10px 20px' }}
+                  style={{ background: 'var(--error)', color: 'var(--on-error)', fontSize: '13px', fontWeight: 700, padding: '10px 20px' }}
                 >
                   {deleting ? 'Deleting…' : 'Permanently delete'}
                 </button>
@@ -1495,7 +1495,7 @@ export default function ProfileEdit() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full mt-8 bg-accent text-primary py-3 rounded-xl text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full mt-8 bg-accent text-on-accent py-3 rounded-xl text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
           <Save className="w-4 h-4" />
           {saving ? 'Saving...' : 'Save profile'}

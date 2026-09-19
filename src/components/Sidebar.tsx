@@ -3,6 +3,7 @@ import { useAppStore } from '../lib/store';
 import { useTheme } from '../contexts/ThemeContext';
 import { initials } from '../lib/utils';
 import { AevonLockup } from './Logo';
+import ThemeToggle from './ThemeToggle';
 import { FEATURES, type FeatureKey } from '../lib/features';
 import {
   Home, Rss, Search, Activity, Trophy, User,
@@ -143,6 +144,7 @@ export default function Sidebar() {
                 </div>
               </div>
             </Link>
+            <ThemeToggle />
             <button
               onClick={handleSignOut}
               className="flex-shrink-0 transition-colors"
@@ -163,6 +165,9 @@ export default function Sidebar() {
         <Link to="/home">
           <AevonLockup size={22} />
         </Link>
+        <div className="ml-auto">
+          <ThemeToggle />
+        </div>
       </header>
 
       {/* ── Mobile bottom tab bar ── */}

@@ -4,6 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Runs before any CSS or JS so dark-mode users never see a white flash.
+         Must stay in sync with the same rule in src/contexts/ThemeMode.tsx. -->
+    <script>
+      (function () {
+        try {
+          var s = localStorage.getItem('aevon-theme');
+          var d = s ? s === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (d) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
+
     <title>Aevon — The record of your aquatics career</title>
     <meta name="description" content="Profiles for Indian swimmers, water polo players, and divers. Your times, meets, and film in one place — for coaches, selectors, and sponsors." />
 
@@ -11,7 +23,7 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180.png" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#0E0E10" />
+    <meta name="theme-color" content="#FFFFFF" />
 
     <meta property="og:title" content="Aevon — The record of your aquatics career" />
     <meta property="og:description" content="Profiles for Indian swimmers, water polo players, and divers. Your times, meets, and film in one place — for coaches, selectors, and sponsors." />

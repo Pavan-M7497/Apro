@@ -559,7 +559,7 @@ export default function ProfilePage() {
           <Link
             to={`/claim/${profile.username}`}
             className="rounded-pill flex-shrink-0"
-            style={{ background: 'var(--text)', color: '#fff', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}
+            style={{ background: 'var(--text)', color: 'var(--bg)', fontSize: '14px', fontWeight: 600, padding: '12px 24px' }}
           >
             Claim this profile
           </Link>
@@ -691,7 +691,7 @@ export default function ProfilePage() {
                       const best = rows.reduce((acc, r) =>
                         Number(r.total_score) > Number(acc.total_score) ? r : acc, rows[0]);
                       return (
-                        <div key={event} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
+                        <div key={event} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
                           <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
                             <h3 className="font-display" style={{ fontWeight: 800, fontSize: '18px' }}>{event}</h3>
                             <span className="font-display" style={{ fontWeight: 800, fontSize: '30px', lineHeight: 1, color: 'var(--text)' }}>
@@ -746,7 +746,7 @@ export default function ProfilePage() {
             wpStats.length > 0 ? (
               <div className="space-y-3 pb-8">
                 {wpStats.map((w) => (
-                  <div key={w.id} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
+                  <div key={w.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
                     <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
                       <div>
                         <p className="font-display" style={{ fontWeight: 800, fontSize: '18px' }}>{w.season}</p>
@@ -790,7 +790,7 @@ export default function ProfilePage() {
                   .map(([event, rows]) => {
                     const best = rows.find((r) => r.is_personal_best) || rows[0];
                     return (
-                      <div key={event} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
+                      <div key={event} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
                         <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
                           <h3 className="font-display" style={{ fontWeight: 800, fontSize: '18px' }}>{event}</h3>
                           <span className="font-display" style={{ fontWeight: 800, fontSize: '30px', lineHeight: 1, color: 'var(--text)' }}>
